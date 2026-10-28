@@ -1,0 +1,28 @@
+id: G
+title: PPT-only（复用已有教案与脚本）
+phase: M6
+modes: [dynamic]
+depends_on: C
+scenario: ppt_only
+request: |
+  只生成课堂 PPT，不重新写课程。
+template_fixture: ""
+material_fixtures: []
+expect:
+  routing:
+    requested_outputs: [pptx]
+  plan:
+    must_include_steps: [slide_plan, pptx]
+    must_exclude_steps: [scripts, learning_design]
+    min_reuse_rate: 0.3
+    must_reuse_artifact_types: [script, teaching_plan]
+  content:
+    artifact_types: [pptx_deck, slide_plan]
+    must_exist: [pptx_deck]
+    banned_regex: []
+rubric: rubrics/human_eval.yaml
+notes: |
+  §27：reuse learning design / teaching plan / script；run media、slide plan、pptx、QA。
+  min_reuse_rate 取 0.3：可复用产物为 script/teaching_plan/evidence_index 等，
+  而 deck 本身必须重新生成（presentation-planner/composer），因此复用率既不可能是 0 也不会很高；
+  更严格的行为由 `must_reuse_artifact_types` 断言（脚本与教学计划必须来自已有版本）。

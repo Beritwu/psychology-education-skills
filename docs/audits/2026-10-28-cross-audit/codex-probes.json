@@ -1,0 +1,21 @@
+{
+  "ai_single_dimension": {
+    "validation_errors": [],
+    "artifact_id": "human_eval",
+    "produced_by": "teacher:audit-synthetic-ai",
+    "role": "ai",
+    "overall": 5.0,
+    "run_id": ""
+  },
+  "kit_regeneration": {
+    "worksheet_run_id": "old-run",
+    "kit_run_id": "new-run",
+    "course_overwritten_with_new_text": true
+  },
+  "api_run_binding": {
+    "requested_run_id": "requested-run",
+    "recorded_run_id": "",
+    "requested_mode": "dynamic",
+    "recorded_mode": ""
+  }
+}

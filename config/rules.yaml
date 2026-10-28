@@ -1,0 +1,54 @@
+ruleset: v1
+word_counting:
+  scope_include:
+    - narration_body
+    - case_within_narration
+  scope_exclude:
+    - title
+    - visual_instruction
+    - citation_index
+    - standalone_notes
+  method: unicode_non_whitespace_chars
+  include_punctuation: true
+budgets:
+  model_calls: 40
+  research_requests: 20
+  run_seconds: 1800
+# The PCK evidence contract is frozen in code (pebs.preconditions.PCK_REQUIRED_STATUS);
+# it is intentionally not configurable here.
+timeouts:
+  read_seconds: 60
+  model_seconds: 180
+  export_seconds: 120
+retries:
+  read_transient: 2
+  qa_fix_rounds: 2
+limits:
+  max_files_per_import: 20
+  max_file_mib: 25
+  max_total_mib: 100
+  # M6 §59 Security Track：文档级与解压级限制（只读取归档声明的大小，不做完整解压）
+  max_docx_chars: 400000
+  max_pdf_pages: 200
+  max_template_tables: 10
+  max_decompression_ratio: 200
+  max_decompressed_mib: 200
+# M6 §60：进入 LLM 的输入预算。超过时必须在产物里显式记账并 summarize/chunk/reject，
+# 禁止静默截断（模板截断会破坏格式约束，材料截断会丢失证据）。
+input_budget:
+  max_material_chars: 120000
+  max_template_chars: 60000
+  max_sections: 40
+  max_files: 20
+  on_exceed: reject
+concurrency:
+  max_parallel_steps: 2
+planner:
+  mode: static
+runtime:
+  max_parallel_llm: 3
+  max_parallel_research: 2
+  max_parallel_sandbox: 1
+m4:
+  pptx: true
+  pptx_renderer_required_for_formal: true

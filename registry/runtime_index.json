@@ -1,0 +1,1212 @@
+{
+  "format": 1,
+  "skills": {
+    "animation-gate": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "media-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_storyboard",
+        "steps": [
+          "storyboard"
+        ]
+      },
+      "requires": [
+        "media_plan"
+      ],
+      "produces": [
+        "animation_decisions"
+      ],
+      "optional_requires": [
+        "script"
+      ],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 2,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [
+        "G6"
+      ],
+      "preconditions": []
+    },
+    "assessment-designer": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "pedagogy-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_assessments",
+        "steps": [
+          "assessments"
+        ]
+      },
+      "requires": [
+        "lesson_plan"
+      ],
+      "produces": [
+        "assessment"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [],
+      "parallelizable": true,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "backwards-design-unit-planner": {
+      "runtime": "prompt_skill",
+      "status": "APPROVED",
+      "agent": "curriculum-agent",
+      "handler": {
+        "skill_path": "skills/quarantine/backwards-design-unit-planner-d73d4f45038b",
+        "entrypoint": null,
+        "artifact_ids": {
+          "learning_design": "learning_design:{section_id}"
+        },
+        "outputs": []
+      },
+      "requires": [
+        "requirements"
+      ],
+      "produces": [
+        "learning_design"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "case-designer": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "pedagogy-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_cases",
+        "steps": [
+          "cases"
+        ]
+      },
+      "requires": [
+        "teaching_plan"
+      ],
+      "produces": [
+        "case"
+      ],
+      "optional_requires": [
+        "requirements"
+      ],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [],
+      "parallelizable": true,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "checking-for-understanding-protocol-designer": {
+      "runtime": "prompt_skill",
+      "status": "APPROVED",
+      "agent": "pedagogy-agent",
+      "handler": {
+        "skill_path": "skills/quarantine/checking-for-understanding-protocol-designer-219969ec1587",
+        "entrypoint": null,
+        "artifact_ids": {
+          "assessment": "assessment:{section_id}"
+        },
+        "outputs": []
+      },
+      "requires": [
+        "teaching_plan"
+      ],
+      "produces": [
+        "assessment"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "claim-extractor": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "research-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_claims",
+        "steps": [
+          "claims"
+        ]
+      },
+      "requires": [
+        "learning_design"
+      ],
+      "produces": [
+        "claims_set"
+      ],
+      "optional_requires": [
+        "materials"
+      ],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "cognitive-load-analyser": {
+      "runtime": "prompt_skill",
+      "status": "APPROVED",
+      "agent": "media-agent",
+      "handler": {
+        "skill_path": "skills/quarantine/cognitive-load-analyser-c86c2353ae63",
+        "entrypoint": null,
+        "artifact_ids": {
+          "load_review": "load_review:{section_id}"
+        },
+        "outputs": []
+      },
+      "requires": [
+        "teaching_plan"
+      ],
+      "produces": [
+        "load_review"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "criterion-referenced-rubric-generator": {
+      "runtime": "prompt_skill",
+      "status": "APPROVED",
+      "agent": "qa-agent",
+      "handler": {
+        "skill_path": "skills/quarantine/criterion-referenced-rubric-generator-a2232bc6cc89",
+        "entrypoint": null,
+        "artifact_ids": {
+          "assessment": "assessment:{section_id}"
+        },
+        "outputs": []
+      },
+      "requires": [
+        "learning_design"
+      ],
+      "produces": [
+        "assessment"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "diagram-designer": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "media-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_diagrams",
+        "steps": [
+          "diagrams"
+        ]
+      },
+      "requires": [
+        "media_plan"
+      ],
+      "produces": [
+        "diagrams"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [
+        "diagram-design"
+      ],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "discipline-specific-critical-thinking-task-designer": {
+      "runtime": "prompt_skill",
+      "status": "APPROVED",
+      "agent": "pedagogy-agent",
+      "handler": {
+        "skill_path": "skills/quarantine/discipline-specific-critical-thinking-task-designer-4ee650d5bb4f",
+        "entrypoint": null,
+        "artifact_ids": {
+          "lesson_plan": "lesson_plan:{section_id}"
+        },
+        "outputs": []
+      },
+      "requires": [
+        "learning_design"
+      ],
+      "produces": [
+        "lesson_plan"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "docx-exporter": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "qa-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_export",
+        "steps": [
+          "export"
+        ]
+      },
+      "requires": [
+        "preview"
+      ],
+      "produces": [
+        "export_manifest"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [
+        "export"
+      ],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 0,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "dual-coding-designer": {
+      "runtime": "prompt_skill",
+      "status": "APPROVED",
+      "agent": "media-agent",
+      "handler": {
+        "skill_path": "skills/quarantine/dual-coding-designer-836651897620",
+        "entrypoint": null,
+        "artifact_ids": {
+          "media_plan": "media_plan:{section_id}"
+        },
+        "outputs": []
+      },
+      "requires": [
+        "teaching_plan",
+        "learning_design"
+      ],
+      "produces": [
+        "media_plan"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "evidence-indexer": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "research-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_evidence_assets",
+        "steps": [
+          "evidence_assets"
+        ]
+      },
+      "requires": [
+        "diagrams",
+        "evidence_index"
+      ],
+      "produces": [
+        "evidence_assets"
+      ],
+      "optional_requires": [
+        "script"
+      ],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 0,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "evidence-reviewer": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "research-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_evidence",
+        "steps": [
+          "evidence",
+          "evidence_topup"
+        ]
+      },
+      "requires": [
+        "claims_set"
+      ],
+      "produces": [
+        "evidence_index"
+      ],
+      "optional_requires": [
+        "materials"
+      ],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [
+        "evidence-review"
+      ],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 2,
+        "research_calls": 3
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "experiential-learning-cycle-designer": {
+      "runtime": "prompt_skill",
+      "status": "APPROVED",
+      "agent": "pedagogy-agent",
+      "handler": {
+        "skill_path": "skills/quarantine/experiential-learning-cycle-designer-dddfa22dc170",
+        "entrypoint": null,
+        "artifact_ids": {
+          "lesson_plan": "lesson_plan:{section_id}"
+        },
+        "outputs": []
+      },
+      "requires": [
+        "learning_design"
+      ],
+      "produces": [
+        "lesson_plan"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "explicit-instruction-sequence-builder": {
+      "runtime": "prompt_skill",
+      "status": "APPROVED",
+      "agent": "pedagogy-agent",
+      "handler": {
+        "skill_path": "skills/quarantine/explicit-instruction-sequence-builder-a45f007407f3",
+        "entrypoint": null,
+        "artifact_ids": {
+          "teaching_plan": "teaching_plan:{section_id}"
+        },
+        "outputs": []
+      },
+      "requires": [
+        "learning_design"
+      ],
+      "produces": [
+        "teaching_plan"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "gate-runner": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "qa-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_gates",
+        "steps": [
+          "gates"
+        ]
+      },
+      "requires": [
+        "script",
+        "evidence_index"
+      ],
+      "produces": [
+        "gate_result"
+      ],
+      "optional_requires": [
+        "claims_set",
+        "load_review"
+      ],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [
+        "psychology-safety"
+      ],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 2,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "hinge-question-designer": {
+      "runtime": "prompt_skill",
+      "status": "APPROVED",
+      "agent": "pedagogy-agent",
+      "handler": {
+        "skill_path": "skills/quarantine/hinge-question-designer-ef856418e4d0",
+        "entrypoint": null,
+        "artifact_ids": {
+          "assessment": "assessment:{section_id}"
+        },
+        "outputs": []
+      },
+      "requires": [
+        "teaching_plan",
+        "evidence_index"
+      ],
+      "produces": [
+        "assessment"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "learning-designer": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "curriculum-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_learning_design",
+        "steps": [
+          "learning_design"
+        ]
+      },
+      "requires": [
+        "requirements"
+      ],
+      "produces": [
+        "learning_design"
+      ],
+      "optional_requires": [
+        "materials"
+      ],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "learning-progression-builder": {
+      "runtime": "prompt_skill",
+      "status": "APPROVED",
+      "agent": "pedagogy-agent",
+      "handler": {
+        "skill_path": "skills/quarantine/learning-progression-builder-9eabe5d6c88b",
+        "entrypoint": null,
+        "artifact_ids": {
+          "teaching_plan": "teaching_plan:{section_id}"
+        },
+        "outputs": []
+      },
+      "requires": [
+        "learning_design",
+        "evidence_index"
+      ],
+      "produces": [
+        "teaching_plan"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "lesson-designer": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "pedagogy-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_lesson_plans",
+        "steps": [
+          "lesson_plans"
+        ]
+      },
+      "requires": [
+        "teaching_plan"
+      ],
+      "produces": [
+        "lesson_plan"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [],
+      "parallelizable": true,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "load-reviewer": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "media-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_load_review",
+        "steps": [
+          "load_review"
+        ]
+      },
+      "requires": [
+        "diagrams"
+      ],
+      "produces": [
+        "load_review"
+      ],
+      "optional_requires": [
+        "script"
+      ],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "media-router": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "media-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_media_plan",
+        "steps": [
+          "media_plan"
+        ]
+      },
+      "requires": [
+        "teaching_plan"
+      ],
+      "produces": [
+        "media_plan"
+      ],
+      "optional_requires": [
+        "script"
+      ],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "pck-developer": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "pedagogy-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_teaching_plan",
+        "steps": [
+          "teaching_plan"
+        ]
+      },
+      "requires": [
+        "learning_design",
+        "evidence_index"
+      ],
+      "produces": [
+        "teaching_plan"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": [
+        {
+          "kind": "supported_claims",
+          "inputs": [
+            "evidence_index"
+          ],
+          "usage_scope": [
+            "讲解"
+          ]
+        }
+      ]
+    },
+    "presentation-composer": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "qa-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_pptx",
+        "steps": [
+          "pptx"
+        ]
+      },
+      "requires": [
+        "slide_plan"
+      ],
+      "produces": [
+        "pptx_deck"
+      ],
+      "optional_requires": [
+        "diagrams",
+        "storyboard"
+      ],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 0,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "presentation-planner": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "qa-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_slide_plan",
+        "steps": [
+          "slide_plan"
+        ]
+      },
+      "requires": [
+        "evidence_assets"
+      ],
+      "produces": [
+        "slide_plan"
+      ],
+      "optional_requires": [
+        "script"
+      ],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "preview-builder": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "qa-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_preview",
+        "steps": [
+          "preview"
+        ]
+      },
+      "requires": [],
+      "produces": [
+        "preview"
+      ],
+      "optional_requires": [
+        "gate_result",
+        "script"
+      ],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 0,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "requirements-builder": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "curriculum-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_requirements",
+        "steps": [
+          "requirements"
+        ]
+      },
+      "requires": [
+        "template_spec"
+      ],
+      "produces": [
+        "requirements"
+      ],
+      "optional_requires": [
+        "materials"
+      ],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 0,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "script-writer": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "pedagogy-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_scripts",
+        "steps": [
+          "scripts"
+        ]
+      },
+      "requires": [
+        "teaching_plan",
+        "evidence_index",
+        "lesson_plan",
+        "assessment"
+      ],
+      "produces": [
+        "script"
+      ],
+      "optional_requires": [
+        "case",
+        "materials"
+      ],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "storyboard-designer": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "media-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_storyboard",
+        "steps": [
+          "storyboard"
+        ]
+      },
+      "requires": [
+        "animation_decisions"
+      ],
+      "produces": [
+        "storyboard"
+      ],
+      "optional_requires": [
+        "script"
+      ],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "template-parser": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "curriculum-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_parse_inputs",
+        "steps": [
+          "parse_inputs"
+        ]
+      },
+      "requires": [],
+      "produces": [
+        "template_spec",
+        "materials",
+        "skill_invocations"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 0,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "udl-barrier-anticipator": {
+      "runtime": "prompt_skill",
+      "status": "APPROVED",
+      "agent": "curriculum-agent",
+      "handler": {
+        "skill_path": "skills/quarantine/udl-barrier-anticipator-76d54b09b073",
+        "entrypoint": null,
+        "artifact_ids": {
+          "load_review": "load_review:{section_id}"
+        },
+        "outputs": []
+      },
+      "requires": [
+        "learning_design"
+      ],
+      "produces": [
+        "load_review"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "udl-lesson-auditor": {
+      "runtime": "prompt_skill",
+      "status": "APPROVED",
+      "agent": "qa-agent",
+      "handler": {
+        "skill_path": "skills/quarantine/udl-lesson-auditor-1913f9fa4912",
+        "entrypoint": null,
+        "artifact_ids": {
+          "load_review": "load_review:{section_id}"
+        },
+        "outputs": []
+      },
+      "requires": [
+        "learning_design",
+        "teaching_plan"
+      ],
+      "produces": [
+        "load_review"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "udl-options-designer": {
+      "runtime": "prompt_skill",
+      "status": "APPROVED",
+      "agent": "pedagogy-agent",
+      "handler": {
+        "skill_path": "skills/quarantine/udl-options-designer-3b21d426c974",
+        "entrypoint": null,
+        "artifact_ids": {
+          "teaching_plan": "teaching_plan:{section_id}"
+        },
+        "outputs": []
+      },
+      "requires": [
+        "learning_design"
+      ],
+      "produces": [
+        "teaching_plan"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "worked-example-fading-designer": {
+      "runtime": "prompt_skill",
+      "status": "APPROVED",
+      "agent": "pedagogy-agent",
+      "handler": {
+        "skill_path": "skills/quarantine/worked-example-fading-designer-7d83d2950971",
+        "entrypoint": null,
+        "artifact_ids": {
+          "lesson_plan": "lesson_plan:{section_id}"
+        },
+        "outputs": []
+      },
+      "requires": [
+        "learning_design"
+      ],
+      "produces": [
+        "lesson_plan"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": true
+      },
+      "aliases": [],
+      "parallelizable": false,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    },
+    "worksheet-designer": {
+      "runtime": "builtin",
+      "status": "APPROVED",
+      "agent": "pedagogy-agent",
+      "handler": {
+        "builtin_function": "pebs.pipeline:step_worksheets",
+        "steps": [
+          "worksheets"
+        ]
+      },
+      "requires": [
+        "assessment"
+      ],
+      "produces": [
+        "worksheet"
+      ],
+      "optional_requires": [],
+      "invocation": {
+        "auto": true,
+        "explicit": false
+      },
+      "aliases": [],
+      "parallelizable": true,
+      "estimated_cost": {
+        "model_calls": 1,
+        "research_calls": 0
+      },
+      "gates_before": [],
+      "gates_after": [],
+      "preconditions": []
+    }
+  }
+}

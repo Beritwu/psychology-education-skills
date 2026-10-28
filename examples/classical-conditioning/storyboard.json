@@ -1,0 +1,54 @@
+{
+  "title": "Classical conditioning: event order",
+  "rendered": false,
+  "production_runtime_gate": "NOT_REACHED",
+  "design_review": {
+    "reviewer_type": "assistant",
+    "decision": "conditional_browser_demo",
+    "temporal_necessity": "Pause between cue and food for prediction; compare with cue-alone test.",
+    "static_alternative": "overview.svg and transcript",
+    "static_alternative_limitation": "A static chart describes categories; it does not enact the prediction pause. Prefer static for labels alone.",
+    "narration_synchrony": "Each state has an adjacent synchronized caption; no generated audio.",
+    "measurement_warning": "Timings are display settings, not empirical intervals or learning thresholds."
+  },
+  "separate_implementation": "index.html + demo.js + style.css",
+  "default_step_duration_ms": 3000,
+  "autoplay": false,
+  "scenes": [
+    {
+      "step": 1,
+      "phase": "before",
+      "caption_source": "demo.js messages[language].steps[0]"
+    },
+    {
+      "step": 2,
+      "phase": "before",
+      "caption_source": "demo.js messages[language].steps[1]"
+    },
+    {
+      "step": 3,
+      "phase": "pairing",
+      "caption_source": "demo.js messages[language].steps[2]"
+    },
+    {
+      "step": 4,
+      "phase": "pairing",
+      "caption_source": "demo.js messages[language].steps[3]"
+    },
+    {
+      "step": 5,
+      "phase": "pairing",
+      "caption_source": "demo.js messages[language].steps[4]"
+    },
+    {
+      "step": 6,
+      "phase": "after",
+      "caption_source": "demo.js messages[language].steps[5]"
+    },
+    {
+      "step": 7,
+      "phase": "after",
+      "caption_source": "demo.js messages[language].steps[6]"
+    }
+  ]
+}

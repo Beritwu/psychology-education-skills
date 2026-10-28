@@ -1,0 +1,157 @@
+{
+  "audit_type": "ai_cross_audit",
+  "human_evaluation": false,
+  "date": "2026-10-28",
+  "timezone": "Asia/Kuala_Lumpur",
+  "pebs_commit": "a335a7c6cb3fb1cc1af4f60d2f0f31e2b3e63a7a",
+  "reviewers": [
+    "Codex (current chat)",
+    "opencode-go/deepseek-v4.1-flash via pi"
+  ],
+  "external_tools": "disabled",
+  "inputs": [
+    {
+      "path": "pebs/benchmark/evaluation.py",
+      "sha256": "375e56990f5a57a1faf6020fa6ba0202278ccdb84dd9dc006c531249d6928b30",
+      "original_lines": 305,
+      "included_lines": [
+        1,
+        305
+      ],
+      "pii_redactions": 0
+    },
+    {
+      "path": "pebs/benchmark/report.py",
+      "sha256": "ba3997b49d85dc81869562297ec636bf76fbe5a942f9f8122d0ca37e3b36ed43",
+      "original_lines": 814,
+      "included_lines": [
+        211,
+        307
+      ],
+      "pii_redactions": 0
+    },
+    {
+      "path": "benchmarks/rubrics/human_eval.yaml",
+      "sha256": "977aba453269ed09dc7cdcf24ab30bf326ec2fbdb21ff56d35d52cadb783693a",
+      "original_lines": 55,
+      "included_lines": [
+        1,
+        55
+      ],
+      "pii_redactions": 0
+    },
+    {
+      "path": "benchmarks/reports/evaluation_kit/README.md",
+      "sha256": "b6f3d67a8976fdee1d5a4c94392c4af2f445a005f9ff35c87a85d3cbd04dacbf",
+      "original_lines": 43,
+      "included_lines": [
+        1,
+        43
+      ],
+      "pii_redactions": 0
+    },
+    {
+      "path": "tests/test_m6_acceptance.py",
+      "sha256": "53b1631f0d3c580fd42776da54ad95732301655f75f0769144e32ac1b7d348b1",
+      "original_lines": 79,
+      "included_lines": [
+        1,
+        79
+      ],
+      "pii_redactions": 0
+    },
+    {
+      "path": "benchmarks/reports/evaluation_kit/A-dynamic/course.md",
+      "sha256": "0c25a77d029ba61c5bf6b0a77cfe71460ea4a5b99d57a4806e294f2eef0d669c",
+      "original_lines": 706,
+      "included_lines": [
+        1,
+        706
+      ],
+      "pii_redactions": 8
+    },
+    {
+      "path": "benchmarks/reports/evaluation_kit/B-dynamic/course.md",
+      "sha256": "1b7cb47aba31c87f0d4f577201fd82a15bd49a2ca34513ccf8e544c721ac6272",
+      "original_lines": 428,
+      "included_lines": [
+        1,
+        428
+      ],
+      "pii_redactions": 6
+    },
+    {
+      "path": "benchmarks/reports/evaluation_kit/C-dynamic/course.md",
+      "sha256": "bac45efb649dd8305356ae999bac7284fdb93efcbc546df1a7c7fbb6df82e882",
+      "original_lines": 1071,
+      "included_lines": [
+        1,
+        1071
+      ],
+      "pii_redactions": 41
+    }
+  ],
+  "course_runs": {
+    "A": {
+      "case_id": "A",
+      "mode": "dynamic",
+      "run_id": "run_77e357790d91",
+      "run_status": "succeeded",
+      "project_id": "bench-a-dynamic",
+      "pebs_commit": null,
+      "environment": null,
+      "experiment": null
+    },
+    "B": {
+      "case_id": "B",
+      "mode": "dynamic",
+      "run_id": "run_8c3ffb4d0a85",
+      "run_status": "succeeded",
+      "project_id": "bench-b-dynamic-084324",
+      "pebs_commit": null,
+      "environment": null,
+      "experiment": ""
+    },
+    "C": {
+      "case_id": "C",
+      "mode": "dynamic",
+      "run_id": "run_ec5bff2ee0c1",
+      "run_status": "succeeded",
+      "project_id": "bench-c-dynamic-170741",
+      "pebs_commit": null,
+      "environment": null,
+      "experiment": null
+    }
+  },
+  "packet_sha256": "b12fbe67d6fcaa1826e1bcf303bd563923f9d0aa68150f5db222bf5511a9594c",
+  "human_acceptance_5": "PENDING",
+  "source_modifications": false,
+  "audit_status": "COMPLETED_WITH_FINDINGS",
+  "implementation_fixes": "NOT_PERFORMED",
+  "pi_version": "1.4.0",
+  "shell": "Git Bash",
+  "configured_provider": "opencode-go",
+  "configured_model": "deepseek-v4.1-flash",
+  "round1_exit_code": 0,
+  "round2_exit_code": 0,
+  "targeted_tests": {
+    "passed": 21,
+    "seconds": 13.73
+  },
+  "confirmed_issue_ids": [
+    "X1",
+    "X2",
+    "X3",
+    "X4",
+    "X5",
+    "X6"
+  ],
+  "raw_outputs": {
+    "codex-round1.md": "31ecefa04eb011fbb9212aa5aa47a612654ea8741170094af4ffd4858476e98a",
+    "deepseek-round1.md": "3d45a1773c4fc1c64fc1551745e51755587711bf8f7d635db0a30ccf2718dadd",
+    "deepseek-round2.md": "072d79aae00e6ef00ee2e02ea96f3ee115e78bee5a7a4a6cdd4ce4b3577f2d47",
+    "codex-probes.json": "a73d6f72674b21a47f346fa292094e5a0e4cdf93831ddf6213aaeb5b3ea5e4ca"
+  },
+  "normalized_packet_sha256": "59834114fc244369b803402622fc17c314c530389a0b04734ff3f9cb7f3688b7",
+  "packet_hash_note": "packet_sha256 hashes on-disk bytes; normalized_packet_sha256 hashes LF text before Windows newline conversion."
+}

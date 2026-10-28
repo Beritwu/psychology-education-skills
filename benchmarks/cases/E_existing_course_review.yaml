@@ -1,0 +1,30 @@
+id: E
+title: Existing Course Review（已有讲稿审阅）
+phase: M6
+modes: [dynamic, direct_codex]
+request: |
+  只审核我上传的这份已有心理学讲稿，不要重写：
+  检查理论错误、证据问题、诊断越界、标签化、神经科学过度简化，逐条给出位置与修改建议。
+material_fixtures:
+  - fixtures/lecture/existing_psychology_lecture.md
+template_fixture: ""
+seed_artifacts:
+  - artifact_id: script:sec1
+    artifact_type: script
+    section_id: sec1
+    title: 已有讲稿（待审——注意力）
+    from_markdown: fixtures/lecture/existing_psychology_lecture.md
+expect:
+  routing:
+    # 审阅任务的 Router 输出沿用既有产物词汇（script），真正的判据是 Plan 不进入
+    # Authoring 链（下方 must_exclude_steps）以及 script 节点被复用而非重写。
+    requested_outputs: [script]
+  plan:
+    must_include_steps: [claims, evidence, gates]
+    must_exclude_steps: [scripts, pptx, storyboard]
+  content:
+    artifact_types: [gate_result, evidence_index]
+    banned_regex: []
+rubric: rubrics/human_eval.yaml
+notes: |
+  §25：Plan 不应进入完整 Authoring Pipeline（不写脚本、不做 PPT）。

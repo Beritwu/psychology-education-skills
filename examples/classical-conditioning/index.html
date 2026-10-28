@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A four-language, learner-controlled classical conditioning demonstration from PEBS. Draft educational example with transparent skill provenance.">
+  <title>PEBS · Classical conditioning</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="demo.js"></script>
+</head>
+<body>
+  <header>
+    <a class="brand" href="https://github.com/Beritwu/psychology-education-skills">PEBS <span>LEARNING LAB</span></a>
+    <label class="language"><span id="languageLabel">语言</span>
+      <select id="language"><option value="zh-CN">简体中文</option><option value="en">English</option><option value="ja">日本語</option><option value="ko">한국어</option></select>
+    </label>
+  </header>
+  <main>
+    <div class="eyebrow" id="eyebrow"></div>
+    <h1 id="title"></h1>
+    <p class="intro" id="intro"></p>
+    <p class="draft" id="draft"></p>
+    <section class="laboratory" aria-labelledby="labTitle">
+      <div class="lab-heading"><h2 id="labTitle"></h2><span id="position"></span></div>
+      <nav class="phases" aria-label="Learning phases" id="phaseNav">
+        <button data-phase="0" type="button"></button><button data-phase="1" type="button"></button><button data-phase="2" type="button"></button>
+      </nav>
+      <div class="events">
+        <article id="cue" class="event cue"><div class="symbol" aria-hidden="true">◎</div><h3 id="cueTitle"></h3><p class="event-state" id="cueState"></p><span class="tag" id="cueTag"></span></article>
+        <span class="arrow" aria-hidden="true">→</span>
+        <article id="food" class="event food"><div class="symbol" aria-hidden="true">▰</div><h3 id="foodTitle"></h3><p class="event-state" id="foodState"></p><span class="tag" id="foodTag"></span></article>
+        <span class="arrow" aria-hidden="true">→</span>
+        <article id="response" class="event response"><div class="symbol" aria-hidden="true">◒</div><h3 id="responseTitle"></h3><p class="event-state" id="responseState"></p><span class="tag" id="responseTag"></span></article>
+      </div>
+      <p class="arrow-note" id="arrowNote"></p>
+      <div class="caption" aria-live="polite" aria-atomic="true"><strong id="stepTitle"></strong><p id="caption"></p></div>
+      <div class="controls">
+        <button id="previous" type="button"></button><button id="play" class="primary" type="button"></button><button id="next" type="button"></button><button id="reset" type="button"></button>
+        <label><span id="speedLabel"></span><select id="speed"><option value="5000">0.6×</option><option value="3000" selected>1×</option><option value="1500">2×</option></select></label>
+      </div>
+      <p class="motion-note" id="motionNote"></p>
+    </section>
+    <section class="takeaways"><div><h2 id="questionTitle"></h2><p id="question"></p></div><div><h2 id="limitTitle"></h2><p id="limit"></p></div></section>
+    <details id="transcript"><summary id="transcriptTitle"></summary><ol id="transcriptList"></ol></details>
+    <section class="resources"><h2 id="resourceTitle"></h2><p id="resources"></p></section>
+    <noscript><p>This example requires JavaScript for playback. Use <a href="overview.svg">the static diagram</a> or <a href="course.zh-CN.md">the lesson</a>.</p></noscript>
+  </main>
+  <footer><p id="footer"></p><p><a href="https://openstax.org/books/psychology-2e/pages/6-2-classical-conditioning">OpenStax · Psychology 2e §6.2</a> · <a href="https://github.com/Beritwu/psychology-education-skills">GitHub</a></p></footer>
+</body>
+</html>

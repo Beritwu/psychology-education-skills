@@ -1,0 +1,44 @@
+{
+  "base_commit": "a335a7c6cb3fb1cc1af4f60d2f0f31e2b3e63a7a",
+  "state": "uncommitted implementation",
+  "source_sha256": {
+    ".gitignore": "ec1c075aab03e40312be13e9db30cb674a2ad8a736a0bc16d6334e24dd4d4aa0",
+    "pebs/benchmark/evaluation.py": "76a1573ab4dbdbee70a780032ad8482ee1e7b3f83858b080ca58c98debcf8612",
+    "pebs/benchmark/performance.py": "5f05e7c487b987a6846ac6d97e648100ba179ea54ce11e9e640c3df5f4fdfd75",
+    "pebs/benchmark/report.py": "73e26122929b37c3a4fae3fa220147f6708edae11b282c886260ed3d703690a8",
+    "pebs/benchmark/trace.py": "114144d1cefd231459337e1af7b55e3dc7f744974e00da7ecc33e49e947dc67d",
+    "pebs/cli.py": "89bdf11901d51b5488bb7a1f18cbef624c56f36e4e9414b722001964e3e3fd98",
+    "pebs/server.py": "c48f826de506ee5f341668c41ab663779ebbf7bc4a87e064d52847481f5e013d",
+    "pebs/static/index.html": "1cbb2372ac141f1b37b9bfb21f3abe26c487b9e4e53a5290371dc31a8e2e60e6",
+    "pebs/store.py": "7865db178a4c61f85b1d59ec36d835c70aae2aca7b6ffeee7a536154f48302ba",
+    "tests/test_benchmark_evaluation.py": "f4f4e5b903c5b6f3f19a865db6fe49de4daf06d93b439b241d62fd2cc1ba6def",
+    "tests/test_benchmark_scaffold.py": "bb2fb4b6103e0754e13fca0c2528bcd31733b243db9933c16eafc0eb1e45e9af",
+    "tests/test_evaluation_integrity.py": "73dd838f9e2a1f78b448efedf5835e5efcd6b983db8ba84178ce49b709581207",
+    "docs/evaluation-workflow.md": "211159adf60078b9e51ba7e72d011f22617eae02fa2ba48ab7e730fb821908c7"
+  },
+  "validation": {
+    "full_suite_before_followup_fixes": "520 passed, 524.91s",
+    "final_related_suite": "100 passed, 57.01s",
+    "compileall": "passed",
+    "javascript_syntax": "passed",
+    "git_diff_check": "passed"
+  },
+  "teacher_evaluation": "PENDING",
+  "review_model": "opencode-go/deepseek-v4.1-flash",
+  "invalid_review_attempt": "deepseek-followup.md (DSML text only; tools disabled; not acceptance evidence)",
+  "final_review_system_prompt": "You are a read-only code reviewer. No tools exist. Do not emit tool calls or DSML. Analyze only the attached diff. Return a concise Chinese Markdown review of remaining concrete P1/P2 bugs, or no additional confirmed findings with limitations. Never claim execution. Never generate teacher scores.",
+  "audit_sha256": {
+    "deepseek-followup-retry.md": "454aeff0f7ba95c5dd4944bb1a76182e8f993208a5d3e7822b8e37af1c6fb465",
+    "deepseek-followup.md": "2cfaca26f7dcd1d3eb5215ae96ac4fbbf3acfa875036ac6d07cea2d8d639c127",
+    "deepseek-review.md": "f40a694cc73459806476026e97612621e1a0eb35c1f39c92cc3cc56ad3504ee7",
+    "followup.md": "9ef8a05d8d38b8c8bfa1036bed4d2135dfa781f9e937dd3c6a2f2232c6bbece2",
+    "input-manifest.json": "f02bd1332758a1b652203572daf6fa9eb2c6552a004bde360b08144059b2fc85",
+    "packet.md": "4b4d847104a047ac3fed3a5dd85641ab20c90ea9bf8f82316ba87cd8f921a4b3",
+    "prompt.md": "366effc1de8b65cad2c73d714dd24e7ed8bcb6ecc17c281612b3d0982e33ffc8",
+    "README.md": "d8defc94f12fd1880910777a4db28a72fb15d5240ff4e34b8605b9e3f07a6154",
+    "tests-final.log": "a457a6dc099244df35f3f62609a3d7d6a2d528c430f87e9af7720fc9cf480d70",
+    "tests-full.log": "48487ffe5a027838df224d32f2e9c1165933a6403caa5b9080a102bde0bd3202",
+    "tests-regression-final.log": "676042c330c512736f1aef90582e75a5e763666979bd69a9b15781b101c1e06f",
+    "tests-regression-initial.log": "3fcb942f37a2c9ebd116b8c8f08277449140173b1c649889f3665173576ac8aa"
+  }
+}

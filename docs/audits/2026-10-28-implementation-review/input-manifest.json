@@ -1,0 +1,16 @@
+{
+  "baseline": "a335a7c6cb3fb1cc1af4f60d2f0f31e2b3e63a7a",
+  "model": "opencode-go/deepseek-v4.1-flash",
+  "pii_redactions": 0,
+  "source_sha256": {
+    "pebs/benchmark/evaluation.py": "f2d933a02e48211e25b29d005fe540c142815dcd9e3ba726a1f50b1a5b28a7d2",
+    "pebs/benchmark/performance.py": "c910e9e6d7f394705e91307491c9769ebd19e28ebe34cddd4cf28bb55cba6a20",
+    "pebs/benchmark/report.py": "52b6d40ab694c0b4d978129fbe7371e0bcc22ec0020b307dcd67768ed113526b",
+    "pebs/benchmark/trace.py": "8198b409a36b81875f63e1df47ff26df4df3837c4e5cbc861ed331ec6443c3e9",
+    "pebs/server.py": "c48f826de506ee5f341668c41ab663779ebbf7bc4a87e064d52847481f5e013d",
+    "pebs/cli.py": "747e6d7d824ead3686aa05878a3060f7f820a101be472e61edc9dcb920d745bd",
+    "pebs/store.py": "7865db178a4c61f85b1d59ec36d835c70aae2aca7b6ffeee7a536154f48302ba",
+    "tests/test_evaluation_integrity.py": "a7e95565ab8385614767123ae412d8240abe247cbbf7033beab9591c22ace0ae"
+  },
+  "packet_sha256": "4b4d847104a047ac3fed3a5dd85641ab20c90ea9bf8f82316ba87cd8f921a4b3"
+}

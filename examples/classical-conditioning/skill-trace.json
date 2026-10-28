@@ -1,0 +1,31 @@
+{
+  "example": "classical-conditioning",
+  "authoring_mode": "assistant_applied_pinned_skill_instructions",
+  "teacher_review": "PENDING",
+  "formal_export": false,
+  "runtime_attempt": "run_72dd877e2c33",
+  "upstream_repository": "https://github.com/GarethManning/education-agent-skills",
+  "upstream_commit": "6bbbce418f82e11044009c9f3b7373a354de5bd0",
+  "skills": [
+    {
+      "name": "backwards-design-unit-planner",
+      "instruction_sha256": "1436d874e706d5cb7ed01df8755af87ad221322baf853ca4306c964882ef686f",
+      "instruction_path": "skills/upstream/backwards-design-unit-planner/6bbbce418f82e11044009c9f3b7373a354de5bd0/backwards-design-unit-planner/SKILL.md",
+      "runtime_executed_in_recorded_attempt": true
+    },
+    {
+      "name": "hinge-question-designer",
+      "instruction_sha256": "be2ce9e1d8e2ae35ee6a5d7de1353e67de26d2fda781db1a0ccbfc0e94591ba2",
+      "instruction_path": "providers/education-agent-skills/patches/hinge-question-designer/hinge-question-designer-pebs-1/SKILL.md",
+      "runtime_executed_in_recorded_attempt": false
+    },
+    {
+      "name": "dual-coding-designer",
+      "instruction_sha256": "358ccdd979e57715d6a33460de746d09ccc6f96909fceb885c167501c5a8856f",
+      "instruction_path": "skills/upstream/dual-coding-designer/6bbbce418f82e11044009c9f3b7373a354de5bd0/dual-coding-designer/SKILL.md",
+      "runtime_executed_in_recorded_attempt": false
+    }
+  ],
+  "design_evidence": "design-record.md",
+  "source_reference": "https://openstax.org/books/psychology-2e/pages/6-2-classical-conditioning"
+}

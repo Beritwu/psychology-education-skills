@@ -1,0 +1,104 @@
+{
+  "run_id": "run_72dd877e2c33",
+  "created_at": "2026-10-29T00:01:02",
+  "status": "blocked",
+  "budget_model_calls": 18,
+  "budget_research": 6,
+  "budget_seconds": 900,
+  "calls_used": 8,
+  "research_used": 0,
+  "request": "Create one 20-minute introductory university psychology lesson in Chinese on classical conditioning: before conditioning, repeated tone-food pairings, and the tone-alone test. Use /backwards-design-unit-planner /hinge-question-designer /dual-coding-designer. Produce a lesson plan, worksheet, teacher answer key, a 600-900-character narration and an animation storyboard. No PPT. The animation must show the tone before food, with pause and step controls. Use a fictional schematic example, no real participants or experiments. Do not invent learning trial counts, response strengths, success rates or teacher approval. Clearly distinguish NS, US, UR, CS and CR. Keep the output a draft pending review.",
+  "steps": [
+    {
+      "step_id": "backwards-design-unit-planner",
+      "status": "SUCCEEDED",
+      "note": "外部 Skill 执行：backwards-design-unit-planner；上下文仅含 requirements；产出 1 个产物",
+      "error": null
+    },
+    {
+      "step_id": "claim-extractor",
+      "status": "SUCCEEDED",
+      "note": "登记 3 条待核验 Claim",
+      "error": null
+    },
+    {
+      "step_id": "diagram-designer",
+      "status": "BLOCKED",
+      "note": null,
+      "error": "依赖未成功：dual-coding-designer"
+    },
+    {
+      "step_id": "docx-exporter",
+      "status": "BLOCKED",
+      "note": null,
+      "error": "依赖未成功：presentation-composer"
+    },
+    {
+      "step_id": "dual-coding-designer",
+      "status": "BLOCKED",
+      "note": null,
+      "error": "依赖未成功：pck-developer"
+    },
+    {
+      "step_id": "evidence-indexer",
+      "status": "BLOCKED",
+      "note": null,
+      "error": "依赖未成功：diagram-designer"
+    },
+    {
+      "step_id": "evidence-reviewer",
+      "status": "SUCCEEDED",
+      "note": "clm_e15d1b936c：预算不足（需要 10），跳过文献核验并保持未支持；clm_43825644aa：预算不足（需要 10），跳过文献核验并保持未支持；clm_02176229e3：预算不足（需要 10），跳过文献核验并保持未支持；证据契约排除 3 条不可消费 Claim（PENDING）；Claim 与核验记录仍保留在 claims/assessments 中；clm_e15d1b936c：预算不足（需要 10），跳过文献核验并保持未支持；clm_43825644aa：预算不足（需要 10），跳过文献核验并保持未支持；clm_02176229e3：预算不足（需要 10），跳过文献核验并保持未支持；证据契约排除 3 条不可消费 Claim（PENDING）；Claim 与核验记录仍保留在 claims/assessments 中",
+      "error": null
+    },
+    {
+      "step_id": "hinge-question-designer",
+      "status": "BLOCKED",
+      "note": null,
+      "error": "依赖未成功：pck-developer"
+    },
+    {
+      "step_id": "pck-developer",
+      "status": "BLOCKED",
+      "note": null,
+      "error": "执行前置条件未满足：证据索引为空：没有可消费的 SUPPORTED Claim"
+    },
+    {
+      "step_id": "presentation-composer",
+      "status": "BLOCKED",
+      "note": null,
+      "error": "依赖未成功：diagram-designer、presentation-planner"
+    },
+    {
+      "step_id": "presentation-planner",
+      "status": "BLOCKED",
+      "note": null,
+      "error": "依赖未成功：evidence-indexer"
+    },
+    {
+      "step_id": "preview-builder",
+      "status": "SUCCEEDED",
+      "note": "预览已生成",
+      "error": null
+    },
+    {
+      "step_id": "requirements-builder",
+      "status": "SUCCEEDED",
+      "note": "识别 1 节",
+      "error": null
+    },
+    {
+      "step_id": "template-parser",
+      "status": "SUCCEEDED",
+      "note": "显式调用：/backwards-design-unit-planner、/dual-coding-designer、/hinge-question-designer",
+      "error": null
+    },
+    {
+      "step_id": "worksheet-designer",
+      "status": "BLOCKED",
+      "note": null,
+      "error": "依赖未成功：hinge-question-designer"
+    }
+  ],
+  "interpretation": "Actual partial runtime build. Evidence budget prevented verification; dependent steps stayed blocked. The curated demo is a separately authored skill application."
+}
