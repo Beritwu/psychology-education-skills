@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 — Interactive lesson revision
+
+- Original illustrated conditioning scene with continuous sound-wave, food-entry and response motion.
+- Scrubbable timeline, exact pause/resume and phase/event navigation.
+- Four-language diagnostic and transfer questions with answer-specific explanations.
+- Expanded teaching sequence, mobile layout and reduced-motion alternatives.
+
+
 ## 0.1.0 — Public preview
 
 - Evidence-aware course production with static and dynamic planners.

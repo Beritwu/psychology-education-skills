@@ -64,3 +64,27 @@ Skill SHA, local patch and input file hashes are in `skill-trace.json`.
 Gareth Manning, Education Agent Skills, pinned at `6bbbce418f82e11044009c9f3b7373a354de5bd0`,
 CC BY-SA 4.0. Concept reference: OpenStax *Psychology 2e*, §6.2.
 All figures and educational wording here were created for this example.
+
+
+## v0.2.0 — continuous scene and formative interaction
+
+The revised implementation uses one illustrated scene so learners track the same
+sound source, food and organism across phases. A single requestAnimationFrame
+clock drives waves, food entry and response droplets; pause freezes that clock,
+and scrubbing deterministically reconstructs every element from the selected time.
+The 36-second display schedule is not an experimental timing claim. Two pictured
+pairings illustrate repetition without asserting a learning threshold.
+
+Backwards design now maps each lesson goal to an on-page action: observe a phase,
+predict before revealing the response, answer a diagnostic question, and transfer
+the rule to a light cue. Hinge-question options give distinct explanatory feedback;
+a correct choice still asks for a reason. Dual-coding labels remain beside the
+stimulus or response, while the observation panel explains the relation. Every
+phase distinguishes eliciting stimulus and learning history; food is absent in
+the learned tone-alone test. Motion reduction leaves static events and text usable.
+
+Four-language browser checks cover all choices, timeline state, UR/CR distinction,
+food absence after learning, changing wave transforms while playing, frozen
+transforms while paused, mobile overflow and reduced-motion behavior. Desktop and
+mobile screenshots were reviewed before publication. No production engine gate
+or real teacher sign-off is asserted by this demonstration revision.

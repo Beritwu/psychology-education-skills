@@ -12,7 +12,6 @@
     "measurement_warning": "Timings are display settings, not empirical intervals or learning thresholds."
   },
   "separate_implementation": "index.html + demo.js + style.css",
-  "default_step_duration_ms": 3000,
   "autoplay": false,
   "scenes": [
     {
@@ -50,5 +49,24 @@
       "phase": "after",
       "caption_source": "demo.js messages[language].steps[6]"
     }
-  ]
+  ],
+  "example_version": "0.2.0",
+  "display_duration_seconds": 36,
+  "timeline_stops_seconds": [
+    0,
+    6,
+    12,
+    16,
+    20,
+    24,
+    28,
+    36
+  ],
+  "motion_contract": {
+    "clock": "single requestAnimationFrame clock",
+    "pause": "freezes both timeline and transforms",
+    "scrub": "deterministically reconstructs state and pauses",
+    "reduced_motion": "static wave/food/response states; no oscillation or particle travel",
+    "timing": "schematic display timings, not measured experiment intervals"
+  }
 }

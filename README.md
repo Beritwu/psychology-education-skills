@@ -12,7 +12,7 @@
  · [Complete usage guide](docs/usage.md)
  · [中文使用手册](docs/usage.zh-CN.md)
 
-![Three stages of the classical-conditioning demonstration](examples/classical-conditioning/overview.svg)
+![Three stages of the classical-conditioning demonstration](examples/classical-conditioning/preview.png)
 
 ## What is PEBS?
 

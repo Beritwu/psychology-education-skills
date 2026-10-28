@@ -11,7 +11,7 @@
  · [示例教案](examples/classical-conditioning/course.zh-CN.md)
  · [完整中文使用手册](docs/usage.zh-CN.md)
 
-![经典条件作用三个阶段](examples/classical-conditioning/overview.svg)
+![经典条件作用三个阶段](examples/classical-conditioning/preview.png)
 
 ## 它是什么？
 

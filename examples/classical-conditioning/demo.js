@@ -42,45 +42,86 @@ const messages = {
       ["학습 후: 조건 반응","이 설정에서는 소리(CS)가 침 분비(CR)를 일으킵니다. 이름은 유발 자극과 학습 이력에 따라 달라집니다."]
     ]}
 };
-const frames=[
-  {phase:0,cue:true,food:false,response:false,cueTag:"ns",responseTag:"dash"},
-  {phase:0,cue:false,food:true,response:true,cueTag:"ns",responseTag:"ur"},
-  {phase:1,cue:true,food:false,response:false,cueTag:"ns",responseTag:"dash"},
-  {phase:1,cue:false,food:true,response:true,cueTag:"ns",responseTag:"ur"},
-  {phase:1,cue:false,food:false,response:false,cueTag:"ns",responseTag:"dash"},
-  {phase:2,cue:true,food:false,response:false,cueTag:"cs",responseTag:"dash"},
-  {phase:2,cue:true,food:false,response:true,cueTag:"cs",responseTag:"cr"}
-];
+const lesson = {
+ 'zh-CN':{meta:'20 分钟 · 心理学入门',practiceLink:'进入互动练习 ↗',path:['理解目标','观察与预测','解释与迁移'],sceneLabel:'场景观察 · 无声演示',sceneState:'教学示意',observeLabel:'观察笔记',focusLabel:'现在关注',focus:['声音与食物分别会引发什么？先区分刺激和反应。','声音先出现，食物后出现。两段配对只是示意，不代表学习所需次数。','食物不在场。请把反应与当前声音和此前学习历史联系起来。'],timelineLabel:'拖动时间线，逐帧比较',practiceTitle:'看懂了？用解释来证明。',practiceIntro:'先独立判断，再看反馈。答对选项后，还要能说明由什么刺激引发了反应。',correct:'判断正确',again:'再比较一次',questions:[{title:'反复配对后，声音单独出现，引发唾液反应。此时声音与反应分别是什么？',options:['US → UR：无条件刺激与无条件反应','CS → CR：条件刺激与条件反应','NS → UR：中性刺激与无条件反应','CR → CS：条件反应与条件刺激'],feedback:['食物可以在本例中作为 US；这里呈现的是经过配对学习的声音。回到最后一阶段，确认食物是否出现。','声音通过学习成为 CS，它引发的目标唾液反应为 CR。判断不能只看“都是唾液”，还要看诱发刺激和学习历史。','声音起初是 NS，但题干已给出配对学习及声音单独引发反应，不能仍按学习前命名。','声音是环境中的刺激；唾液是个体反应。这里把两者的类别倒置了。']},{title:'把声音换成灯光。灯光起初不引发目标反应，配对学习后灯光单独引发该反应。哪种解释合适？',options:['所有灯光天生就是条件刺激','动画演示两次，所以两次一定学会','灯光由 NS 成为 CS；标签取决于学习历史'],feedback:['CS 不是灯光天生的属性。题目提供了特定的学习历史，才能作出这个判断。','演示中的次数不是实验数据，也没有给出形成学习所需的固定次数。','可以迁移的是命名规则：根据学习历史和当前诱发刺激判断。反应名称不能脱离情境。']}]},
+ en:{meta:'20 min · Introductory psychology',practiceLink:'Try the questions ↗',path:['Set the goal','Observe & predict','Explain & transfer'],sceneLabel:'SCENE STUDY · SILENT',sceneState:'Schematic demonstration',observeLabel:'OBSERVATION NOTES',focusLabel:'FOCUS NOW',focus:['What does the tone elicit, and what does food elicit? Separate stimuli from responses.','The tone precedes food. The two illustrative pairings do not specify how many trials learning requires.','Food is absent. Relate the response to the current tone and the preceding learning history.'],timelineLabel:'Scrub to compare events',practiceTitle:'Understanding goes beyond the right letter.',practiceIntro:'Choose independently, then read the explanation. Name the eliciting stimulus and use the learning history.',correct:'Correct reasoning',again:'Compare again',questions:[{title:'After repeated pairings, the tone alone elicits salivation. What are the tone and its elicited response?',options:['US → UR: unconditioned stimulus and response','CS → CR: conditioned stimulus and response','NS → UR: neutral stimulus and unconditioned response','CR → CS: conditioned response and stimulus'],feedback:['Food is the US in this example. The present stimulus is a tone with a pairing history. Check whether food is present.','The learned tone is the CS; salivation elicited by it is the CR. Similar-looking responses can have different labels depending on the eliciting stimulus and history.','The tone started as neutral, but the scenario now specifies learning and a tone-elicited response. Use the current phase.','The tone is an environmental stimulus; salivation is a response. These categories have been reversed.']},{title:'Replace the tone with a light. Initially it does not elicit the target response; after pairing, the light alone does. Which explanation fits?',options:['All lights are naturally conditioned stimuli','Two animated pairings guarantee learning in two trials','The light changes from NS to CS through its learning history'],feedback:['CS is not an inherent property of light. It describes the stimulus in a particular learning history.','Animation repetitions are not experimental data or a guaranteed learning threshold.','Transfer the labeling rule: use the learning history and the current eliciting stimulus, not just appearances.']} ]},
+ ja:{meta:'20分 · 心理学入門',practiceLink:'理解を確認する ↗',path:['目標を知る','観察と予測','説明と応用'],sceneLabel:'場面の観察 · 無音',sceneState:'教育用の模式図',observeLabel:'観察ノート',focusLabel:'注目する点',focus:['音と食物はそれぞれ何を引き起こしますか。刺激と反応を区別しましょう。','音の後に食物が現れます。二つの場面は例示であり、学習に必要な試行回数ではありません。','食物はありません。今の音と、これまでの学習の履歴から反応を説明しましょう。'],timelineLabel:'時間軸を動かして出来事を比較',practiceTitle:'正解だけでなく、理由を説明しよう。',practiceIntro:'まず自分で判断し、次に解説を確認します。反応を引き起こした刺激と学習の履歴を説明してください。',correct:'正しい判断です',again:'もう一度比較しましょう',questions:[{title:'繰り返し対提示した後、音だけで唾液反応が生じます。この音と反応の名称は？',options:['US → UR：無条件刺激と無条件反応','CS → CR：条件刺激と条件反応','NS → UR：中性刺激と無条件反応','CR → CS：条件反応と条件刺激'],feedback:['この例の US は食物です。今提示されているのは学習後の音です。食物の有無を確認してください。','学習後の音は CS、その音が引き起こす唾液反応は CR です。同じように見える反応も、刺激と履歴によって名称が変わります。','初めは NS でしたが、問題では学習後に音だけで反応が生じています。現在の段階で判断します。','音は外界の刺激、唾液は個体の反応です。二つのカテゴリーが逆です。']},{title:'音を光に置き換えます。最初は対象反応を起こさず、対提示による学習後は光だけで反応が生じます。適切な説明は？',options:['すべての光は生まれつき CS である','二回の動画表示で二試行の学習が保証される','学習の履歴により光が NS から CS になる'],feedback:['CS は光そのものの属性ではありません。特定の学習の履歴を踏まえた名称です。','アニメーションの回数は実験データでも、必要な試行回数でもありません。','応用するのは命名の原則です。現在の誘発刺激と学習の履歴を確認します。']}]},
+ ko:{meta:'20분 · 심리학 입문',practiceLink:'이해 확인하기 ↗',path:['목표 확인','관찰과 예측','설명과 전이'],sceneLabel:'장면 관찰 · 무음',sceneState:'교육용 모식 장면',observeLabel:'관찰 노트',focusLabel:'지금 볼 것',focus:['소리와 먹이는 각각 무엇을 일으키나요? 자극과 반응을 구분하세요.','소리 다음에 먹이가 나타납니다. 두 짝짓기 장면은 예시이며 학습에 필요한 시행 횟수가 아닙니다.','먹이가 없습니다. 현재 소리와 이전 학습 이력을 연결해서 반응을 설명하세요.'],timelineLabel:'시간선을 움직여 사건 비교',practiceTitle:'정답을 고른 뒤, 이유도 설명하세요.',practiceIntro:'먼저 스스로 판단하고 해설을 읽으세요. 반응을 일으킨 자극과 학습 이력을 함께 설명합니다.',correct:'올바른 판단입니다',again:'다시 비교해 보세요',questions:[{title:'반복해서 짝지은 후 소리만으로 침 분비가 일어납니다. 이 소리와 반응은 무엇인가요?',options:['US → UR: 무조건 자극과 무조건 반응','CS → CR: 조건 자극과 조건 반응','NS → UR: 중성 자극과 무조건 반응','CR → CS: 조건 반응과 조건 자극'],feedback:['이 예제의 US는 먹이입니다. 지금 제시되는 것은 학습된 소리입니다. 먹이가 있는지 확인하세요.','학습된 소리는 CS이고 그 소리가 일으키는 침 분비는 CR입니다. 비슷한 반응도 유발 자극과 학습 이력에 따라 이름이 달라집니다.','처음에는 NS였지만 문제는 학습 후 소리만으로 반응이 나타난다고 설명합니다. 현재 단계로 판단하세요.','소리는 환경의 자극이고 침 분비는 개체의 반응입니다. 두 범주가 뒤바뀌었습니다.']},{title:'소리 대신 빛을 사용합니다. 처음에는 대상 반응이 없지만 짝짓기 학습 후 빛만으로 반응이 생깁니다. 적절한 설명은?',options:['모든 빛은 원래부터 CS이다','애니메이션 두 번이면 두 시행으로 반드시 학습한다','학습 이력에 따라 빛이 NS에서 CS가 된다'],feedback:['CS는 빛의 타고난 속성이 아닙니다. 특정 학습 이력에서 부여하는 이름입니다.','애니메이션 횟수는 실험 자료나 필요한 학습 횟수가 아닙니다.','전이할 것은 명명 규칙입니다. 현재 유발 자극과 학습 이력을 확인하세요.']} ]}
+};
 const $=id=>document.getElementById(id);
-let lang="zh-CN",step=0,timer=null;
-const reduced=window.matchMedia("(prefers-reduced-motion: reduce)");
-function stop(){if(timer!==null)window.clearInterval(timer);timer=null;$("play").textContent=messages[lang].play;$("play").setAttribute("aria-pressed","false");}
-function render(){
-  const t=messages[lang],f=frames[step];
-  document.documentElement.lang=lang;document.title="PEBS · "+t.title;
-  for(const id of ["languageLabel","eyebrow","title","intro","draft","labTitle","cueTitle","foodTitle","responseTitle","previous","next","reset","speedLabel","arrowNote","questionTitle","question","limitTitle","limit","transcriptTitle","resourceTitle","footer"])$(id).textContent=t[id];
-  $("position").textContent=`${step+1} / ${frames.length}`;
-  $("play").textContent=timer===null?t.play:t.pause;$("play").setAttribute("aria-pressed",String(timer!==null));
-  $("previous").disabled=step===0;$("next").disabled=step===frames.length-1;
-  $("phaseNav").setAttribute("aria-label",t.labTitle);
-  document.querySelectorAll("[data-phase]").forEach((b,i)=>{b.textContent=t.phases[i];if(i===f.phase)b.setAttribute("aria-current","step");else b.removeAttribute("aria-current");});
-  for(const id of ["cue","food","response"])$(id).classList.toggle("active",f[id]);
-  $("cueState").textContent=f.cue?t.present:t.absent;$("foodState").textContent=f.food?t.present:t.absent;$("responseState").textContent=f.response?t.observed:t.notObserved;
-  $("cueTag").textContent=t[f.cueTag];$("foodTag").textContent=t.us;$("responseTag").textContent=t[f.responseTag];
-  $("stepTitle").textContent=t.steps[step][0];$("caption").textContent=t.steps[step][1];
-  $("motionNote").textContent=reduced.matches?t.reducedNote:t.motionNote;
-  $("transcriptList").replaceChildren(...t.steps.map(s=>{const li=document.createElement("li");const b=document.createElement("strong");b.textContent=s[0]+". ";li.append(b,document.createTextNode(s[1]));return li;}));
-  const files=["course.zh-CN.md","worksheet.zh-CN.md","teacher-key.zh-CN.md","design-record.md","overview.svg"];
-  $("resources").replaceChildren(...t.links.map((label,i)=>{const a=document.createElement("a");a.href=files[i];a.textContent=label;return a;}));
+const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+const stops=[0,6,12,16,20,24,28,36];
+const answers=[null,null], correctAnswers=[1,2];
+let lang='zh-CN',time=0,playing=false,last=null,frameId=null,lastCaption='';
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+const smooth=v=>{v=clamp(v);return v*v*(3-2*v);};
+function state(t){
+ const phase=Math.min(2,Math.floor(t/12));
+ let cue=false,food=false,response=false,foodStart=0,responseStart=0,index=0;
+ if(phase===0){cue=t<4;food=t>=6&&t<11.5;foodStart=6;response=food&&t>=7;responseStart=7;index=t<6?0:1;}
+ if(phase===1){cue=(t>=12&&t<16)||(t>=20&&t<21.5);food=(t>=16&&t<19.5)||(t>=21.5&&t<24);foodStart=t<20?16:21.5;response=food&&t>=foodStart+.7;responseStart=foodStart+.7;index=t<16?2:t<20?3:4;}
+ if(phase===2){cue=true;response=t>=28;responseStart=28;index=response?6:5;}
+ return {phase,cue,food,response,foodStart,responseStart,index};
 }
-function play(){stop();if(step===frames.length-1)step=0;timer=window.setInterval(()=>{step++;if(step>=frames.length-1){step=frames.length-1;stop();}render();},Number($("speed").value));render();}
-$("play").addEventListener("click",()=>{if(timer===null)play();else{stop();render();}});
-$("next").addEventListener("click",()=>{stop();step=Math.min(step+1,frames.length-1);render();});
-$("previous").addEventListener("click",()=>{stop();step=Math.max(step-1,0);render();});
-$("reset").addEventListener("click",()=>{stop();step=0;render();});
-$("language").addEventListener("change",e=>{stop();lang=e.target.value;render();});
-$("speed").addEventListener("change",()=>{if(timer!==null)play();});
-document.querySelectorAll("[data-phase]").forEach(b=>b.addEventListener("click",()=>{stop();step=[0,2,5][Number(b.dataset.phase)];render();}));
-document.addEventListener("visibilitychange",()=>{if(document.hidden){stop();render();}});
-reduced.addEventListener("change",()=>{stop();render();});
-render();
+function updateScene(){
+ const f=state(time),t=messages[lang],l=lesson[lang],moving=!reduced.matches;
+ $('scrubber').value=time;$('scrubber').setAttribute('aria-valuetext',`${Math.floor(time)} / 36; ${t.phases[f.phase]}`);
+ $('clock').textContent=`00:${String(Math.floor(time)).padStart(2,'0')} / 00:36`;
+ $('position').textContent=t.phases[f.phase];$('phaseNumber').textContent=String(f.phase+1).padStart(2,'0');
+ document.querySelectorAll('[data-phase]').forEach((b,i)=>{if(i===f.phase)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});
+ $('focusText').textContent=l.focus[f.phase];
+ const capKey=lang+f.index;if(capKey!==lastCaption){$('stepTitle').textContent=t.steps[f.index][0];$('caption').textContent=t.steps[f.index][1];lastCaption=capKey;}
+ const cueTag=f.phase===2?'cs':'ns',responseTag=f.response?(f.phase===2?'cr':'ur'):'dash';
+ $('cueTag').textContent=t[cueTag];$('foodTag').textContent=f.food?t.us:t.absent;$('responseTag').textContent=t[responseTag];
+ $('cueSvgText').textContent=(f.phase===2?'CS':'NS')+' · '+t.cueTitle;
+ $('foodSvgText').textContent='US · '+t.foodTitle;
+ $('responseSvgText').textContent=f.phase===2?'CS → CR':'US → UR';
+ for(const k of ['cue','food','response'])$(k+'Event').classList.toggle('active',f[k]);
+ $('speakerLight').setAttribute('fill',f.cue?'#8be0e0':'#6f929a');
+ $('speakerCone').setAttribute('r',12+(f.cue&&moving?Math.sin(time*20)*1.4:0));
+ for(let i=0;i<3;i++){const p=(time*1.2-i*.22)%1,progress=(p+1)%1;const wave=$('wave'+i);wave.setAttribute('opacity',f.cue?(moving?(1-progress)*.9:.75):0);wave.setAttribute('transform',moving?`translate(${progress*30} 0)`:'');}
+ const enter=f.food?(moving?smooth((time-f.foodStart)/.7):1):0;
+ $('foodObject').setAttribute('opacity',enter);$('foodObject').setAttribute('transform',`translate(${-210*(1-enter)} 0)`);$('foodLabel').setAttribute('opacity',enter);
+ $('responseLabel').setAttribute('opacity',f.response?1:0);$('droplets').setAttribute('opacity',f.response?1:0);
+ for(let i=0;i<3;i++){const p=((time-f.responseStart)*.7+i*.34)%1;const v=(p+1)%1;$('drop'+i).setAttribute('transform',moving?`translate(0 ${v*45})`:`translate(0 ${i*13})`);$('drop'+i).setAttribute('opacity',moving?1-v*.8:1);}
+ $('dogHead').setAttribute('transform',moving&&f.cue?`rotate(${Math.sin(time*2)*1.1} 350 244)`:'');
+ $('tail').setAttribute('transform',moving&&f.response?`rotate(${Math.sin(time*4)*3} 449 276)`:'');
+ $('previous').disabled=time<=0;$('next').disabled=time>=36;
+ $('scene').setAttribute('aria-label',t.steps[f.index].join('. '));
+}
+function stop(){playing=false;last=null;if(frameId!==null)cancelAnimationFrame(frameId);frameId=null;$('play').textContent='▶ '+messages[lang].play;$('play').setAttribute('aria-pressed','false');}
+function tick(now){if(!playing)return;if(last!==null)time=Math.min(36,time+(now-last)/1000*Number($('speed').value));last=now;updateScene();if(time>=36){stop();return;}frameId=requestAnimationFrame(tick);}
+function play(){if(time>=36)time=0;playing=true;last=null;$('play').textContent='Ⅱ '+messages[lang].pause;$('play').setAttribute('aria-pressed','true');frameId=requestAnimationFrame(tick);}
+function seek(value){stop();time=clamp(Number(value),0,36);updateScene();}
+function renderQuestions(){
+ const l=lesson[lang];$('questions').replaceChildren(...l.questions.map((q,qi)=>{
+  const card=document.createElement('article');card.className='question-card';
+  const number=document.createElement('div');number.className='question-number';number.textContent=`0${qi+1} / ${l.path[qi===0?1:2]}`;
+  const heading=document.createElement('h3');heading.textContent=q.title;
+  const group=document.createElement('div');group.className='options';group.setAttribute('role','group');group.setAttribute('aria-label',q.title);
+  q.options.forEach((label,oi)=>{const button=document.createElement('button');button.type='button';button.dataset.question=qi;button.dataset.option=oi;button.setAttribute('aria-pressed',String(answers[qi]===oi));const prefix=document.createElement('b');prefix.textContent=String.fromCharCode(65+oi);button.append(prefix,document.createTextNode(label));if(answers[qi]===oi)button.className=oi===correctAnswers[qi]?'selected correct':'selected';button.onclick=()=>{answers[qi]=oi;renderQuestions();const selected=document.querySelector(`[data-question="${qi}"][data-option="${oi}"]`);selected.focus({preventScroll:true});};group.append(button);});
+  const feedback=document.createElement('p');feedback.className='feedback';feedback.id='feedback'+qi;feedback.setAttribute('role','status');if(answers[qi]!==null){const strong=document.createElement('strong');strong.textContent=answers[qi]===correctAnswers[qi]?l.correct:l.again;feedback.append(strong,document.createTextNode(q.feedback[answers[qi]]));}
+  card.append(number,heading,group,feedback);return card;
+ }));
+}
+function localize(){const t=messages[lang],l=lesson[lang];document.documentElement.lang=lang;document.title='PEBS · '+t.title;
+ for(const id of ['languageLabel','eyebrow','title','intro','draft','labTitle','cueTitle','foodTitle','responseTitle','previous','next','reset','speedLabel','questionTitle','question','limitTitle','limit','transcriptTitle','resourceTitle','footer'])$(id).textContent=t[id];
+ for(const id of ['meta','practiceLink','sceneLabel','sceneState','observeLabel','focusLabel','timelineLabel','practiceTitle','practiceIntro'])$(id).textContent=l[id];
+ $('sceneTitle').textContent=t.labTitle;$('sceneDesc').textContent=t.intro;$('phaseNav').setAttribute('aria-label',t.labTitle);$('scrubber').setAttribute('aria-label',l.timelineLabel);
+ document.querySelectorAll('[data-phase]').forEach((b,i)=>b.textContent=t.phases[i]);
+ $('learningPath').replaceChildren(...l.path.map((v,i)=>{const e=document.createElement('span');e.dataset.number=i+1;e.textContent=v;return e;}));
+ $('timelineChapters').replaceChildren(...t.phases.map(v=>{const e=document.createElement('span');e.textContent=v;return e;}));
+ $('motionNote').textContent=reduced.matches?t.reducedNote:t.motionNote;
+ $('transcriptList').replaceChildren(...t.steps.map(s=>{const li=document.createElement('li');const b=document.createElement('strong');b.textContent=s[0]+'. ';li.append(b,document.createTextNode(s[1]));return li;}));
+ const files=['course.zh-CN.md','worksheet.zh-CN.md','teacher-key.zh-CN.md','design-record.md','overview.svg'];$('resources').replaceChildren(...t.links.map((v,i)=>{const a=document.createElement('a');a.href=files[i];a.textContent=v;return a;}));
+ stop();renderQuestions();updateScene();}
+$('play').onclick=()=>playing?stop():play();$('reset').onclick=()=>seek(0);
+$('previous').onclick=()=>seek([...stops].reverse().find(v=>v<time-.1)??0);
+$('next').onclick=()=>seek(stops.find(v=>v>time+.1)??36);
+$('scrubber').addEventListener('input',e=>seek(e.target.value));
+$('language').onchange=e=>{lang=e.target.value;localize();};
+$('speed').onchange=()=>{last=null;};
+document.querySelectorAll('[data-phase]').forEach(b=>b.onclick=()=>seek(Number(b.dataset.phase)*12));
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
+reduced.addEventListener('change',()=>{stop();localize();});
+localize();

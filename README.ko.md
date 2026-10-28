@@ -11,7 +11,7 @@
  · [사용 설명서 — 영어](docs/usage.md)
  · [사용 설명서 — 중국어](docs/usage.zh-CN.md)
 
-![고전적 조건형성의 세 단계](examples/classical-conditioning/overview.svg)
+![고전적 조건형성의 세 단계](examples/classical-conditioning/preview.png)
 
 ## PEBS란?
 

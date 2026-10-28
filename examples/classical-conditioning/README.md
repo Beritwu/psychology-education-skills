@@ -49,3 +49,10 @@ do not perform conditioning experiments on learners or animals to reproduce it.
 
 Educational content: CC BY-SA 4.0, PEBS contributors. Animation implementation:
 MIT. Upstream skill attribution is in [third-party notices](../../THIRD_PARTY_NOTICES.md).
+
+## Playback controls
+
+Play/pause controls a single continuous clock. Drag the timeline to compare any
+moment; phase buttons and Previous/Next jump to meaningful instructional stops.
+The two on-page exercises explain each answer choice and transfer the labeling
+rule from a sound to a light. All controls and feedback support four languages.

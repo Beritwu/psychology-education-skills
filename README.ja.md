@@ -11,7 +11,7 @@
  · [利用ガイド（英語）](docs/usage.md)
  · [利用ガイド（中国語）](docs/usage.zh-CN.md)
 
-![古典的条件づけの三段階](examples/classical-conditioning/overview.svg)
+![古典的条件づけの三段階](examples/classical-conditioning/preview.png)
 
 ## PEBS とは
 

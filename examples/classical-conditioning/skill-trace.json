@@ -27,5 +27,7 @@
     }
   ],
   "design_evidence": "design-record.md",
-  "source_reference": "https://openstax.org/books/psychology-2e/pages/6-2-classical-conditioning"
+  "source_reference": "https://openstax.org/books/psychology-2e/pages/6-2-classical-conditioning",
+  "example_revision": "0.2.0",
+  "revision_design": "Continuous illustrated scene, scrubbable timeline, diagnostic feedback and light-cue transfer; same three teaching skill methods."
 }

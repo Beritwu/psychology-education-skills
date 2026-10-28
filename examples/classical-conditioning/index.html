@@ -1,50 +1,16 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A four-language, learner-controlled classical conditioning demonstration from PEBS. Draft educational example with transparent skill provenance.">
-  <title>PEBS · Classical conditioning</title>
-  <link rel="stylesheet" href="style.css">
-  <script defer src="demo.js"></script>
-</head>
-<body>
-  <header>
-    <a class="brand" href="https://github.com/Beritwu/psychology-education-skills">PEBS <span>LEARNING LAB</span></a>
-    <label class="language"><span id="languageLabel">语言</span>
-      <select id="language"><option value="zh-CN">简体中文</option><option value="en">English</option><option value="ja">日本語</option><option value="ko">한국어</option></select>
-    </label>
-  </header>
-  <main>
-    <div class="eyebrow" id="eyebrow"></div>
-    <h1 id="title"></h1>
-    <p class="intro" id="intro"></p>
-    <p class="draft" id="draft"></p>
-    <section class="laboratory" aria-labelledby="labTitle">
-      <div class="lab-heading"><h2 id="labTitle"></h2><span id="position"></span></div>
-      <nav class="phases" aria-label="Learning phases" id="phaseNav">
-        <button data-phase="0" type="button"></button><button data-phase="1" type="button"></button><button data-phase="2" type="button"></button>
-      </nav>
-      <div class="events">
-        <article id="cue" class="event cue"><div class="symbol" aria-hidden="true">◎</div><h3 id="cueTitle"></h3><p class="event-state" id="cueState"></p><span class="tag" id="cueTag"></span></article>
-        <span class="arrow" aria-hidden="true">→</span>
-        <article id="food" class="event food"><div class="symbol" aria-hidden="true">▰</div><h3 id="foodTitle"></h3><p class="event-state" id="foodState"></p><span class="tag" id="foodTag"></span></article>
-        <span class="arrow" aria-hidden="true">→</span>
-        <article id="response" class="event response"><div class="symbol" aria-hidden="true">◒</div><h3 id="responseTitle"></h3><p class="event-state" id="responseState"></p><span class="tag" id="responseTag"></span></article>
-      </div>
-      <p class="arrow-note" id="arrowNote"></p>
-      <div class="caption" aria-live="polite" aria-atomic="true"><strong id="stepTitle"></strong><p id="caption"></p></div>
-      <div class="controls">
-        <button id="previous" type="button"></button><button id="play" class="primary" type="button"></button><button id="next" type="button"></button><button id="reset" type="button"></button>
-        <label><span id="speedLabel"></span><select id="speed"><option value="5000">0.6×</option><option value="3000" selected>1×</option><option value="1500">2×</option></select></label>
-      </div>
-      <p class="motion-note" id="motionNote"></p>
-    </section>
-    <section class="takeaways"><div><h2 id="questionTitle"></h2><p id="question"></p></div><div><h2 id="limitTitle"></h2><p id="limit"></p></div></section>
-    <details id="transcript"><summary id="transcriptTitle"></summary><ol id="transcriptList"></ol></details>
-    <section class="resources"><h2 id="resourceTitle"></h2><p id="resources"></p></section>
-    <noscript><p>This example requires JavaScript for playback. Use <a href="overview.svg">the static diagram</a> or <a href="course.zh-CN.md">the lesson</a>.</p></noscript>
-  </main>
-  <footer><p id="footer"></p><p><a href="https://openstax.org/books/psychology-2e/pages/6-2-classical-conditioning">OpenStax · Psychology 2e §6.2</a> · <a href="https://github.com/Beritwu/psychology-education-skills">GitHub</a></p></footer>
-</body>
-</html>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="A continuous illustrated classical-conditioning lesson with timeline and interactive practice."><title>PEBS · Classical conditioning</title><link rel="stylesheet" href="style.css"><script defer src="demo.js"></script></head><body>
+<header><a class="brand" href="https://github.com/Beritwu/psychology-education-skills">PEBS <span>INTERACTIVE CLASSROOM</span></a><label><span id="languageLabel">语言</span><select id="language"><option value="zh-CN">简体中文</option><option value="en">English</option><option value="ja">日本語</option><option value="ko">한국어</option></select></label></header>
+<main><section class="hero"><div><p class="eyebrow" id="eyebrow"></p><h1 id="title"></h1><p class="intro" id="intro"></p></div><div class="lesson-meta"><span>01</span><p id="meta"></p><a href="#practice" id="practiceLink"></a></div></section><div class="learning-path" id="learningPath"></div>
+<section class="laboratory" aria-labelledby="labTitle"><div class="lab-heading"><h2 id="labTitle"></h2><span class="status-pill" id="position"></span></div><nav class="phases" id="phaseNav"><button type="button" data-phase="0"></button><button type="button" data-phase="1"></button><button type="button" data-phase="2"></button></nav>
+<div class="stage-layout"><div class="stage"><div class="scene-top"><span id="sceneLabel"></span><span id="sceneState"></span></div>
+<svg id="scene" viewBox="0 0 760 420" role="img" aria-labelledby="sceneTitle sceneDesc"><title id="sceneTitle">Classical conditioning scene</title><desc id="sceneDesc">Sound source, dog, food and salivation.</desc><defs><linearGradient id="wall" x2="0" y2="1"><stop stop-color="#eaf3f4"/><stop offset="1" stop-color="#f8f5eb"/></linearGradient><linearGradient id="coat" x2="0" y2="1"><stop stop-color="#d89555"/><stop offset="1" stop-color="#b76e3b"/></linearGradient><linearGradient id="bowlFill" x2="0" y2="1"><stop stop-color="#e6a652"/><stop offset="1" stop-color="#bc7630"/></linearGradient><pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#90a9ab" stroke-opacity=".12"/></pattern></defs><rect width="760" height="420" fill="url(#wall)"/><rect width="760" height="320" fill="url(#grid)"/><path d="M0 319H760V420H0Z" fill="#e8e6d9"/><path d="M0 319H760" stroke="#c6d0c8" stroke-width="2"/><ellipse cx="440" cy="335" rx="142" ry="17" fill="#213f4120"/><ellipse cx="138" cy="319" rx="62" ry="9" fill="#213f4116"/>
+<g id="soundSource"><rect x="96" y="181" width="78" height="127" rx="18" fill="#203d4d"/><rect x="103" y="188" width="64" height="112" rx="13" fill="#315768"/><circle cx="135" cy="246" r="24" fill="#173443" stroke="#66858e" stroke-width="3"/><circle id="speakerCone" cx="135" cy="246" r="12" fill="#547b88"/><circle id="speakerLight" cx="135" cy="207" r="4" fill="#8cacae"/><rect x="92" y="306" width="86" height="8" rx="4" fill="#203d4d"/></g>
+<g id="waves" fill="none" stroke="#278dba" stroke-width="3"><path id="wave0" d="M187 217Q214 246 187 275"/><path id="wave1" d="M207 201Q250 246 207 291"/><path id="wave2" d="M229 184Q289 246 229 308"/></g>
+<g id="dog"><path id="tail" d="M446 270Q516 263 523 216Q526 199 538 206Q552 245 505 287" fill="url(#coat)" stroke="#9c5e36" stroke-width="3"/><path d="M373 233C399 213 458 230 477 273L487 319H443L426 287L388 307L354 320H326C319 306 342 300 348 295L353 259Z" fill="url(#coat)"/><path d="M391 263Q421 271 421 310L441 318Q445 327 429 328H390Q378 303 377 281" fill="#f2d0a4"/><path d="M357 265L349 313L367 317Q376 328 361 329H327Q321 322 329 308L335 263" fill="#d49456"/><g id="dogHead"><path d="M323 174Q356 151 385 179L388 221Q385 252 351 263L315 245L301 213Z" fill="#d89555"/><path d="M365 169Q403 162 407 200Q410 229 391 242Q374 227 373 204Z" fill="#825137"/><path d="M321 206Q299 212 288 231Q285 250 316 254L352 242L347 222Z" fill="#f6d8ad"/><ellipse cx="294" cy="232" rx="11" ry="8" fill="#25383a"/><path d="M301 247Q320 254 335 242" fill="none" stroke="#694d39" stroke-width="3" stroke-linecap="round"/><ellipse id="eye" cx="335" cy="198" rx="5" ry="6" fill="#27383c"/><circle cx="333" cy="196" r="1.5" fill="white"/><path d="M326 187Q334 182 342 186" fill="none" stroke="#805437" stroke-width="3" stroke-linecap="round"/></g><path d="M326 254Q355 267 379 244" fill="none" stroke="#255d72" stroke-width="10"/><circle cx="345" cy="265" r="6" fill="#e6b862"/></g>
+<g id="droplets" fill="#279fc0"><path id="drop0" d="M304 260Q296 273 304 277Q312 273 304 260"/><path id="drop1" d="M317 261Q309 274 317 278Q325 274 317 261"/><path id="drop2" d="M309 260Q301 273 309 277Q317 273 309 260"/></g>
+<g id="foodObject"><ellipse cx="242" cy="335" rx="59" ry="9" fill="#213f4120"/><path d="M188 306H296L281 333H202Z" fill="url(#bowlFill)" stroke="#9c632f" stroke-width="2"/><ellipse cx="242" cy="305" rx="55" ry="12" fill="#f5d2a1" stroke="#b97b36" stroke-width="2"/><g fill="#93603d"><circle cx="211" cy="300" r="8"/><circle cx="228" cy="295" r="9"/><circle cx="245" cy="298" r="9"/><circle cx="263" cy="295" r="8"/><circle cx="278" cy="302" r="7"/></g><path d="M205 321H279" stroke="#f5cf8c" stroke-width="3" stroke-linecap="round"/></g>
+<g class="svg-label"><rect x="75" y="110" width="126" height="36" rx="18" fill="#fff" stroke="#a7c8d5"/><text id="cueSvgText" x="138" y="133" text-anchor="middle"/></g><g id="responseLabel" class="svg-label"><path d="M438 157L397 192" stroke="#459c86" stroke-width="2" stroke-dasharray="4 4"/><rect x="430" y="121" width="179" height="42" rx="21" fill="#e8f8ed" stroke="#7fbba2"/><text id="responseSvgText" x="519" y="147" text-anchor="middle"/></g><g id="foodLabel" class="svg-label"><rect x="185" y="365" width="120" height="32" rx="16" fill="#fff2d8" stroke="#d5b476"/><text id="foodSvgText" x="245" y="387" text-anchor="middle"/></g></svg>
+<div class="event-strip"><div id="cueEvent"><span class="event-dot blue"></span><span id="cueTitle"></span><strong id="cueTag"></strong></div><div id="foodEvent"><span class="event-dot amber"></span><span id="foodTitle"></span><strong id="foodTag"></strong></div><div id="responseEvent"><span class="event-dot green"></span><span id="responseTitle"></span><strong id="responseTag"></strong></div></div></div>
+<aside class="observation"><div class="small-label" id="observeLabel"></div><h3 id="stepTitle"></h3><p id="caption" aria-live="polite"></p><div class="focus-box"><span id="focusLabel"></span><p id="focusText"></p></div><div class="phase-fraction"><span id="phaseNumber">01</span><span>/ 03</span></div></aside></div>
+<div class="timeline"><div class="timeline-labels"><span id="timelineLabel"></span><output id="clock">00:00 / 00:36</output></div><input id="scrubber" type="range" min="0" max="36" step="0.01" value="0" aria-label="Animation timeline"><div class="timeline-chapters" id="timelineChapters"></div></div><div class="controls"><button id="play" class="primary" type="button"></button><button id="reset" type="button"></button><button id="previous" type="button"></button><button id="next" type="button"></button><label><span id="speedLabel"></span><select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option></select></label></div><p class="motion-note" id="motionNote"></p></section>
+<section class="practice" id="practice"><div class="section-heading"><span class="eyebrow">02 / ACTIVE LEARNING</span><h2 id="practiceTitle"></h2><p id="practiceIntro"></p></div><div id="questions" class="questions"></div></section><section class="takeaways"><div><h2 id="questionTitle"></h2><p id="question"></p></div><div><h2 id="limitTitle"></h2><p id="limit"></p></div></section><details><summary id="transcriptTitle"></summary><ol id="transcriptList"></ol></details><section class="resources"><h2 id="resourceTitle"></h2><p id="resources"></p></section><noscript><a href="overview.svg">Static diagram</a> · <a href="course.zh-CN.md">Lesson</a></noscript></main><footer><p id="draft"></p><p id="footer"></p><a href="https://openstax.org/books/psychology-2e/pages/6-2-classical-conditioning">OpenStax · Psychology 2e §6.2</a> · <a href="https://github.com/Beritwu/psychology-education-skills">Source & skills</a></footer></body></html>
