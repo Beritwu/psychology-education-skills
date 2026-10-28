@@ -84,8 +84,8 @@ function updateScene(){
  $('foodObject').setAttribute('opacity',enter);$('foodObject').setAttribute('transform',`translate(${-210*(1-enter)} 0)`);$('foodLabel').setAttribute('opacity',enter);
  $('responseLabel').setAttribute('opacity',f.response?1:0);$('droplets').setAttribute('opacity',f.response?1:0);
  for(let i=0;i<3;i++){const p=((time-f.responseStart)*.7+i*.34)%1;const v=(p+1)%1;$('drop'+i).setAttribute('transform',moving?`translate(0 ${v*45})`:`translate(0 ${i*13})`);$('drop'+i).setAttribute('opacity',moving?1-v*.8:1);}
- $('dogHead').setAttribute('transform',moving&&f.cue?`rotate(${Math.sin(time*2)*1.1} 350 244)`:'');
- $('tail').setAttribute('transform',moving&&f.response?`rotate(${Math.sin(time*4)*3} 449 276)`:'');
+ $('dogHead').setAttribute('transform',moving&&f.cue?`rotate(${Math.sin(time*2)*1.1} 365 243)`:'');
+ $('tail').setAttribute('transform',moving&&f.response?`rotate(${Math.sin(time*4)*3} 480 293)`:'');
  $('previous').disabled=time<=0;$('next').disabled=time>=36;
  $('scene').setAttribute('aria-label',t.steps[f.index].join('. '));
 }
