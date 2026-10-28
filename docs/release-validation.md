@@ -7,12 +7,14 @@ snapshot. It records checks performed, not educational-outcome claims.
 |---|---|
 | Compile `pebs` | Passed |
 | Fresh-clone external provider installation | All 14 skills installed from the pinned archive; `verify()` returned true |
+| Fresh Python environment | `requirements.txt` installed successfully; 75 targeted lifecycle/evaluation/registry tests passed |
 | Public documentation links | 135 local links checked, no missing targets |
 | Deterministic Python suite | 526 passed; 7 integration/live checks deselected |
 | Renderer/integration suite | 5 passed; 528 other checks deselected |
 | Browser example | Passed in headless Chrome: four languages, seven states, phase navigation, play/pause/reset, static transcript |
 | Mobile and accessibility behavior | 390px layout without horizontal overflow; reduced-motion transitions disabled; native controls |
 | Browser runtime | No JavaScript errors; no network requests during example interaction |
+| Published example | Homepage, JavaScript, CSS, diagram, course and provenance return HTTP 200 |
 
 The browser was also visually inspected at desktop size. The verification script
 was run from release preparation tooling; it is not an application dependency.

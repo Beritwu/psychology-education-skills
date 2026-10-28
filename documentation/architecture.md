@@ -10,7 +10,7 @@ dependency edges. `registry/skills.json` describes executable skill contracts.
 | Engine / Store | Runs, candidate changes, immutable revisions, acceptance | `pebs/engine.py`, `pebs/store.py` |
 | Planner / runtime | Static steps or contract-derived dynamic DAG | `pebs/runtime/`, `pebs/registry.py` |
 | Agents | Artifact ownership and restricted skill context | `pebs/agents/` |
-| Evidence / providers | Search, model calls and source-grounded assessment | `pebs/providers.py`, `pebs/research.py` |
+| Evidence / providers | Search, model calls and source-grounded assessment | `pebs/providers.py` |
 | Conversation | Edit intent, affected artifacts and preserve locks | `pebs/conversation/` |
 | Media / delivery | SVG, storyboard, PPT, render and export checks | `pebs/pipeline.py`, `pebs/render.py`, `pebs/pptx_foundry.py` |
 | Evaluation | Benchmark records, teacher ratings and version binding | `pebs/benchmark/` |
