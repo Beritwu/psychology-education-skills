@@ -7,6 +7,8 @@
 [![Code CI](https://github.com/Beritwu/psychology-education-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/Beritwu/psychology-education-skills/actions/workflows/ci.yml)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 
+**心理学教学单元：** 查看[操作性条件作用与心理学研究方法](examples/two-psychology-units/current-course-materials/README.md)，包含课堂材料、诊断题与真人教师审核流程。
+
 [**打开交互课程与动画 →**](https://beritwu.github.io/psychology-education-skills/)
  · [示例教案](examples/classical-conditioning/course.zh-CN.md)
  · [完整中文使用手册](docs/usage.zh-CN.md)

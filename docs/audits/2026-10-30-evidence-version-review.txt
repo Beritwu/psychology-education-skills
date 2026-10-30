@@ -1,0 +1,195 @@
+审核边界：以下仅为证据与版本一致性审核，不构成真人教师评审；不把任何审阅结论记为“教师已核验”或“真人已复核”。
+
+## 一、总体判定
+
+1. **当前真正可用的支持只有 `clm_290a13e6a5@v1`（随机分配不保证有限样本各组所有特征完全相同）**。`clm_ff75310edf@v3` 在 `evidence_index@r2` 中是 `QUALIFY_REQUIRED` 且被排除；`clm_3ca0f49a98@v2` 被排除且汇总状态为 `UNSUPPORTED`。
+2. **两课时计划的 `evidence_status` 仍钉在旧版本**：`clm_ff...@v2`、`clm_3ca...@v2`，而当前 claim 已是 `clm_ff...@v3`；且计划把 `clm_3ca@v2` 写成 `QUALIFY_REQUIRED`，与索引的 `UNSUPPORTED` 冲突。
+3. **旧索引中的 `SUPPORTED` 不能继承到新修订**：`asm_6c4c4860e6`（`clm_ff@v1` SUPPORTED）、`asm_8f377eaf8f`（`clm_ff@v2` SUPPORTED）仍留在索引中。若按 `claim_id` 而不是 `claim_rev` 连接，会把当前 `clm_ff@v3` 误读为已支持。
+4. **实质影响集中在“相关—因果—因果方向”和“候选混淆变量”**：sec1 的 g4/g5、sec2 的 g1/g4/g5，以及 sec1_f2、sec1_r3、sec2_fq2、sec2_rp3 的部分评分点。操作性定义、随机分配有限样本不平衡、随机抽样与随机分配区分等部分可保留或经补证后保留。
+5. **`clm_ff@v3` 和 `clm_3ca@v2` 的 claim text 本身带有“待核验/何种关系”字样，属于待定元陈述，不是可直接判定的命题**；不能作为教学事实，也不能用旧版 `SUPPORTED` 评估继承。
+
+---
+
+## 二、逐条问题
+
+### F1 版本钉住失败：计划仍引用 v2，当前 claim 已到 v3
+
+- **产物**：`teaching_plan:sec1@r1`、`teaching_plan:sec2@r1` 的 `evidence_status`；`evidence_index@r2`。
+- **原句**：
+  - `"clm_ff75310edf@v2": "QUALIFY_REQUIRED"`
+  - `"clm_3ca0f49a98@v2": "QUALIFY_REQUIRED"`
+  - `claims@r3` 中 `clm_ff75310edf` 为 `version: 3`
+  - `excluded_claims` 中 `clm_ff@v3` 为 `QUALIFY_REQUIRED`，`clm_3ca@v2` 为 `UNSUPPORTED`
+- **风险**：v2 的评估不能授权 v3 的句子；计划表面上有“待核验”标记，实际却给 g4/g5 和部分题目提供了可评分的依据。`clm_3ca` 的计划状态还与索引的 `UNSUPPORTED` 直接冲突。
+- **来源**：不适用，属于元数据/版本问题。
+- **修正建议**：每个 claim 只保留一个当前 `effective_status`；计划中的 `evidence_status` 改为当前 `claim_rev`，并写 `PENDING/EXCLUDED/UNSUPPORTED`；旧评估加 `supersedes` 或归档，禁止按 `claim_id` 直接连接。
+
+### F2 “仅凭与暴露和结果均相关不能确认混淆变量”被当作规则教学和评分
+
+- **产物**：`teaching_plan:sec2`、`script:sec2@r12` u8、`assessment:sec2@r22` 的 `sec2_fq2`。
+- **原句**：
+  - 讲稿：`“仅发现C与两者有关联，不能确认它就是混淆变量。”`
+  - 答案：`“现有信息不能确认学习规划习惯是混淆变量、不能确认复习分钟数是中介变量……”`
+  - 计划：`"clm_3ca0f49a98@v2": "QUALIFY_REQUIRED"`
+- **风险**：这是一个一般性的混淆变量判定规则，但索引当前状态是 `UNSUPPORTED`。所给来源没有给出“仅与暴露和结果相关仍不足以确认混淆”的正式判定标准。把它作为评分要求，会让学生因不背诵未核验规则而失分。
+- **可定位来源**：
+  - `src_abdc7dbc3d.v2.txt`，`“Correlation Does Not Indicate Causation”` 第1段：`“While variables are sometimes correlated because one does cause the other, it could also be that some other factor, a confounding variable, is actually causing the systematic movement in our variables of interest.”`
+  - 同文只给出温度作为混淆变量示例，**没有**给出“相关+相关=仍不能确认”的判定规则。
+  - `src_doi_8ce5f2972d.v1.txt` 摘要：`“Causal inference requires contrasting counterfactual states of the world under pre-specified interventions… relies on explicit assumptions…”`，只能支持“需要假设和识别策略”，不能直接支持该具体规则。
+  - `src_996ef728b1.v2.txt` 只谈中介的时间假设，不定义混淆变量。
+- **修正建议**：改成个案化的证据边界表述：`“题干未报告C与X、Y的关系，也未提供C先于X且影响X/Y的独立依据，因此本课只把C列为候选解释，不写成已确认混淆变量。”` 评分只评“是否指出题干缺失信息”，不评“是否复述一般规则”。若坚持教一般规则，必须新增可定位来源和 claim。
+
+### F3 “相关不能确定因果方向”被当成固定事实，但当前 claim 仅为 QUALIFY
+
+- **产物**：`script:sec1@r9` u11/u12/u16/u17；`assessment:sec1@r16` 的 `sec1_f2`、`sec1_r3`；`script:sec2@r12` u2；`assessment:sec2@r22` 的 `sec2_fq2`。
+- **原句**：
+  - `“相关本身不能单独确立因果关系，也不能确定因果方向。”`
+  - `“仅凭该观察性设计不能单独确立……也不能确定因果方向。”`
+  - 评分：`“说明相关不能单独确立因果关系1分；说明不能确定因果方向1分。”`
+- **风险**：`clm_ff@v3` 当前是 `QUALIFY_REQUIRED` 且被排除。来源能支持较窄的“相关不必然蕴含因果”，但不能明确支持“不能确定因果方向”这一普遍句。更严重的是，“因果方向”未定义：可能指关联的正/负方向、因果顺序，或因果效应符号。来源中的“direction”是相关方向，不是因果方向。
+- **可定位来源**：
+  - `src_abdc`，`“Correlational Research”` 第1段：`“Correlation means that there is a relationship between two or more variables… but this relationship does not necessarily imply cause and effect.”`
+  - 同文 `“Summary”`：`“Correlations do not tell us anything about causation—regardless of how strong the relationship is between variables. In fact, the only way to demonstrate causation is by conducting an experiment.”`
+  - 同文 `“Correlational Research”` 第4段：`“The sign—positive or negative—of the correlation coefficient indicates the direction of the relationship.”` 这里明确是**关联方向**，不是因果方向。
+  - `src_doi_8ce5f2972d.v1.txt` 只能支持“因果推断需要反事实对比和显式假设”，不能支持“任何相关都不能确定因果方向”。
+- **修正建议**：拆成两条 claim：
+  1. “相关本身不必然确立因果关系”——可用上述来源重新核验；
+  2. “在本材料中，未提供足以确认因果顺序/因果效应的设计与假设信息”——作为个案证据边界，不作为普遍规则。
+  删除或降级“也不能确定因果方向”这种绝对句；评分改为“是否指出题干缺少哪些设计/时序/操纵信息”，不评“是否复述不能确定方向”。
+
+### F4 评分点直接建立在被排除的 claim 上
+
+- **产物**：`assessment:sec1@r16`、`assessment:sec2@r22`。
+- **原句/评分点**：
+  - `sec1_f2`：`“说明相关不能单独确立因果关系1分；说明不能确定因果方向1分。”`（共12分）
+  - `sec1_r3`：`“说明相关不能单独确立因果关系1分；说明不能确定因果方向1分。”`（共8分）
+  - `sec2_fq2`：`“说明现有相关不能确定因果关系或因果方向，且不能确认角色1分。”`（共11分）
+  - `sec2_rp3`：`“随机抽取对抽样框推断的一般作用1分。”`（共8分）
+- **风险**：这些分数目前没有当前有效的 `SUPPORTED` claim 支撑。学生可能因不写未核验规则而失分；评分者也无法区分“内容事实错误”与“证据边界表述不完整”。
+- **来源**：同上；随机抽样部分只有 `src_abdc` 的随机样本定义和“大样本时更可能具代表性”，没有“抽样框”精确推断句。
+- **修正建议**：先暂停或改写这些评分点。建议影响计数：
+  - `sec1_f2`：至少 2/12 分受直接影响；若只保留较窄因果 claim，仍有 1/12 方向分需暂停。
+  - `sec1_r3`：至少 2/8 分受影响；若把“因果句改写”也算入，则 3/8。
+  - `sec2_fq2`：至少 1/11 分受影响；若评分要求“不能确认角色”必须依据该未核验规则，则 2/11。
+  - `sec2_rp3`：1–2/8 分受影响（随机抽样推断；未参加限制若被当作来源事实）。
+  在补充 claim 前，改用“是否指出题干未报告/未排除的信息”评分。
+
+### F5 计划说“不得作为事实讲授”，讲稿和题目却把它写成固定事实
+
+- **产物**：`teaching_plan:sec1` 的 `pck_notes`/`support_review_flags` 与 `script:sec1@r9`、`assessment:sec1@r16`。
+- **原句**：
+  - 计划：`“涉及相关能否确立因果关系或方向的课程命题，在核验完成前不得作为事实性结论讲授。”`
+  - 计划 support flag：`“g4和g5依赖的……命题尚待核验；核验完成前应限制为待核验内容，不用于事实性评分依据。”`
+  - 讲稿：`“底部固定显示‘相关本身不能单独确立因果关系，也不能确定因果方向……’”`
+  - 题目仍给 g4/g5 的因果边界评分点。
+- **风险**：计划、讲稿、评分三者互相矛盾。计划自己已标记 g4/g5 不可作事实评分，但 assessment 仍按事实规则给分。这是本次证据索引改动后最直接的“实质性影响未传播”问题。
+- **来源**：不适用，属于内部一致性。
+- **修正建议**：二选一：
+  1. 补足可核验 claim 后再恢复评分；
+  2. 保留 g4/g5 作为“证据边界推理”任务，但评分只评“能否区分已报告关联、候选解释、待核验信息”，不评“是否复述因果规则”。
+  讲稿中的固定句必须改为“待核验”或改为来源可支持的窄句。
+
+### F6 讲稿加入“分配概率可相同或不同”，来源未支持且与原文冲突
+
+- **产物**：`script:sec2@r12` u6。
+- **原句**：`“随机分配是使用预先确定的随机机制，将已纳入的参与者分配到研究条件；各组分配概率可按设计相同或不同。”`
+- **风险**：`clm_290a@v1` 只覆盖“有限样本不保证所有特征完全相同”，不覆盖“分配概率可不同”。给定来源明确说随机分配是“equal chance”。这句话会让学生对随机分配定义产生混淆。
+- **可定位来源**：`src_abdc`，`“Selecting and Assigning Experimental Participants”`：`“With random assignment, all participants have an equal chance of being assigned to either group.”`
+- **修正建议**：删除“可按设计相同或不同”，或改为`“本课示例采用等概率分配；不等分配属于另一程序问题，需另据来源核验。”` 若保留，必须新增 claim 和来源。
+
+### F7 随机抽样/抽样框评分与“待核验”标记自相矛盾
+
+- **产物**：`assessment:sec2@r22` 的 `sec2_rp3`；`script:sec2@r12` u14/u15；`teaching_plan:sec2` 的 g2 support flag。
+- **原句**：
+  - 答案：`“从名册随机抽取有助于在符合抽样设计和参与条件时向抽样框推断……”`
+  - 题目/讲稿：`“随机抽样的具体术语及精确推断边界标记为‘待核验’。”`
+  - 评分：`“随机抽取对抽样框推断的一般作用1分。”`
+- **风险**：一方面说待核验，一方面又给“抽样框推断”评分；学生和评分者会不知道这是已核验事实还是待核验内容。来源支持随机样本“大样本时更可能具代表性”，但没有“抽样框”与“未参加者限制”的精确表述。
+- **可定位来源**：`src_abdc`，`“Selecting and Assigning Experimental Participants”`：`“A random sample is a subset of a larger population in which every member of the population has an equal chance of being selected.”`；`“if the sample is large enough we can be reasonably sure that the participating individuals are representative of the larger population.”`
+- **修正建议**：要么新增随机抽样/代表性 claim，要么把该评分点降为“本题只评一般方向，不作为已核验事实”；不要给“抽样框”精确推断分。“未参加限制代表性”应写成个案缺失信息，不写成来源事实。
+
+### F8 `sec2_fq2` 把候选路径推理、因果确认和因果方向混在一个评分点
+
+- **产物**：`assessment:sec2@r22` 的 `sec2_fq2`；`script:sec2@r12` u8/u11/u13。
+- **原句**：
+  - 答案：`“现有信息不能确认学习规划习惯是混淆变量、不能确认复习分钟数是中介变量，也不能确认小组提高了成绩。已报告的相关不能单独确定因果方向……”`
+  - 评分：`“候选共同原因结构共2分……候选中介链共2分……说明现有相关不能确定因果关系或因果方向，且不能确认角色1分。”`
+- **风险**：  
+  1. “候选混淆变量”的图示和“不能确认”可以作为一种课程推理约定，但当前 `clm_3ca@v2` 是 `UNSUPPORTED`，不能把“仅相关不能确认”当作已核验规则评分。  
+  2. 评分把“因果关系”“因果方向”“角色确认”混为一项，诊断信息不足。  
+  3. 案例已给出时间顺序（入学前学习规划习惯→参加小组→参加后复习分钟数→学期末成绩），因此“不能确定因果方向”至少过宽：时间顺序可以排除部分反向解释，但仍不能确认因果效应。  
+  4. 只接受一种候选角色可能过严；学生提出其他合理候选（如未测的学业准备）应可得分。
+- **可定位来源**：
+  - `src_996ef728b1.v2.txt`：`“it is assumed that the independent variable precedes the mediator, and the mediator in turn precedes the dependent variable in time”`；`“manipulating only the independent variable is not sufficient to identify the causal effect of interest…”` 这支持中介的时间假设和“仅操纵 IV 不足以识别”，不定义混淆变量，也不支持“不能确定因果方向”的普遍句。
+  - `src_doi_8ce5f2972d.v1.txt`：DAG 可帮助判断因果效应识别，但摘要没有给出混淆变量的充分/必要条件。
+- **修正建议**：把 rubric 拆成四项：  
+  1. 画出候选路径（课程约定，允许替代路径）；  
+  2. 标出候选角色而非已确认角色；  
+  3. 指出题干缺少的具体信息（基线、时序、操纵、测量关系）；  
+  4. 避免把相关句改写为已确认因果句。  
+  删除“不能确定因果方向”这一普遍评分要求，改为“本案例未提供足以确认因果效应/排除共同原因的信息；时间顺序只排除部分反向解释”。
+
+### F9 操作性定义的“三要素/时间范围”是课程约定，不是来源明示要求
+
+- **产物**：`assessment:sec1@r16` 的 `sec1_hq1`、`sec1_f2`；`script:sec1@r9` u2/u5。
+- **原句**：`“操作性定义……三个要素检查：可观察指标、记录方式或计分规则、时间范围。”`；评分`“均说明时间范围……1分。”`
+- **风险**：来源支持“精确描述、可理解、可重复”，但没有明确要求必须包含“时间范围”。把三要素当作定义性事实评分，可能超出给定来源。
+- **可定位来源**：`src_abdc`，`“Designing an Experiment”`：`“An operational definition is a precise description of our variables… anyone who hears about our study for the first time knows exactly what we mean by learning… repeat our experiment…”`
+- **修正建议**：把“时间范围”标为**本课任务约定**，不是来源定义的必然要素；或新增 claim 说明本课程采用该三要素模板。评分时可保留，但需在题目/量规中写明“按本课模板”。
+
+### F10 部分案例已有时间顺序，却仍写“无法判定因果方向”
+
+- **产物**：`script:sec1@r9` u12；`assessment:sec1@r16` 的 `sec1_f2`；`assessment:sec2@r22` 的 `sec2_fq2`。
+- **原句**：`“case1没有操纵手机使用，现有设计不足以判定因果方向。”`；`“不能确定因果方向。”`
+- **风险**：case1 记录“前一晚手机使用”与“次日课堂专注”，sec2_fq2 记录“参加小组”与“学期末测验”，时间顺序已经给出。说“完全无法判定方向”过宽，也与 sec2 u2 自己说的“方向仍需时序、操纵、分配或测量信息支持”不一致。正确说法应是“不能确认因果效应；时间顺序减少部分反向解释，但仍不足以排除共同原因、测量问题等”。
+- **来源**：所给来源没有支持“有时间顺序仍不能判定方向”的普遍句；`src_996` 只支持中介的时间假设。
+- **修正建议**：统一术语：  
+  - “关联方向”＝正/负相关；  
+  - “因果顺序”＝谁先谁后；  
+  - “因果效应”＝是否存在、方向与大小。  
+  讲稿和评分分别表述，不再用笼统的“因果方向”。
+
+### F11 `claim_refs` 与 `evidence_status` 大量为空，无法追溯评分依据
+
+- **产物**：`assessment:sec1@r16` 全部 items；`assessment:sec2@r22` 的 `sec2_hq1`、`sec2_fq2`、`sec2_rp3`；多数讲稿 units。
+- **原句**：`"claim_refs": []`；`"evidence_status": {}`。
+- **风险**：即使某题实际使用了 `clm_290a` 或实际依赖被排除的 claim，产物层面也看不出来。评分无法审计，排除的 claim 可能继续通过答案和量规传播。
+- **来源**：不适用，属于溯源元数据。
+- **修正建议**：每个含内容性断言或评分的 item/unit 都填 `claim_refs` 和 `evidence_status`；无 claim 时写 `PENDING` 或 `COURSE_CONVENTION`，不能留空。自动检查应 fail closed。
+
+### F12 讲稿引用的课时计划 revision 与审核包不一致
+
+- **产物**：`script:sec1@r9`、`script:sec2@r12` 的 `source_materials`。
+- **原句**：
+  - sec1：`"lesson_plan:sec1@r4"`，但审核包只有 `teaching_plan:sec1@r1`
+  - sec2：`"lesson_plan:sec2@r11"`，但审核包只有 `teaching_plan:sec2@r1`
+  - `worksheet` 未提供，无法核对。
+- **风险**：无法确认讲稿是否对应所给计划；content hash 也无法在审核包内复算。可能存在旧讲稿覆盖新计划的情况。
+- **来源**：不适用，属于版本元数据。
+- **修正建议**：更新 `source_materials` 到实际计划 revision，重新计算并记录 hash；补入 worksheet 或明确标注“本次审核不含 worksheet”。在修复前，讲稿只能标为“版本待核对”。
+
+---
+
+## 三、无法由所给来源判定之处
+
+1. **“相关本身不能确定因果方向”作为普遍规则**：所给来源只说相关不必然蕴含因果、相关系数符号表示关联方向；没有明确说“不能确定因果顺序/因果效应方向”。  
+2. **“第三变量与暴露和结果均相关仍不能确认混淆”的正式判定标准**：`src_abdc` 只给混淆变量示例，`src_doi` 只给 DAG/反事实假设的一般说明，均未给充分必要条件。  
+3. **“随机分配概率可按设计相同或不同”**：来源明确说等概率；该句在给定摘录中无法判定。  
+4. **“随机抽样可向抽样框推断”“未参加限制代表性”的精确表述**：来源支持随机样本在大样本时更可能具代表性，但没有“抽样框”与非响应偏差的明确句。  
+5. **“操作性定义必须包含时间范围”**：来源支持精确描述和可重复，未明确要求时间范围；这是课程约定。  
+6. **“证据不足不等于没有作用”**：可作为逻辑/推理规范，但不是来源中的经验命题；不能当作已核验内容事实。  
+7. **“有时间顺序仍不能判定因果方向”**：所给来源未判定；且部分案例的时间顺序使该句至少过宽。  
+8. **“随机分配不保证所有特征完全相同”的逐字“所有特征”**：索引标为 `SUPPORTED`，来源用“unlikely systematic differences”表述；实质上支持，但逐字表述仍应谨慎。
+
+---
+
+## 四、在不伪造真人评审的情况下恢复版本一致性的步骤
+
+1. **冻结当前产物清单**：记录 `claims@r3`、`evidence_index@r2`、两个 teaching plan、两个 assessment、两个 script 的 revision 与 hash；把 worksheet 补入或标注缺失。
+2. **重写不可判定的 claim**：把 `clm_ff@v3` 拆成“相关不必然确立因果”和“本材料缺少何种因果识别信息”两条可判定命题；把 `clm_3ca@v2` 拆成“来源中的混淆变量定义/示例”和“本课候选混淆变量的推理约定”，后者不得标为 `SUPPORTED` 事实。
+3. **重建 evidence index**：每个当前 `claim_rev` 只保留一个 `effective_status`；旧 v1/v2 assessment 归档并加 `supersedes`；计划、题目、讲稿只能连接当前 `claim_rev + assessment_id`，禁止按 `claim_id` 模糊连接。
+4. **更新 teaching plans**：把 `evidence_status` 改为当前 revision；g4/g5 和 sec2 g1/g4/g5 在未补证前标为 `PENDING`；删除“已可评分”的暗示，保留“证据边界推理”作为非事实性目标。
+5. **重写 assessment rubric**：逐题标注每个评分点的 claim 依据；暂停 F4 列出的因果/方向/随机抽样推断分；把评分改为“是否指出题干缺失信息、是否避免越界”，而不是“是否复述未核验规则”；重新计算总分和复测分。
+6. **修订讲稿**：删除或改写 F3/F6/F10 的固定句；把“相关本身不能……”改为来源可支持的窄句或“待核验”；把“不能确定因果方向”改为“本案例不能确认因果效应；时间顺序只排除部分反向解释”；删除“分配概率可不同”。
+7. **自动一致性检查**：加入 fail-closed 规则：计划引用旧 claim_rev → 失败；评分点无 claim_refs → 失败；讲稿出现被排除 claim 的固定句 → 失败；script 的 source_materials revision/hash 与包内不符 → 失败。
+8. **真实人工复核，或明确标注“仅机器审核”**：在找到真实的学科教师/方法学审阅者并留下签署记录前，所有产物只能标为“机器一致性审核通过，内容待人工复核”；不得写成“教师已审”“真人已核验”。若无法获得真人评审，应在版本说明中保留该限制，而不是伪造评审。

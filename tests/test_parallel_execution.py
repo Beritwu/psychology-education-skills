@@ -222,3 +222,106 @@ def test_resume_re_runs_blocked_steps(engine):
     assert after["run"]["status"] == "succeeded", [
         (step["step_id"], step["status"], step["error"]) for step in after["steps"]
     ]
+
+
+def test_static_budget_resume_cli_completes_pending_downstream_steps(engine, monkeypatch):
+    from pebs import cli
+    start = engine.start_build(REQUEST_2, budgets={'model_calls': 0, 'research_requests': 100, 'run_seconds': 120})
+    deadline = time.time() + 60
+    status = engine.run_status(start['run_id'])
+    while status['run']['status'] == 'running' and time.time() < deadline:
+        time.sleep(0.05)
+        status = engine.run_status(start['run_id'])
+    assert status['run']['status'] == 'blocked'
+    assert any(s['status'] == 'PENDING' for s in status['steps'])
+    monkeypatch.setattr(cli, 'Engine', lambda project: engine)
+    code = cli.main(['resume', '--project', 'testproj', '--run', start['run_id'],
+                     '--max-model-calls', '400', '--max-research-requests', '400', '--run-seconds', '3600'])
+    after = engine.run_status(start['run_id'])
+    assert code == 0
+    assert after['run']['status'] == 'succeeded'
+    assert all(s['status'] not in ('PENDING', 'RUNNING', 'BLOCKED', 'FAILED') for s in after['steps'])
+    assert engine.store.revisions_of('export_manifest')
+    candidates = [engine.store.get_changeset(cs['changeset_id']) for cs in engine.store.list_changesets()
+                  if cs['status'] == 'candidate']
+    candidates = [cs for cs in candidates if cs['run_id'] == start['run_id']]
+    assert len(candidates) == 1
+    assert engine.accept(candidates[0]['changeset_id'])['status'] == 'accepted'
+    for artifact_id in ('requirements', 'claims', 'evidence_index', 'script:sec1', 'export_manifest'):
+        produced = [i['revision_id'] for i in engine.store.run_changeset_items(start['run_id'])
+                    if i['artifact_id'] == artifact_id]
+        assert produced and engine.store.accepted_rev_id(artifact_id) == produced[-1]
+
+
+def test_resume_cli_uses_latest_revision_from_same_run(engine, monkeypatch):
+    from pebs import cli, pipeline
+    start = engine.start_build(REQUEST_2, budgets={'model_calls': 0, 'research_requests': 100, 'run_seconds': 120})
+    deadline = time.time() + 60
+    status = engine.run_status(start['run_id'])
+    while status['run']['status'] == 'running' and time.time() < deadline:
+        time.sleep(0.05)
+        status = engine.run_status(start['run_id'])
+    assert status['run']['status'] == 'blocked'
+    for version in (1, 2):
+        revision = engine.store.add_revision(artifact_id='resume_marker', artifact_type='test_marker',
+            content={'version': version}, produced_by='fixture', run_id=start['run_id'])
+        engine.store.add_changeset_item(start['changeset_id'], revision['revision_id'], 'resume_marker')
+    seen = []
+    original = pipeline.STEPS['learning_design']
+    def checked(ctx):
+        seen.append(ctx.content('resume_marker')['version'])
+        return original(ctx)
+    monkeypatch.setitem(pipeline.STEPS, 'learning_design', checked)
+    monkeypatch.setattr(cli, 'Engine', lambda project: engine)
+    assert cli.main(['resume', '--project', 'testproj', '--run', start['run_id'],
+                     '--max-model-calls', '400', '--max-research-requests', '400', '--run-seconds', '3600']) == 0
+    assert seen == [2]
+
+
+def test_resume_cli_does_not_restart_cancelled_run(engine, monkeypatch):
+    from pebs import cli
+    start = engine.start_build(REQUEST_2, budgets={'model_calls': 0, 'research_requests': 100, 'run_seconds': 120})
+    deadline = time.time() + 60
+    status = engine.run_status(start['run_id'])
+    while status['run']['status'] == 'running' and time.time() < deadline:
+        time.sleep(0.05)
+        status = engine.run_status(start['run_id'])
+    assert status['run']['status'] == 'blocked'
+    engine.cancel(start['run_id'])
+    monkeypatch.setattr(cli, 'Engine', lambda project: engine)
+    assert cli.main(['resume', '--project', 'testproj', '--run', start['run_id'], '--max-model-calls', '400']) != 0
+    assert engine.run_status(start['run_id'])['run']['status'] == 'cancelled'
+
+
+def test_cancel_during_budget_failure_remains_cancelled(engine, monkeypatch):
+    from pebs import pipeline
+    from pebs.store import BudgetExceeded
+    entered, release = threading.Event(), threading.Event()
+    def delayed_failure(ctx):
+        entered.set()
+        assert release.wait(20)
+        raise BudgetExceeded('forced budget exhaustion')
+    monkeypatch.setitem(pipeline.STEPS, 'learning_design', delayed_failure)
+    start = engine.start_build(REQUEST_2)
+    assert entered.wait(20)
+    engine.cancel(start['run_id'])
+    release.set()
+    engine._join_run_threads(30)
+    assert engine.run_status(start['run_id'])['run']['status'] == 'cancelled'
+
+
+def test_resume_cli_rejects_changed_accepted_baseline(engine, monkeypatch):
+    from conftest import run_build
+    from pebs import cli
+    start = engine.start_build(REQUEST_2, budgets={'model_calls': 0, 'research_requests': 100, 'run_seconds': 120})
+    deadline = time.time() + 60
+    status = engine.run_status(start['run_id'])
+    while status['run']['status'] == 'running' and time.time() < deadline:
+        time.sleep(0.05)
+        status = engine.run_status(start['run_id'])
+    assert status['run']['status'] == 'blocked'
+    _, newer = run_build(engine, REQUEST_2)
+    assert engine.accept(newer)['status'] == 'accepted'
+    monkeypatch.setattr(cli, 'Engine', lambda project: engine)
+    assert cli.main(['resume', '--project', 'testproj', '--run', start['run_id'], '--max-model-calls', '400']) != 0
+    assert engine.run_status(start['run_id'])['run']['status'] == 'blocked'

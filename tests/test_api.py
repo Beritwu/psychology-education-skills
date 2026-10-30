@@ -121,3 +121,22 @@ def test_human_steps_translate_internal_nodes():
     assert steps[1]["advanced"]["node_id"] == "evidence-reviewer"
     assert steps[1]["advanced"]["agent"] == "research-agent"
     assert "node_id" not in steps[1]
+
+
+def test_edit_endpoints_reject_identifiable_student_data_before_dispatch(client, monkeypatch):
+    from pebs import server
+    client.post('/api/projects', json={'project_id': 'pii-edit'})
+    engine = server.get_engine('pii-edit')
+    class ForbiddenLLM:
+        def availability(self):
+            raise AssertionError('PII must be blocked before contacting model')
+        def generate_json(self, **kwargs):
+            raise AssertionError('PII must be blocked before contacting model')
+    engine.llm = ForbiddenLLM()
+    pii_text = '把张三同学的案例改掉，电话 13800138000'
+    conversation = client.post('/api/projects/pii-edit/conversation', json={'message': pii_text})
+    case = client.post('/api/projects/pii-edit/case-replace', json={'case_artifact_id': 'case:sec1:1', 'instruction': pii_text})
+    assert conversation.status_code == 409
+    assert case.status_code == 409
+    assert '脱敏' in conversation.text and '脱敏' in case.text
+    assert engine.store.latest_run() is None

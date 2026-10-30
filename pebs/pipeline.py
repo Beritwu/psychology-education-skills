@@ -213,7 +213,29 @@ def _materials_excerpt(ctx: PipelineContext, limit: int = 6000) -> str:
     materials = ctx.content("materials") or {}
     parts = []
     remaining = limit
+    if materials.get('psychology_unit'):
+        unit = materials['psychology_unit']
+        snapshot = json.dumps({
+            'unit_id': unit['unit_id'], 'version': unit['version'],
+            'teaching_recommendations': materials.get('psychology_rules', []),
+            'terminology': [{'term_id': entry['term_id'], 'term': entry['terms']['zh-CN']['full'],
+                             'definition': entry['definition'], 'learning_status': entry['learning_status']}
+                            for entry in unit.get('terminology', [])],
+            'concepts': [{'concept_id': c['concept_id'], 'term': c['terms']['zh-CN']['full'],
+                          'definition': c['definition'],
+                          'prerequisites': c.get('prerequisites', []),
+                          'boundary': c.get('boundary', ''),
+                          'examples': c.get('examples', {}),
+                          'misconceptions': [{'text': m['text'], 'basis': m['basis']}
+                                            for m in c['misconceptions']]}
+                         for c in unit['concepts']],
+        }, ensure_ascii=False, separators=(',', ':'))
+        chunk = snapshot[:remaining]
+        parts.append('【选定学科修订：术语按各自固定来源定位；中文主标签使用完整术语，缩写仅辅助；误解保留来源类型；不替代陈述核验】\n' + chunk)
+        remaining -= len(chunk)
     for entry in materials.get("files", []):
+        if remaining <= 0:
+            break
         if entry.get("sensitive"):
             continue
         text = (entry.get("text") or "").strip()
@@ -371,7 +393,94 @@ def step_parse_inputs(ctx: PipelineContext) -> dict[str, Any]:
         raise StepFailed(f"输入超出预算：{exc}；请精简材料/模板后重试（系统不会静默截断）") from exc
     if budget_report["decision"] == "summarize":
         notes.append("输入超出预算：已按规则标记 summarize（需在后续步骤显式摘要，未静默截断）")
-    ctx.emit("materials", "materials", {"files": files, "budget_report": budget_report}, "template-parser")
+    material_content = {"files": files, "budget_report": budget_report}
+    material_deps = []
+    unit_match = re.search(r"学科修订=(\S+)", ctx.request)
+    if unit_match:
+        revision_id = unit_match.group(1)
+        revision = ctx.store.get_revision(revision_id)
+        if revision['artifact_type'] != 'psychology_unit':
+            raise StepFailed("指定修订不是心理学内容包")
+        if revision['artifact_id'] != f"psychology_unit:{revision['content'].get('unit_id')}":
+            raise StepFailed('学科修订标识与内容中的单元不匹配')
+        material_content['psychology_target'] = {
+            'revision_id': revision_id, 'content_hash': revision['content_hash'],
+            'artifact_id': revision['artifact_id'],
+        }
+        material_content['psychology_unit'] = revision['content']
+        from .psychology import source_snapshot, published_rules, validate_unit
+
+        material_content['psychology_rules'] = published_rules(ctx.store, revision)
+        material_deps.extend(rule['revision_id'] for rule in material_content['psychology_rules'])
+
+        try:
+            frozen_source = revision['content'].get('frozen_source')
+            if 'frozen_source' in revision['content']:
+                source_metadata, source_text = frozen_source['metadata'], frozen_source['text']
+            else:
+                source_metadata, source_text = source_snapshot(revision['content']['unit_id'])
+            import hashlib
+
+            if hashlib.sha256(source_text.encode('utf-8')).hexdigest() != source_metadata['sha256']:
+                raise ValueError('source snapshot hash mismatch')
+            validate_unit(revision['content'], source_metadata, source_text,
+                          revision['content'].get('frozen_extra_sources'))
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            raise StepFailed(f'学科来源快照不可用：{exc}') from exc
+        expected_hash = revision['content']['sources'][0].get('snapshot_sha256')
+        if expected_hash != source_metadata['sha256']:
+            raise StepFailed('学科修订与教材快照哈希不匹配，请使用对应来源版本')
+        try:
+            material_content['budget_report'] = input_budget.enforce(input_budget.measure(
+                materials=files + [{'name': revision_id, 'text': json.dumps(revision['content'], ensure_ascii=False)},
+                                   {'name': 'psychology_rules', 'text': json.dumps(material_content['psychology_rules'], ensure_ascii=False)}],
+                template_spec=template_spec,
+            ))
+        except input_budget.InputBudgetExceeded as exc:
+            raise StepFailed(f'学科内容输入超出预算：{exc}') from exc
+        source = ctx.evidence.add_source(
+            source_type='textbook', title=source_metadata['title'],
+            identifiers={'url': source_metadata['url'], 'sha256': source_metadata['sha256']},
+            content_level='full_text', snapshot_text=source_text,
+            retrieval_note='固定教材正文快照；入库不代表陈述已支持',
+        )
+        def source_anchors(catalog_source_id: str) -> dict[str, Any]:
+            return {
+                'concept_anchors': [
+                    {**concept['evidence_anchor'], 'concept_id': concept['concept_id']}
+                    for concept in revision['content']['concepts']
+                    if concept['evidence_anchor']['source_ref'] == catalog_source_id
+                ],
+                'terminology_anchors': [
+                    {**term['evidence_anchor'], 'term_id': term['term_id']}
+                    for term in revision['content'].get('terminology', [])
+                    if term['evidence_anchor']['source_ref'] == catalog_source_id
+                ],
+            }
+
+        primary_source_id = revision['content']['sources'][0]['source_id']
+        material_content['psychology_source'] = {
+            'catalog_source_id': primary_source_id,
+            'source_id': source['source_id'], 'sha256': source_metadata['sha256'],
+            'source_version': source['version'],
+            **source_anchors(primary_source_id),
+        }
+        material_content['psychology_sources'] = [material_content['psychology_source']]
+        for source_id, frozen in (revision['content'].get('frozen_extra_sources') or {}).items():
+            extra_metadata, extra_text = frozen['metadata'], frozen['text']
+            extra = ctx.evidence.add_source(
+                source_type='journal_article', title=extra_metadata['title'],
+                identifiers={'url': extra_metadata['url'], 'sha256': extra_metadata['sha256']},
+                content_level='user_excerpt', snapshot_text=extra_text,
+                retrieval_note='固定论文节选；不是全文，入库不代表陈述已支持',
+            )
+            material_content['psychology_sources'].append({
+                'catalog_source_id': source_id, 'source_id': extra['source_id'],
+                'source_version': extra['version'], 'sha256': extra_metadata['sha256'],
+                **source_anchors(source_id),
+            })
+        material_deps.append(revision_id)
+    ctx.emit("materials", "materials", material_content, "template-parser", deps=material_deps)
     from . import registry as skill_registry
 
     explicit_map = skill_registry.explicit_skill_map()
@@ -589,6 +698,10 @@ def step_claims(ctx: PipelineContext) -> dict[str, Any]:
             "\n待审阅的已有内容（审阅任务的事实性 Claim 必须来自这里）：\n" + "\n".join(excerpts)
         )
     prompt = f"""任务：提取本节课程中必须核验的事实性 Claim（将进入讲解、案例、评价的事实陈述）。
+每条只表达一个可定位来源核验的事实，不把机制、观察方法、否定推论和应用建议合并成一句。
+材料中definition所表达的事实性命题可独立提取；boundary/examples中的虚构情境、课堂判读前提和观察控制条件不拼接成普遍的实证结论。不要为解释课堂设定而引入本单元未要求的其他心理现象。
+text 只写事实内容；不要追加“来源待核验”“全文待核验”等状态标记，系统会单独记录状态。
+覆盖课程核心学习机制，不要只从难点/误解中提取宽泛否定结论。人群与情境应按现有材料实际范围填写；材料只谈特定动物或实验时不能扩写为全体人类与动物。
 判定标准：Claim 必须是可被研究文献支持或反驳的实证性陈述——群体规律、心理机制、干预/教学法效果、相关或因果结论、数据。
 以下内容不是 Claim，禁止提取：教学安排与课堂组织方式、写作与记录规范建议、价值倡导、定义性说明、虚构案例情节、开放反思问题。
 每条 Claim 必须给出来源人群（population）与使用位置（usage）。
@@ -628,6 +741,11 @@ claim_type 取 descriptive/correlational/predictive/causal/mechanistic/theoretic
 
 
 def _assessment_prompt(claim: dict[str, Any], source: dict[str, Any], text: str) -> str:
+    if source['source_type'] == 'textbook':
+        from .input_budget import budget
+
+        if len(text) > int(budget()['max_material_chars']):
+            raise StepFailed('教材全文超过核验输入预算；请提供明确的章节范围后重试')
     level_note = "仅摘要/片段可用，未核验全文" if source["content_level"] != "full_text" else "全文可用"
     return f"""任务：判断 Claim 是否被给定来源文本支持。
 quote 必须逐字来自来源文本，不得改写、拼接或跨段摘录；找不到可引用句时 found=false。
@@ -636,7 +754,7 @@ Claim：{claim['text']}
 来源类型：{source['source_type']}（{level_note}）
 来源标题：{source['title']}
 来源文本（截断）：
-\"\"\"{text[:5000]}\"\"\"
+\"\"\"{text if source["source_type"] == "textbook" else text[:5000]}\"\"\"
 输出 JSON：{{"found": true, "quote": "...", "quote_location": "...", "support": "direct", "design_note": "...", "scope": "...", "limitations": "...", "uncertainty": "...", "human_review": false}}
 human_review 仅在“直接支持但存在争议、或来源之间互相冲突”时设为 true；支持关系为 indirect/contextual/insufficient 时设为 false（系统会走限定改写流程）。"""
 
@@ -725,6 +843,7 @@ def _qualify_claim(ctx: PipelineContext, claim: dict[str, Any], limitations: str
     prompt = f"""任务：下面的 Claim 未获现有证据直接支持。请按证据能够支持的范围改写它：
 - 降低强度（相关而非因果、可能而非必然）、限定人群或情境、或收窄结论范围；
 - 不改变事实方向，不引入新事实，不添加引用。
+  - 只保留原陈述中证据直接支持的部分，不拼入原句未涉及的其他现象、例子或合取结论；被删去的条件写在note解释，不为保留全部原句而新增事实。
 只输出 JSON：{{"text": "改写后的 Claim", "population": "...", "note": "改写了什么"}}
 原 Claim：{claim['text']}
 证据局限：{limitations}"""
@@ -774,6 +893,11 @@ def step_evidence(ctx: PipelineContext) -> dict[str, Any]:
 
     materials = (ctx.content("materials") or {}).get("files", [])
     material_sources = [s for s in ctx.evidence.sources() if s["source_type"] == "user_material"]
+    unit_materials = ctx.content('materials') or {}
+    unit_sources = unit_materials.get('psychology_sources') or [unit_materials.get('psychology_source')]
+    source_keys = {(source['source_id'], source['source_version']) for source in unit_sources if source}
+    material_sources.extend(source for source in ctx.evidence.sources()
+                            if (source['source_id'], source['version']) in source_keys)
     force_review = "evidence-review" in ctx.explicit_skills
 
     for claim in claims:
@@ -811,8 +935,8 @@ def step_evidence(ctx: PipelineContext) -> dict[str, Any]:
                 if hasattr(ctx.store, "budget_remaining")
                 else 10 ** 6
             )
-            full_cost = len(source_names) + (2 * fetch_limit if fetch_enabled else 0)
             queries = _research_queries(ctx, claim)
+            full_cost = len(queries) * max(len(source_names), 1) + (2 * fetch_limit if fetch_enabled else 0)
             if remaining <= 0:
                 notes.append(
                     f"{claim['claim_id']}：研究预算已用尽，跳过文献核验；该 Claim 将保持未支持并从证据契约排除"
@@ -824,7 +948,7 @@ def step_evidence(ctx: PipelineContext) -> dict[str, Any]:
                 claim_fetch_enabled = False
                 claim_source_limit = 1
                 notes.append(
-                    f"{claim['claim_id']}：剩余研究预算 {remaining} < 完整核验成本 {full_cost}；降级为单来源核验（跳过全文抓取）"
+                    f"{claim['claim_id']}：剩余研究预算 {remaining} < 完整核验成本 {full_cost}；降级为单查询核验（跳过全文抓取）"
                 )
             per_claim_requests = claim_source_limit * max(len(source_names), 1) + (2 * fetch_limit if claim_fetch_enabled else 0)
             try:
@@ -1034,7 +1158,12 @@ def step_evidence(ctx: PipelineContext) -> dict[str, Any]:
         "unavailable": unavailable,
     }
     deps = [r for r in [ctx.rev("claims")] if r]
-    ctx.emit("evidence_index", "evidence_index", index, "evidence-reviewer", deps=deps)
+    previous = ctx.rev('evidence_index')
+    if (previous and ctx.content('evidence_index') == index
+            and set(ctx.store.upstream_revs(previous)) == set(deps)):
+        notes.append('证据内容与依赖修订未变化，复用已有索引')
+    else:
+        ctx.emit("evidence_index", "evidence_index", index, "evidence-reviewer", deps=deps)
     return {"notes": notes, "unavailable": unavailable}
 
 
@@ -1056,6 +1185,7 @@ def _plan_prompt(ctx: PipelineContext, section: dict[str, Any]) -> str:
 学习设计：{design}
 已核验 Claim：{supported}
 待核验 Claim（不得作为事实使用）：{pending}
+证据状态由系统记录提供，不在pck_notes中复述或推测PENDING/SUPPORTED等状态；pck_notes只写教学判断与实施提示。
 输出 JSON：
 {{
   "section_id": "{section['section_id']}",
@@ -1070,16 +1200,30 @@ UDL 替代路径必须保持同一目标与核心认知要求；不得把更简�
 def _normalize_plan(ctx: PipelineContext, section: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
     design = ctx.content(f"learning_design:{section['section_id']}") or {}
     for strategy in data.get("strategies", []):
+        strategy.pop('allowed_set', None)
         goal = next((g for g in design.get("goals", []) if g["goal_id"] == strategy.get("goal_ref")), None)
         if goal:
             strategy["knowledge_type"] = goal.get("knowledge_type", strategy.get("knowledge_type", ""))
             strategy["allowed_set"] = router.allowed_strategies(goal.get("knowledge_type", "concept"))
+    evidence = ctx.content('evidence_index') or {}
+    data['evidence_status'] = {
+        f"{item['claim_id']}@v{item['version']}": item['status']
+        for item in evidence.get('claims', []) + evidence.get('excluded_claims', [])
+    }
     return data
 
 
 def _plan_violations(ctx: PipelineContext, section: dict[str, Any], data: dict[str, Any]) -> list[str]:
     violations = []
+    design = ctx.content(f"learning_design:{section['section_id']}") or {}
+    goal_ids = {goal['goal_id'] for goal in design.get('goals', [])}
+    if any(isinstance(note, str) and re.search(r'(?<![A-Za-z_])(?:PENDING|SUPPORTED|UNSUPPORTED|DISPUTED)(?![A-Za-z_])', note)
+           for note in data.get('pck_notes', []) or []):
+        violations.append('证据状态不能由pck_notes重复生成；请只写教学提示，状态读取系统evidence_status字段')
     for strategy in data.get("strategies", []):
+        if not isinstance(strategy.get('goal_ref'), str) or strategy['goal_ref'] not in goal_ids:
+            violations.append(f"目标引用不存在：{strategy.get('goal_ref')}")
+            continue
         allowed = strategy.get("allowed_set") or []
         if allowed and strategy.get("strategy") not in allowed:
             violations.append(
@@ -1108,7 +1252,7 @@ def step_teaching_plan(ctx: PipelineContext) -> dict[str, Any]:
         if violations:
             retry_prompt = (
                 _plan_prompt(ctx, section)
-                + "\n\n上一次输出存在策略越界，必须修正：\n"
+                + "\n\n上一次输出存在教学计划校验问题，必须修正：\n"
                 + "\n".join(violations)
                 + "\n请重新输出完整 JSON；strategies 只能使用对应目标 allowed_set 中的策略。"
             )
@@ -1116,8 +1260,12 @@ def step_teaching_plan(ctx: PipelineContext) -> dict[str, Any]:
             data["section_id"] = section["section_id"]
             data = _normalize_plan(ctx, section, data)
             remaining = _plan_violations(ctx, section, data)
+            if any(issue.startswith('目标引用不存在') for issue in remaining):
+                raise StepFailed('教学计划目标引用不存在，重新生成后仍无效，未保存')
+            if any(issue.startswith('证据状态') for issue in remaining):
+                raise StepFailed('教学计划仍在自行生成证据状态，未保存；证据状态必须以系统记录为准')
             notes.append(
-                f"{section['section_id']}: 策略越界已重生成（{len(violations)} 处）"
+                f"{section['section_id']}: 教学计划校验已重生成（{len(violations)} 处）"
                 + (f"，仍有 {len(remaining)} 处待人工处理" if remaining else "")
             )
         try:
@@ -1134,11 +1282,17 @@ def _case_prompt(ctx: PipelineContext, section: dict[str, Any]) -> str:
     design = ctx.content(f"learning_design:{section['section_id']}") or {}
     plan = ctx.content(f"teaching_plan:{section['section_id']}") or {}
     return f"""任务：为本节设计 1 个教学案例（可明确标注为虚构），用于解释学习难点。
+用户原始要求与给定观察：{ctx.request}
 学习设计：{design}
 教学策略：{plan.get('strategies', [])}
-材料（截断）：{_materials_excerpt(ctx, 2000) or '无'}
+材料（有界摘要）：{_materials_excerpt(ctx, 6000) or '无'}
 约束：
 - 案例默认虚构（kind=fictional），不要伪装成真实研究事实；
+- 用户给定的教学假设、刺激名称、观察次数与结果是约束，逐项保留，不另造一套实验；仅在用户未给数据时设计虚构观察。案例text不附问题或作答指令，主问题由assessment生成；
+- text区分明示的教学假设与观察记录，包含所选主题判断必需的观察、研究设计与测试条件；不要把判读或答案写进学生所读的案例正文；
+- 若采用教材反射性示例，在正文明确假定食物引出唾液、气流引出眨眼等为未经学习的反射，不能仅凭配对前有效就认定无条件刺激；该设定不是新发现的研究结论；
+- 涉及刺激泛化时，明确只对原刺激实施配对、相似测试刺激从未与无条件刺激配对，并给出测试刺激自己的前测及原刺激学习后的单独测试；未交代训练史时不预先断言泛化；
+- 涉及经典条件作用的无条件反应时，须符合固定术语定义，优先采用教材明确的反射性例子，不把任意行为改变或已学习行为当作未经学习的反应；
 - 如案例包含新的事实性陈述（研究结论、数据、机制），放入 new_factual_claims，这些内容不能作为正式事实；
 - claim_refs 只能引用已核验 Claim（可为空）。
 输出 JSON：{{"case_id": "case1", "section_id": "{section['section_id']}", "title": "...", "kind": "fictional", "text": "...", "difficulty": "...", "linked_goal": "g1", "claim_refs": [], "new_factual_claims": []}}"""
@@ -1165,7 +1319,9 @@ def step_cases(ctx: PipelineContext) -> dict[str, Any]:
             schemas.validate(data, "case")
         except schemas.SchemaError as exc:
             raise StepFailed(f"case schema: {exc}") from exc
-        deps = [r for r in [ctx.rev(f"teaching_plan:{section['section_id']}")] if r]
+        deps = [r for r in [ctx.rev(f"teaching_plan:{section['section_id']}"),
+                            ctx.rev(f"learning_design:{section['section_id']}"),
+                            ctx.rev('requirements'), ctx.rev('materials')] if r]
         ctx.emit(f"case:{section['section_id']}:1", "case", data, "case-designer", deps=deps)
     if registered:
         claims_doc = ctx.content("claims") or {"claims": []}
@@ -1192,33 +1348,146 @@ def step_cases(ctx: PipelineContext) -> dict[str, Any]:
 
 def _assessment_prompt_for(ctx: PipelineContext, section: dict[str, Any]) -> str:
     design = ctx.content(f"learning_design:{section['section_id']}") or {}
+    evidence_index = ctx.content('evidence_index') or {}
+    current_evidence = {key: evidence_index.get(key, []) for key in ('claims', 'excluded_claims')}
+    output_schema = (config.SCHEMA_DIR / 'assessment.schema.json').read_text(encoding='utf-8')
     return f"""任务：为本节生成形成性评价：至少 1 个 hinge question（含干扰项与解析）与 1 个反思/迁移问题。
+用户明确要求（数量、情境、交付形式优先于最低题数）：{ctx.request}
+本步骤只生成评价产物：顶层仅section_id、items、diagnostic_use；不要生成teacher_script、lesson_plan、student_worksheet、learning_goals或另一套案例、证据绑定。其他课程材料由各自步骤及存储修订提供。
+diagnostic_use可为字符串，或仅含administration、decision_rules、interpretation_boundary的对象；decision_rules每项含assessment_ref、trigger、action，引用本次实际题目。
+完整输出字段类型以此Schema为准：{output_schema}
+已有案例（可用于主评价；变式明确标记，题干须给全必要观察）：{ctx.content(f"case:{section['section_id']}:1") or {}}
+可引用的证据记录（引用使用claim_id@v版本；状态由系统绑定，不生成source_status）：{current_evidence}
+claims是已支持的当前结论；excluded_claims是未获支持或需限定的当前结论，不得把它们描述为已支持事实，引用仅可用于明确标记证据边界或待核验。
+claim_refs只能填写上面当前列表中存在的claim_id及其版本，虚构案例或不依赖实证结论的题可使用空列表；不得编造或沿用其他版本。
+选定教学概念、边界、误解与已发布教学建议：{_materials_excerpt(ctx, 6000) or '无'}
+将错误选项关联到具体误解；模型假设保留 model_hypothesis，不将一次答错当成稳定学生标签。
+每个诊断问题给出补救解释和新情境复测问题；分别使用 remediation 与 retest_question 字段。
+选择题的distractors只放错误选项字符串；开放题的可能错误推理用response_patterns记录response_pattern、linked_misconception和basis，不当作选择题选项。
+题干及复测都必须给出答案所需前提；涉及习得需明确基线与学习后观察，涉及泛化需说明刺激的相似关系，答案不能补造遗漏事实。
+涉及无条件刺激/反应的主问题及复测，明示教材情境假定该反应未经学习，而非用配对前有效替代反射前提；涉及泛化的主问题及复测，明示测试刺激从未与无条件刺激配对，且原刺激才接受配对训练。
+主问题、完整补救和复测的时机遵循用户要求和教案。若未单独预留课内时间，完整复测安排课后或下一次课并标注额外时间，不把它塞进短暂即时反馈。
+将目标行为或变量写成具体可观察指标。仅缺证据时判“证据不足”；断言某种解释不符合时需要正面理由。涉及经典条件作用时，缺少核验不等于可断言没有发生学习。
+综合题优先分析已提供的短案例，不把“分析案例”擅自升级为“自行创作案例”；复测保留相同认知要求及结论边界。
+按target_goal及secondary_target_goals说明主目标和共同目标；一道综合题可以测多个目标，不为了独立题数增加题目。
 学习目标：{[g['goal_id'] + ':' + g['text'] for g in design.get('goals', [])]}
 题目与答案、干扰项、解析必须一致；涉及计算必须独立重算。
+下例仅示范字段，实际items数量按用户要求。每题的补救与复测保持同一认知要求，参考答案写出判断依据，不只写“开放”。
 输出 JSON：{{"section_id": "{section['section_id']}", "items": [
-  {{"assessment_id": "a1", "kind": "hinge_question", "question": "...", "options": ["A...", "B...", "C...", "D..."], "answer": "B", "distractors": ["..."], "rationale": "...", "target_goal": "g1", "claim_refs": [], "student_viewable": true}},
-  {{"assessment_id": "a2", "kind": "reflection_prompt", "question": "...", "answer": "开放", "rationale": "...", "target_goal": "g1", "student_viewable": true}}
+  {{"assessment_id": "a1", "kind": "hinge_question", "question": "...", "options": ["A...", "B...", "C...", "D..."], "answer": "B", "distractors": ["..."], "rationale": "...", "target_goal": "g1", "secondary_target_goals": [], "claim_refs": [], "remediation": {{"错误选项": "针对其推理的补救"}}, "retest_question": {{"question": "新情境完整题干", "answer": "参考答案及依据", "rationale": "保留原题判断要求与边界"}}, "student_viewable": true}},
+  {{"assessment_id": "a2", "kind": "reflection_prompt", "question": "...", "answer": "参考判断与依据", "rationale": "...", "target_goal": "g1", "remediation": "按具体缺失判断提供补救", "retest_question": {{"question": "新情境完整题干", "answer": "参考答案及依据", "rationale": "..."}}, "student_viewable": true}}
 ]}}"""
+
+
+def _normalize_retest(item: dict[str, Any]) -> None:
+    question = item.get('retest_question')
+    if isinstance(question, str):
+        answer = item.pop('retest_answer', None)
+        if not question.strip():
+            raise StepFailed('复测题缺少题干，未保存评价产物')
+        if not isinstance(answer, str) or not answer.strip():
+            raise StepFailed('复测题缺少答案，未保存评价产物')
+        retest = {'question': question, 'answer': answer}
+        for old_key, new_key in (('retest_rationale', 'rationale'), ('retest_options', 'options')):
+            if old_key in item:
+                value = item.pop(old_key)
+                if value is not None:
+                    retest[new_key] = value
+        item['retest_question'] = retest
 
 
 def step_assessments(ctx: PipelineContext) -> dict[str, Any]:
     notes = []
+    pending = []
     for section in ctx.sections():
         _check_cancel(ctx)
         _skill(ctx, "assessment-designer")
         data = _llm_json(ctx, task="assessment", prompt=_assessment_prompt_for(ctx, section))
+        # Assessment cannot redefine the lesson, script, case or evidence index.
+        data = {key: value for key, value in data.items() if key in ('section_id', 'items', 'diagnostic_use')}
         data["section_id"] = section["section_id"]
         for item in data.get("items", []) or []:
+            _normalize_retest(item)
             item["kind"] = _coerce(item.get("kind"), ASSESSMENT_KINDS, "formative")
             if item.get("options") is None:
                 item.pop("options", None)
             if item.get("distractors") is None:
                 item.pop("distractors", None)
+            elif isinstance(item['distractors'], list):
+                normalized = []
+                details = list(item.get('distractors_detail') or [])
+                patterns = item.get('response_patterns') or []
+                if not isinstance(patterns, list):
+                    raise StepFailed('开放题错误推理模式必须是列表')
+                for distractor in item['distractors']:
+                    if isinstance(distractor, dict) and 'response_pattern' in distractor and 'option' not in distractor:
+                        patterns.append(dict(distractor))
+                        continue
+                    linked = None
+                    if isinstance(distractor, dict):
+                        linked = distractor.get('linked_misconception', distractor.get('linked_misconceptions'))
+                        if isinstance(linked, list) and linked and all(isinstance(value, str) for value in linked):
+                            linked = '；'.join(linked)
+                    if isinstance(distractor, dict) and 'option' in distractor and isinstance(linked, str):
+                        normalized.append(str(distractor['option']))
+                        details.append({**distractor, 'answer': str(distractor['option']),
+                                        'misconception': linked})
+                    else:
+                        normalized.append(distractor)
+                if normalized:
+                    item['distractors'] = normalized
+                else:
+                    item.pop('distractors', None)
+                if details:
+                    item['distractors_detail'] = details
+                if patterns:
+                    item['response_patterns'] = patterns
         try:
             schemas.validate(data, "assessment")
         except schemas.SchemaError as exc:
             raise StepFailed(f"assessment schema: {exc}") from exc
-        deps = [r for r in [ctx.rev(f"learning_design:{section['section_id']}")] if r]
+        guidance = data.get('diagnostic_use')
+        if isinstance(guidance, dict):
+            question_ids = {item['assessment_id'] for item in data['items']}
+            if any(rule['assessment_ref'] not in question_ids for rule in guidance.get('decision_rules', [])):
+                raise StepFailed('诊断说明引用了不存在的评价题，未保存评价产物')
+        evidence = ctx.content('evidence_index') or {}
+        status_by_ref = {f"{item['claim_id']}@v{item['version']}": item['status']
+                         for item in evidence.get('claims', []) + evidence.get('excluded_claims', [])}
+        for item in data.get('items', []):
+            if item.get('student_viewable', True):
+                answer = str(item.get('answer', ''))
+                choice = re.match(r'^\s*([A-D])(?:[.．、:：。\s]|$)', answer, re.I)
+                if choice:
+                    letter = re.escape(choice.group(1))
+                    question = str(item.get('question', ''))
+                    leak = (rf'(?:选择|选中|选)\s*[（(]?{letter}[）)]?\s*(?:可得|获得|得|计)\s*\d+(?:\.\d+)?\s*分'
+                            rf'|(?:正确答案|正确选项)\s*(?:是|为|[:：])\s*[（(]?{letter}(?:[）)\s。．、]|$)')
+                    if re.search(leak, question, re.I):
+                        raise StepFailed(f"评价题 {item['assessment_id']} 的学生题干直接泄露答案")
+            refs = item.get('claim_refs', []) or []
+            if not set(refs).issubset(status_by_ref):
+                raise StepFailed(f"评价题 {item['assessment_id']} 引用了不存在的证据修订")
+            item.pop('source_status', None)
+            item['evidence_status'] = {ref: status_by_ref[ref] for ref in refs}
+        try:
+            schemas.validate(data, 'assessment')
+        except schemas.SchemaError as exc:
+            raise StepFailed(f'assessment schema after evidence binding: {exc}') from exc
+        pending.append((section, data))
+    count_match = re.search(r"(?P<minimum>至少|不少于)?\s*([0-9]+|[一二三四五六七八九十])\s*道(?:形成性)?(?:评价)?题", ctx.request)
+    if count_match:
+        raw_count = count_match.group(2)
+        required_count = int(raw_count) if raw_count.isdecimal() else '一二三四五六七八九十'.index(raw_count) + 1
+        actual_count = sum(len(data.get('items', [])) for _, data in pending)
+        minimum = bool(count_match.group('minimum'))
+        if actual_count < required_count or (not minimum and actual_count != required_count):
+            qualifier = '至少 ' if minimum else ''
+            raise StepFailed(f"评价题数量不符：用户要求{qualifier}{required_count} 道，实际 {actual_count} 道；请重新生成评价题")
+    for section, data in pending:
+        deps = [r for r in [ctx.rev(f"learning_design:{section['section_id']}"),
+                            ctx.rev(f"case:{section['section_id']}:1"),
+                            ctx.rev('evidence_index'), ctx.rev('materials')] if r]
         ctx.emit(f"assessment:{section['section_id']}", "assessment", data, "assessment-designer", deps=deps)
         notes.append(f"{section['section_id']}: {len(data.get('items', []))} 题")
     return {"notes": notes}
@@ -1230,28 +1499,37 @@ def _script_prompt(ctx: PipelineContext, section: dict[str, Any]) -> str:
     case = ctx.content(f"case:{section['section_id']}:1") or {}
     requirements = ctx.content("requirements") or {}
     claims_doc = ctx.content("claims") or {}
-    supported, pending = [], []
+    supported = []
     for claim in claims_doc.get("claims", []):
         ref = f"{claim['claim_id']}@v{claim['version']}"
         entry = {"ref": ref, "text": claim["text"]}
-        (supported if ctx.evidence.is_supported(ref) else pending).append(entry)
+        if ctx.evidence.is_supported(ref):
+            supported.append(entry)
     spec = _template_spec(ctx)
     columns = [c["name"] for c in spec.get("columns", [])]
     wmin = section.get("word_min") or requirements.get("word_rules", {}).get("min")
     wmax = section.get("word_max") or requirements.get("word_rules", {}).get("max")
+    word_instruction = f'{wmin}–{wmax} 字' if wmin and wmax else '未指定硬性字数范围；必须提供完整、非空的教师讲解正文，不能将未指定理解为零字'
     return f"""任务：生成一节在线课程脚本（教师讲解 + 画面提示 + 案例展开 + 互动），中文。
 本节：{section['section_id']} {section['title']}
 学习目标与设计：{design}
+固定学科术语与边界：{_materials_excerpt(ctx, 6000) or '无额外学科包'}
 教学策略：{plan.get('strategies', [])}
 可用案例：{case.get('text', '')}
 模板栏目：{columns or '无模板'}
-字数要求：{wmin}–{wmax} 字（仅统计教师讲解正文与正文中讲述的案例）
+主教案（教师活动提纲，以本讲稿作为唯一讲解正文）：{ctx.content(f"lesson_plan:{section['section_id']}") or {}}
+主评价题集的唯一来源（题数按用户要求，引用原题号，不得另编替代问题或更换判断前提）：{ctx.content(f"assessment:{section['section_id']}") or {}}
+学习单（沿用任务号、分类标签及表格栏目）：{ctx.content(f"worksheet:{section['section_id']}") or {}}
+字数要求：{word_instruction}（仅统计教师讲解正文与正文中讲述的案例）
 术语要求：{requirements.get('terminology', [])}
 已核验 Claim（可作为事实，引用时写入 claim_refs，格式 id@vN）：{supported}
-待核验 Claim（禁止作为事实陈述；如需提及，必须使用 placeholder=true 并写“【待核验】”）：{pending}
+未获支持的事实不得写入讲稿；需要这些事实时须先补充并核验证据。
 硬约束：
 - 不得引入任何不在已核验列表中的新事实性结论；
 - 案例说明标注为虚构；
+- 如果案例涉及经典条件作用，保留其明示的未经学习反射假设，以及泛化测试刺激从未与无条件刺激配对的条件；定义无条件反应时写全“未经学习的自然反应”，不由配对前有效单独推出无条件身份；
+- 即时反馈与完整补救/复测分开；遵循教案的课内/课后安排，不能把课后完整复测写成课内立即全部实施；
+- 中文正文及画面主标签用完整术语，缩写只作括号辅助；仅凭一次共同出现不能确认习得，不表达成“一次经历绝不可能学习”；
 - 讲解正文满足字数要求；
 - 画面提示必须写 visual_function（知识功能）。
 输出 JSON：{{"units": [
@@ -1318,6 +1596,12 @@ def _finalize_script(ctx: PipelineContext, section: dict[str, Any], units: list[
         "units": units,
         "word_count": _word_count_block(ctx, section["section_id"], units),
     }
+    script['source_materials'] = {}
+    for kind in ('lesson_plan', 'assessment', 'worksheet'):
+        revision_id = ctx.rev(f"{kind}:{section['section_id']}")
+        if revision_id:
+            revision = ctx.store.get_revision(revision_id)
+            script['source_materials'][kind] = {'revision_id': revision_id, 'content_hash': revision['content_hash']}
     if script["template_ref"] is None:
         script.pop("template_ref")
     try:
@@ -1334,6 +1618,12 @@ def _script_deps(ctx: PipelineContext, section: dict[str, Any]) -> list[str]:
             ctx.rev(f"learning_design:{section['section_id']}"),
             ctx.rev(f"teaching_plan:{section['section_id']}"),
             ctx.rev(f"case:{section['section_id']}:1"),
+            ctx.rev(f"lesson_plan:{section['section_id']}"),
+            ctx.rev(f"assessment:{section['section_id']}"),
+            ctx.rev(f"worksheet:{section['section_id']}"),
+              ctx.rev('evidence_index'),
+              ctx.rev('materials'),
+              ctx.rev('template_spec'),
         ]
         if r
     ]
@@ -1410,6 +1700,8 @@ def _fix_prompt(section: dict[str, Any], script: dict[str, Any], failed: list[di
 - 术语要求：{requirements.get('terminology', [])}；
 - 字数要求：{lo}–{hi} 字（仅统计讲解与案例单元的非空白字符，含标点、数字和字母）；
 - 字数修订目标：{guidance}；
+- 如果课程涉及经典条件作用，保留未经学习的反射假设，以及泛化测试刺激从未与无条件刺激配对的前提；不能删成仅凭配对前有效认定无条件刺激，或遗漏测试刺激训练史；
+- 保留用户和教案规定的主问题数量及课内/课后边界，不为压字数改变即时反馈、完整补救与复测的时间安排；
 - 画面提示必须写 visual_function；保留案例单元。
 输出 JSON：{{"units": [{{"unit_id": "...", "kind": "title|narration|visual|case|interaction", "text": "...", "claim_refs": [], "visual_function": ""}}]}}"""
 
@@ -1423,7 +1715,12 @@ def fix_script(
     _check_cancel(ctx)
     _skill(ctx, "script-writer")
     requirements = ctx.content("requirements") or {}
-    data = _llm_json(ctx, task="script_fix", prompt=_fix_prompt(section, script, failed, requirements))
+    prompt = _fix_prompt(section, script, failed, requirements)
+    prompt += '\n固定学科术语与边界（修订时保留）：' + (_materials_excerpt(ctx, 6000) or '无额外学科包')
+    for kind in ('lesson_plan', 'assessment', 'worksheet'):
+        prompt += f'\n固定主材料 {kind}（保留原题号、任务号与前提，不另造替代问题）：' + json.dumps(
+            ctx.content(f"{kind}:{section['section_id']}") or {}, ensure_ascii=False)
+    data = _llm_json(ctx, task="script_fix", prompt=prompt)
     revised = _finalize_script(ctx, section, data.get("units") or script.get("units") or [])
     ctx.emit(f"script:{section['section_id']}", "script", revised, "script-writer", deps=_script_deps(ctx, section))
     return revised
@@ -1468,12 +1765,22 @@ def _lesson_plan_prompt(ctx: PipelineContext, section: dict[str, Any]) -> str:
     design = ctx.content(f"learning_design:{section['section_id']}") or {}
     plan = ctx.content(f"teaching_plan:{section['section_id']}") or {}
     return f"""任务：为这一节写教案（lesson plan）。
+原始课程要求（包含总时长，必须遵守）：{ctx.request}
+本课程章节：{ctx.sections()}
 学习设计：{design}
 教学策略：{plan.get('strategies', [])}
+已生成的唯一案例：{ctx.content(f"case:{section['section_id']}:1") or {}}
+已生成的唯一评价题集：{ctx.content(f"assessment:{section['section_id']}") or {}}
 要求：
+- 固定学科术语与边界：{_materials_excerpt(ctx, 6000) or '无额外学科包'}；中文主标签用完整术语，缩写仅辅助；
 - objectives 对应学习目标（goal_ref 使用设计中的 goal_id，text 用可观察动词）；
 - key_points / difficult_points 来自设计与难点；
 - process 为课堂教学过程：每个环节包含 stage、minutes（>0）、teacher_activity、student_activity、intent（教学意图）；
+- 教案只写活动提纲和目标引用，不生成“讲稿正文：”或另一套“题一/题二”；完整讲解由后续script提供，主问题由assessment提供；
+- 教学活动、案例事实、题目数量、题目标识和评分安排须与上述实际案例及评价题集一致，不得另造案例、题目或评分；学习单稍后按同一题集生成；
+- process的minutes只计课内活动，包含讲解、作答与即时反馈；完整补救/复测若放课内必须另有明确时间，否则列入homework并注明按错误触发及额外预计分钟，不同时承诺短环节内完成所有分支；
+- 综合题的观察表作为该题作答支架，不另外安排重复抄写和另一轮相同题目；教师在学习单与独立评价打印视图中二选一发放同一组主问题；
+- 用户指定课程总分钟数时，所有章节process的minutes合计必须等于课内总时长，包含实际安排在课内的练习与反馈；课后完整补救/复测另列预计时间，不计入课内总分钟，不能藏入未计时的课内活动；
 - preparation 为教学准备；board_design 为板书/画面设计；homework 为课后任务；
 - 不得引入未获核验的事实性结论。
 输出 JSON：{{"section_id": "{section['section_id']}", "title": "...", "objectives": [{{"goal_ref": "g1", "text": "..."}}], "key_points": ["..."], "difficult_points": ["..."], "preparation": ["..."], "process": [{{"stage": "导入", "minutes": 5, "teacher_activity": "...", "student_activity": "...", "intent": "..."}}], "board_design": "...", "homework": ["..."]}}"""
@@ -1481,6 +1788,7 @@ def _lesson_plan_prompt(ctx: PipelineContext, section: dict[str, Any]) -> str:
 
 def step_lesson_plans(ctx: PipelineContext) -> dict[str, Any]:
     notes = []
+    pending = []
     for section in ctx.sections():
         _check_cancel(ctx)
         _skill(ctx, "pck-developer")
@@ -1492,7 +1800,19 @@ def step_lesson_plans(ctx: PipelineContext) -> dict[str, Any]:
             schemas.validate(data, "lesson_plan")
         except schemas.SchemaError as exc:
             raise StepFailed(f"lesson_plan schema: {exc}") from exc
-        deps = [r for r in [ctx.rev(f"teaching_plan:{section['section_id']}")] if r]
+        if any(re.search(r'讲稿正文\s*[:：]', stage.get('teacher_activity', '')) for stage in data['process']):
+            raise StepFailed('教案包含第二套讲稿正文；请只生成活动提纲，完整讲稿由script步骤提供')
+        pending.append((section, data))
+    duration = re.search(r"(?<![0-9])([0-9]+)\s*分钟(?:的)?(?:课程|课|教学)", ctx.request)
+    if duration:
+        expected = int(duration.group(1))
+        actual = sum(stage['minutes'] for _, data in pending for stage in data['process'])
+        if abs(actual - expected) > 1e-6:
+            raise StepFailed(f'教案时长不符：课程要求 {expected} 分钟，教学环节合计 {actual} 分钟；请重新生成教案')
+    for section, data in pending:
+        deps = [r for r in [ctx.rev(f"teaching_plan:{section['section_id']}"),
+                            ctx.rev(f"case:{section['section_id']}:1"),
+                            ctx.rev(f"assessment:{section['section_id']}")] if r]
         ctx.emit(f"lesson_plan:{section['section_id']}", "lesson_plan", data, "lesson-designer", deps=deps)
         notes.append(f"{section['section_id']}: {len(data.get('process', []))} 个教学环节")
     return {"notes": notes}
@@ -1501,14 +1821,26 @@ def step_lesson_plans(ctx: PipelineContext) -> dict[str, Any]:
 def _worksheet_prompt(ctx: PipelineContext, section: dict[str, Any]) -> str:
     design = ctx.content(f"learning_design:{section['section_id']}") or {}
     assessment = ctx.content(f"assessment:{section['section_id']}") or {}
+    assessment = {'section_id': assessment.get('section_id'),
+                  'items': [item for item in assessment.get('items', [])
+                            if item.get('student_viewable') is not False]}
     case = ctx.content(f"case:{section['section_id']}:1") or {}
     return f"""任务：为这一节设计学习单（worksheet），学生按单完成课堂任务。
 学习目标：{[goal['text'] for goal in design.get('goals', [])]}
-已有评价题（可改写为学习单任务，不要重复原题）：{[item.get('question') for item in assessment.get('items', [])]}
+主评价题集的唯一来源（题数按用户要求，含标识、选项、答案、解析、补救与复测）：{assessment}
+教案过程：{(ctx.content(f"lesson_plan:{section['section_id']}") or {}).get('process', [])}
+固定术语与边界：{_materials_excerpt(ctx, 6000) or '无额外学科包'}
 可用案例：{case.get('text', '')}
 要求：
+- 主评价任务使用已有 assessment_id，在 assessment_refs 中引用；题干、选项和判断前提保持一致，不能另造一套同名评价；
+- 主评价任务设置 task_role=assessment，只写操作指令和 assessment_refs；系统按引用插入主问题及教师答案，不要重抄或重新生成答案；至少一个任务承载主评价题。额外练习设置 task_role=practice；
+- 额外变式需标为“课堂练习”，说明对应目标；学生所需观察记录必须写在任务中，答案不能补造题干未给的基线或相似性；
+- 独立主评价前不要增加直接给出其正确结论的判断练习；综合题记录表是该题的作答支架，不再要求额外抄写或重复答同一题；完整补救和复测的课后时机与教案一致；
+- 术语、分类标签和表格栏目与教案一致；未记录或不适用的观察明确写出，不能编造；
 - tasks 覆盖 3–5 个任务，kind 取 record_table/sorting/rewrite/reflection/practice；prompt 面向学生、指令清晰；
 - record_table 用 fields 给出表格列；每个任务给 answer 与 answer_notes（供教师版使用；学生版会移除答案）；
+- 表格answer可用字符串、阶段到栏目字符串的对象，或行数组（每行必须有row_label，其余栏目值均为字符串）；不可混入多层任意对象。
+- 需要多阶段观察表时，用row_labels给出每个阶段的行标题，不能只留一行；反应列允许“未记录/不适用”，教师答案不得补造观察；
 - reflection_questions 为开放反思问题；
 - 不得引入未获核验的事实性结论。
 输出 JSON：{{"section_id": "{section['section_id']}", "title": "...", "instructions": "...", "tasks": [{{"task_id": "t1", "kind": "sorting", "prompt": "...", "fields": [], "answer": "...", "answer_notes": "..."}}], "reflection_questions": ["..."], "student_version_note": "学生版不含答案"}}"""
@@ -1518,30 +1850,89 @@ def step_worksheets(ctx: PipelineContext) -> dict[str, Any]:
     notes = []
     for section in ctx.sections():
         _check_cancel(ctx)
-        _skill(ctx, "assessment-designer")
+        _skill(ctx, "worksheet-designer")
         data = _llm_json(ctx, task="worksheet", prompt=_worksheet_prompt(ctx, section))
+        for task in data['tasks'] if isinstance(data.get('tasks'), list) else []:
+            if isinstance(task, dict):
+                task.pop('canonical_questions', None)
+                if task.get('task_role') == 'assessment':
+                    task.pop('answer', None)
+                    task.pop('answer_notes', None)
         data["section_id"] = section["section_id"]
         if not data.get("title"):
             data["title"] = section.get("title", "")
         if not data.get("student_version_note"):
             data["student_version_note"] = "学生版不含答案"
+        assessment_revision = ctx.store.get_revision(ctx.rev(f"assessment:{section['section_id']}"))
+        data.pop('teacher_guidance', None)
+        if 'diagnostic_use' in assessment_revision['content']:
+            data['teacher_guidance'] = assessment_revision['content']['diagnostic_use']
+        data['source_assessment'] = {
+            'revision_id': assessment_revision['revision_id'],
+            'content_hash': assessment_revision['content_hash'],
+        }
+        data.pop('source_case', None)
+        case_revision_id = ctx.rev(f"case:{section['section_id']}:1")
+        if case_revision_id:
+            case_revision = ctx.store.get_revision(case_revision_id)
+            case_content = case_revision['content']
+            data['source_case'] = {
+                'revision_id': case_revision_id, 'content_hash': case_revision['content_hash'],
+                'title': case_content.get('title', ''), 'kind': case_content.get('kind', ''),
+                'text': case_content.get('text', ''),
+            }
+        materials = ctx.content('materials') or {}
+        unit = materials.get('psychology_unit') or {}
+        from .psychology import unit_terms
+        data['reference_terms'] = [
+            {'term': entry['terms']['zh-CN']['full'], 'definition': entry['definition'],
+             'auxiliary_abbreviations': list(entry.get('auxiliary_abbreviations', []))}
+            for entry in unit_terms(unit)
+        ]
+        data['source_unit'] = materials.get('psychology_target')
         try:
             schemas.validate(data, "worksheet")
         except schemas.SchemaError as exc:
             raise StepFailed(f"worksheet schema: {exc}") from exc
-        deps = [r for r in [ctx.rev(f"assessment:{section['section_id']}")] if r]
+        known_questions = {item['assessment_id']: item for item in assessment_revision['content']['items']}
+        for task in data.get('tasks', []):
+            if not set(task.get('assessment_refs', [])).issubset(known_questions):
+                raise StepFailed(f"学习单任务 {task['task_id']} 引用了不存在的主评价题")
+            if any(known_questions[ref].get('student_viewable') is False for ref in task.get('assessment_refs', [])):
+                raise StepFailed(f"学习单任务 {task['task_id']} 引用了仅教师可查看的评价题")
+            task.pop('canonical_questions', None)
+            if task.get('task_role') == 'assessment':
+                task['canonical_questions'] = [dict(known_questions[ref]) for ref in task['assessment_refs']]
+                for question in task['canonical_questions']:
+                    _normalize_retest(question)
+                task.pop('answer', None)
+                task.pop('answer_notes', None)
+        try:
+            schemas.validate(data, 'worksheet')
+        except schemas.SchemaError as exc:
+            raise StepFailed(f'worksheet schema after assessment binding: {exc}') from exc
+        deps = [r for r in [ctx.rev(f"assessment:{section['section_id']}"),
+                            ctx.rev(f"lesson_plan:{section['section_id']}"),
+                            ctx.rev(f"learning_design:{section['section_id']}"),
+                            ctx.rev(f"case:{section['section_id']}:1"), ctx.rev('materials')] if r]
         ctx.emit(f"worksheet:{section['section_id']}", "worksheet", data, "worksheet-designer", deps=deps)
         notes.append(f"{section['section_id']}: {len(data.get('tasks', []))} 个学习任务")
     return {"notes": notes}
 
 
 def step_media_plan(ctx: PipelineContext) -> dict[str, Any]:
+    no_animation = _media_exclusions(ctx)[1]
     notes = []
     for section in ctx.sections():
         _check_cancel(ctx)
         _skill(ctx, "pck-developer")
         data = _llm_json(ctx, task="media_plan", prompt=_media_plan_prompt(ctx, section))
         items = [_enforce_medium(dict(item)) for item in data.get("items", [])]
+        if no_animation:
+            for item in items:
+                if item['recommended_medium'] == 'animation':
+                    item['recommended_medium'] = 'diagram'
+                    item['rationale'] = str(item.get('rationale', '')) + '；用户禁用动画，改用静态图示呈现。'
         content = {"section_id": section["section_id"], "items": items}
         try:
             schemas.validate(content, "media_plan")
@@ -1557,7 +1948,15 @@ def step_media_plan(ctx: PipelineContext) -> dict[str, Any]:
 def _diagram_prompt(ctx: PipelineContext, section: dict[str, Any], items: list[dict[str, Any]]) -> str:
     return f"""任务：为以下知识点生成教学图示（SVG），视觉必须承担知识功能（不是装饰）。
 知识点：{items}
+本节目标：{(ctx.content(f"learning_design:{section['section_id']}") or {}).get('goals', [])}
+固定术语与概念边界：{_materials_excerpt(ctx, 6000) or '无额外学科包'}
+课堂实际案例（观察不得补造）：{ctx.content(f"case:{section['section_id']}:1") or {}}
+当前实际讲稿：{(ctx.content(f"script:{section['section_id']}") or {}).get('units', [])}
 要求：
+- 图中的观察数据、阶段名称和判断与当前讲稿及案例一致；有/无记录只能画离散结果，不得擅改成强/中/弱、连续强度曲线或未测量的数值；
+- 避免箭头、连线和其他图形穿过文字；连线文字放在留白区域并留足间距，必要时使用不透明底色遮挡连线；
+- 涉及经典条件作用的刺激配对时，配对前用中性刺激，不能提前称为条件刺激；身份变化需保留配对后单独测试的证据；
+- 正文标签和注释使用完整中文术语；缩写只放独立辅助说明，不以缩写替代主标签或解释；
 - 每个知识点输出一个图：diagram_id、item_id、diagram_type（concept_relationship/comparison/sequence/causality/timeline/hierarchy/state/part_whole/evidence_map/case_flow/observation_flow）、title、alt_text；
 - semantics：{{"nodes": [{{"id","label","kind"}}], "edges": [{{"from","to","label"}}]}}，节点 id 必须齐全；
 - svg：完整 <svg> 标记，必须含 viewBox，只用 <rect>/<line>/<path>/<text>/<circle> 等基础图形；
@@ -1594,7 +1993,7 @@ def step_diagrams(ctx: PipelineContext) -> dict[str, Any]:
                 path = media.write_media_file(
                     ctx.store.base_dir,
                     "diagrams",
-                    f"{section['section_id']}-{entry.get('diagram_id')}.svg",
+                    f"{media.svg_sha256(svg)}.svg",
                     svg,
                 )
                 diagrams.append(
@@ -1614,7 +2013,11 @@ def step_diagrams(ctx: PipelineContext) -> dict[str, Any]:
             schemas.validate(content, "diagrams")
         except schemas.SchemaError as exc:
             raise StepFailed(f"diagrams schema: {exc}") from exc
-        deps = [r for r in [ctx.rev(f"media_plan:{section['section_id']}")] if r]
+        deps = [r for r in [ctx.rev(f"media_plan:{section['section_id']}"),
+                            ctx.rev(f"script:{section['section_id']}"),
+                            ctx.rev(f"case:{section['section_id']}:1"),
+                            ctx.rev(f"learning_design:{section['section_id']}"),
+                            ctx.rev('materials')] if r]
         ctx.emit(f"diagrams:{section['section_id']}", "diagrams", content, "diagram-designer", deps=deps)
         notes.append(f"{section['section_id']}: {len(diagrams)} 张 SVG 图示")
     return {"notes": notes}
@@ -1669,11 +2072,12 @@ def _storyboard_prompt(section: dict[str, Any], approved: list[dict[str, Any]], 
 
 
 def step_storyboard(ctx: PipelineContext) -> dict[str, Any]:
+    no_animation = _media_exclusions(ctx)[1]
     notes = []
     for section in ctx.sections():
         _check_cancel(ctx)
         plan = ctx.content(f"media_plan:{section['section_id']}") or {}
-        candidates = [item for item in plan.get("items", []) if item.get("recommended_medium") == "animation"]
+        candidates = [] if no_animation else [item for item in plan.get("items", []) if item.get("recommended_medium") == "animation"]
         decisions: list[dict[str, Any]] = []
         if candidates:
             data = _llm_json(ctx, task="animation_gate", prompt=_animation_gate_prompt(section, candidates))
@@ -1933,7 +2337,29 @@ def _enforce_slide_plan(ctx: PipelineContext, data: dict[str, Any]) -> list[str]
     return notes
 
 
+def _media_exclusions(ctx: PipelineContext) -> tuple[bool, bool]:
+    """Inherit original media exclusions when a later edit does not change them."""
+    from .routing.intent import NO_ANIMATION_PATTERNS, extract_deterministic
+
+    original = (ctx.content("requirements") or {}).get("user_prompt", "")
+    current = ctx.request or ""
+    original_flags = extract_deterministic(original)
+    current_flags = extract_deterministic(current)
+    explicit_animation = any(re.search(pattern, original, re.I) for pattern in NO_ANIMATION_PATTERNS)
+    wants_animation = bool(re.search(r"(?<!不)(?:需要|生成|制作|添加|启用)\s*动画", current))
+    no_ppt = current_flags["no_ppt"] or (original_flags["no_ppt"] and not current_flags["needs_ppt"])
+    no_animation = (
+        current_flags["no_animation"]
+        or no_ppt
+        or (explicit_animation and not wants_animation)
+        or (original_flags["no_animation"] and not original_flags["no_ppt"] and not wants_animation)
+    )
+    return no_ppt, no_animation
+
+
 def step_slide_plan(ctx: PipelineContext) -> dict[str, Any]:
+    if _media_exclusions(ctx)[0]:
+        return {'notes': ['按显式要求不生成 PPT 规划']}
     _check_cancel(ctx)
     data = _llm_json(ctx, task="slide_plan", prompt=_slide_plan_prompt(ctx))
     notes = _enforce_slide_plan(ctx, data)
@@ -1974,6 +2400,8 @@ def _citation_label(ctx: PipelineContext, claim_ref: str) -> str:
 
 
 def step_pptx(ctx: PipelineContext) -> dict[str, Any]:
+    if _media_exclusions(ctx)[0]:
+        return {'notes': ['按显式要求不生成 PPT 文件']}
     from . import pptx_builder, pptx_foundry, render
 
     _check_cancel(ctx)
@@ -2141,25 +2569,53 @@ def step_pptx(ctx: PipelineContext) -> dict[str, Any]:
 def _load_review_prompt(ctx: PipelineContext, section: dict[str, Any]) -> str:
     design = ctx.content(f"learning_design:{section['section_id']}") or {}
     script = ctx.content(f"script:{section['section_id']}") or {}
-    media = ctx.content(f"media_plan:{section['section_id']}") or {}
+    media_plan = ctx.content(f"media_plan:{section['section_id']}") or {}
     diagrams = (ctx.content(f"diagrams:{section['section_id']}") or {}).get("diagrams", [])
-    diagram_summaries = [
-        {"diagram_id": diagram.get("diagram_id"), "title": diagram.get("title")} for diagram in diagrams
-    ]
+    diagram_summaries = []
+    diagram_root = (ctx.store.base_dir / 'media' / 'diagrams').resolve()
+    for diagram in diagrams:
+        path = Path(diagram.get('svg_path', '')).resolve()
+        if not path.is_relative_to(diagram_root):
+            raise StepFailed('认知负荷审阅图示路径超出项目图示目录')
+        try:
+            with path.open('rb') as stream:
+                raw = stream.read(media.MAX_SVG_BYTES + 1)
+            if len(raw) > media.MAX_SVG_BYTES:
+                raise StepFailed('认知负荷审阅图示超过大小限制')
+            svg = raw.decode('utf-8')
+        except (OSError, UnicodeError) as exc:
+            raise StepFailed('认知负荷审阅无法读取已生成的SVG文件') from exc
+        if media.svg_sha256(svg) != diagram.get('svg_sha256'):
+            # write_text uses native newlines on Windows; the recorded SVG hash
+            # describes the generated text before that filesystem conversion.
+            svg = svg.replace('\r\n', '\n').replace('\r', '\n')
+        if media.svg_sha256(svg) != diagram.get('svg_sha256') or media.validate_svg(svg):
+            raise StepFailed('认知负荷审阅图示内容与冻结哈希不符或SVG无效')
+        diagram_summaries.append({
+            'diagram_id': diagram.get('diagram_id'), 'title': diagram.get('title'),
+            'svg_source': svg,
+        })
+    script_text = json.dumps(script.get('units', []), ensure_ascii=False)
+    from .input_budget import budget
+
+    if len(script_text) + len(json.dumps(diagram_summaries, ensure_ascii=False)) > int(budget()['max_material_chars']):
+        raise StepFailed('认知负荷审阅输入超过预算，请拆分课程后重试；未截断正文或图示源码')
     narration_chars = sum(
         len(unit.get("text", "")) for unit in script.get("units", []) if unit.get("kind") in ("narration", "case")
     )
     return f"""任务：对本节做两项检查——认知负荷分析（Cognitive Load）与双重编码配对（Dual Coding）。
 学习目标：{design.get('goals', [])}
-媒体选型：{media.get('items', [])}
+媒体选型：{media_plan.get('items', [])}
 已生成图示：{diagram_summaries}
-讲解正文字数：{narration_chars}
+讲解正文字数：{script.get('word_count', {}).get('count', narration_chars)}
+实际讲稿单元（含正文、案例和互动）：{script_text}
+本次仅依据讲稿文本与SVG源码审阅，不等于检查渲染后的视觉外观。
 认知负荷分析要求：
 - level 取 LOW/MEDIUM/HIGH；说明原因（元素交互性、分散注意、冗余、分段与信号设计）；
 - 不得给出伪精确评分（不要用"认知负荷=7.8"这类数字）；
 - 不确定处写入 uncertainties；给出 improvements 建议。
 双重编码要求：
-- 为每个学习目标给出 verbal（讲解要点）与 visual（视觉呈现），visual 必须承担知识功能；
+- 对实际使用图示的学习目标给出 verbal（讲解要点）与 visual（视觉呈现），visual 必须承担知识功能；仅用文字且无图示的目标无需虚构视觉配对，在 uncertainties 中记录未做视觉配对即可；
 - 若使用已生成图示，填写 diagram_id，并让 visual 描述与该图一致；knowledge_function 取 structure/comparison/sequence/causality/spatial_relation/state_change/hierarchy/example/counterexample；
 - pairing_ok 表示"视觉确实承担了知识功能"。
 输出 JSON：{{"section_id": "{section['section_id']}", "cognitive_load": {{"level": "MEDIUM", "reasons": ["..."], "uncertainties": ["..."], "improvements": ["..."]}}, "dual_coding": {{"pairings": [{{"goal_ref": "g1", "verbal": "...", "visual": "...", "knowledge_function": "comparison", "diagram_id": "d1", "pairing_ok": true, "note": ""}}]}}}}"""
@@ -2171,6 +2627,12 @@ def step_load_review(ctx: PipelineContext) -> dict[str, Any]:
         _check_cancel(ctx)
         data = _llm_json(ctx, task="load_review", prompt=_load_review_prompt(ctx, section))
         data["section_id"] = section["section_id"]
+        script_revision = ctx.store.get_revision(ctx.rev(f"script:{section['section_id']}"))
+        data['reviewed_script'] = {
+            'revision_id': script_revision['revision_id'],
+            'content_hash': script_revision['content_hash'],
+        }
+        data['review_scope'] = 'script_text_and_svg_source'
         load = data.get("cognitive_load") or {}
         for key in ("reasons", "uncertainties", "improvements"):
             if not isinstance(load.get(key), list):
@@ -2508,10 +2970,10 @@ def plan_steps() -> list[dict[str, Any]]:
         ("claims", "提取待核验心理学结论", ["learning_design"]),
         ("evidence", "核验结论（用户材料/研究来源）", ["claims"]),
         ("teaching_plan", "教学设计（PCK/UDL）", ["evidence"]),
-        ("lesson_plans", "写教案", ["teaching_plan"]),
-        ("cases", "设计案例", ["lesson_plans"]),
+        ("cases", "设计案例", ["teaching_plan"]),
         ("assessments", "设计形成性评价", ["cases"]),
-        ("worksheets", "设计学习单", ["assessments"]),
+        ("lesson_plans", "写教案", ["assessments"]),
+        ("worksheets", "设计学习单", ["lesson_plans"]),
         ("evidence_topup", "补充核验新增事实", ["worksheets"]),
         ("scripts", "生成课程脚本", ["evidence_topup"]),
         ("media_plan", "媒体选型（Media Router）", ["scripts"]),

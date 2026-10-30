@@ -3,27 +3,328 @@
   "$id": "pebs/worksheet",
   "title": "Worksheet",
   "type": "object",
-  "required": ["section_id", "title", "instructions", "tasks"],
+  "required": [
+    "section_id",
+    "title",
+    "instructions",
+    "tasks"
+  ],
   "properties": {
-    "section_id": { "type": "string" },
-    "title": { "type": "string" },
-    "instructions": { "type": "string" },
+    "section_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "instructions": {
+      "type": "string"
+    },
     "tasks": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["task_id", "kind", "prompt"],
+        "required": [
+          "task_id",
+          "kind",
+          "prompt"
+        ],
         "properties": {
-          "task_id": { "type": "string" },
-          "kind": { "enum": ["record_table", "sorting", "rewrite", "reflection", "practice"] },
-          "prompt": { "type": "string" },
-          "fields": { "type": "array", "items": { "type": "string" } },
-          "answer": { "type": "string" },
-          "answer_notes": { "type": "string" }
+          "task_id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "record_table",
+              "sorting",
+              "rewrite",
+              "reflection",
+              "practice"
+            ]
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "answer": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": {"type": "string"}
+              },
+              {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": {
+                  "type": "object",
+                  "minProperties": 1,
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "row_label"
+                  ],
+                  "properties": {
+                    "row_label": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "answer_notes": {
+            "type": "string"
+          },
+          "assessment_refs": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "task_role": {
+            "enum": [
+              "practice",
+              "assessment"
+            ]
+          },
+          "row_labels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "canonical_questions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "assessment_id",
+                "question",
+                "answer"
+              ],
+              "properties": {
+                "assessment_id": {
+                  "type": "string"
+                },
+                "question": {
+                  "type": "string"
+                },
+                "answer": {
+                  "type": "string"
+                },
+                "rationale": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "retest_question": {
+                  "type": "object",
+                  "required": [
+                    "question",
+                    "answer"
+                  ],
+                  "properties": {
+                    "question": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "answer": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "rationale": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "required": [
+                "task_role"
+              ],
+              "properties": {
+                "task_role": {
+                  "const": "assessment"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "assessment_refs"
+              ],
+              "properties": {
+                "assessment_refs": {
+                  "minItems": 1
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "source_assessment": {
+      "type": "object",
+      "required": [
+        "revision_id",
+        "content_hash"
+      ],
+      "properties": {
+        "revision_id": {
+          "type": "string"
+        },
+        "content_hash": {
+          "type": "string"
         }
       }
     },
-    "reflection_questions": { "type": "array", "items": { "type": "string" } },
-    "student_version_note": { "type": "string" }
+    "source_case": {
+      "type": "object",
+      "required": ["revision_id", "content_hash", "title", "kind", "text"],
+      "properties": {
+        "revision_id": {"type": "string"},
+        "content_hash": {"type": "string"},
+        "title": {"type": "string"},
+        "kind": {"type": "string"},
+        "text": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "source_unit": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "revision_id",
+        "content_hash"
+      ],
+      "properties": {
+        "revision_id": {
+          "type": "string"
+        },
+        "content_hash": {
+          "type": "string"
+        }
+      }
+    },
+    "reference_terms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "term",
+          "definition"
+        ],
+        "properties": {
+          "term": {
+            "type": "string"
+          },
+          "definition": {
+            "type": "string"
+          },
+          "auxiliary_abbreviations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "reflection_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "student_version_note": {
+      "type": "string"
+    },
+    "teacher_guidance": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "required": [
+            "administration"
+          ],
+          "properties": {
+            "administration": {
+              "type": "string"
+            },
+            "decision_rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "assessment_ref",
+                  "trigger",
+                  "action"
+                ],
+                "properties": {
+                  "assessment_ref": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "trigger": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "action": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "interpretation_boundary": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
   }
 }

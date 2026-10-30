@@ -41,6 +41,7 @@ Start `python -m pebs.cli serve --port 8710`. The authoritative generated schema
 | GET | `/api/projects/{project_id}/preview` | Preview |
 | GET | `/api/projects/{project_id}/outputs` | Outputs |
 | POST | `/api/projects/{project_id}/case-replace` | Case Replace |
+| POST | `/api/projects/{project_id}/assessment-edit/{section_id}` | Stage a version-checked edit to one assessment item |
 | POST | `/api/projects/{project_id}/export` | Export |
 | GET | `/api/projects/{project_id}/artifact-json/{artifact_id}` | Artifact Json |
 | DELETE | `/api/projects/{project_id}` | Delete Project |
@@ -62,3 +63,17 @@ Start `python -m pebs.cli serve --port 8710`. The authoritative generated schema
 6. For human evaluation, first GET the run-specific evaluation target, then submit the real teacher rating with that exact target. See the evaluation guide.
 
 Use actual IDs returned by the server. Teacher-role labels do not authenticate identity. Validation, conflicts and unavailable prerequisites are errors to handle, not reasons to edit stored state directly.
+
+## Precise assessment edits
+
+Read `/artifacts/assessment:sec1` first. Submit the returned `revision_id`, an existing item ID, and only the fields to change, for example:
+
+```json
+{
+  "assessment_id": "sec1_hq1",
+  "expected_revision": "assessment:sec1@r1",
+  "fields": {"answer": "A revised, reviewed answer."}
+}
+```
+
+The endpoint stages an immutable candidate changeset; review its diff, then accept or reject it. The original remains current until acceptance. A stale version, locked assessment, or identifiable student data is refused. Acceptance also refuses a candidate if its upstream dependencies became stale. If the changeset accept response has `ok: false`, treat it as a conflict even though that existing endpoint returns HTTP 200. On acceptance, dependent artifacts become stale and must be rebuilt and checked before formal export. Editing does not itself verify the factual correctness of new text or count as a teacher review or sign-off. Fixture provenance remains attached to edits of fixture artifacts.

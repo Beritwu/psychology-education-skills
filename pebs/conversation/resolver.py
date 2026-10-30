@@ -12,6 +12,8 @@ KIND_HINTS: list[tuple[str, list[str]]] = [
     ("lesson_plan", ["教案", "活动", "教学环节"]),
     ("assessment", ["评价", "题目", "提问"]),
     ("worksheet", ["学习单", "练习"]),
+    ("claims_set", ["学科主张", "主张"]),
+    ("evidence_index", ["证据索引", "证据"]),
 ]
 
 ORDINAL_CN = {"一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9, "十": 10}
@@ -159,12 +161,18 @@ def resolve(
 
     resolved["section_ids"] = sorted(set(section_ids))
 
+    target_message = message
+    preserve_text = [clause for clause in (intent.get('preserve') or []) if not clause.startswith('section_')]
+    for clause in preserve_text:
+        target_message = target_message.replace(clause, '')
+    preserved_kinds = {kind for kind, hints in KIND_HINTS
+                       if any(hint in clause.lower() for clause in preserve_text for hint in hints)}
     kinds: list[str] = []
     for kind, hints in KIND_HINTS:
-        if any(hint in message.lower() for hint in hints):
+        if kind not in preserved_kinds and any(hint in target_message.lower() for hint in hints):
             kinds.append(kind)
     for kind in intent.get("targets", {}).get("artifact_ids", []):
-        if kind and kind not in kinds:
+        if kind and kind not in kinds and kind not in preserved_kinds:
             kinds.append(kind)
     resolved["artifact_kinds"] = kinds
     activity_ordinals = _activity_ordinals(message)
@@ -194,9 +202,11 @@ def resolve(
                 candidates.append((artifact_id, artifact_type))
         else:
             candidates.append((artifact_id, artifact_type))
-    labels = [artifact_id for artifact_id, _ in candidates]
-    ranked = _rank_label(message, labels)
-    artifact_ids = [ranked] if ranked else [artifact_id for artifact_id, _ in candidates]
+    artifact_ids = []
+    for kind in kinds:
+        labels = [artifact_id for artifact_id, artifact_type in candidates if artifact_type == kind]
+        ranked = _rank_label(target_message, labels)
+        artifact_ids.extend([ranked] if ranked else labels)
     resolved["artifact_ids"] = sorted(set(artifact_ids))
 
     slide_numbers = _slide_numbers(message)

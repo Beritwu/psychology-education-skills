@@ -503,7 +503,15 @@ class Store:
         cs = self.get_changeset(changeset_id)
         if cs["status"] != "candidate":
             raise ConflictError(f"changeset {changeset_id} is {cs['status']}, not candidate")
-        items = cs["items"]
+        # A changeset may emit multiple immutable revisions of one artifact
+        # (for example a formal manifest followed by a draft downgrade).
+        # Accept only the highest numeric version, not SQLite's string order.
+        newest: dict[str, dict[str, Any]] = {}
+        for item in cs['items']:
+            old = newest.get(item['artifact_id'])
+            if old is None or item['revision']['version'] > old['revision']['version']:
+                newest[item['artifact_id']] = item
+        items = list(newest.values())
         if not items:
             raise ConflictError(f"changeset {changeset_id} is empty")
         target_artifacts = {item["artifact_id"] for item in items}
@@ -512,6 +520,8 @@ class Store:
                 artifact_id = item["artifact_id"]
                 if self.is_locked(artifact_id):
                     raise ConflictError(f"artifact locked: {artifact_id}")
+                if item["revision"].get("produced_by") == "manual-edit" and self.is_stale(artifact_id):
+                    raise ConflictError(f"manual edit has stale upstream dependencies: {artifact_id}")
                 current = self.accepted_rev_id(artifact_id)
                 expected = cs["baseline"].get(artifact_id)
                 if current != expected:
@@ -531,6 +541,35 @@ class Store:
                 if old and old != item["revision_id"]:
                     for dep_artifact in self.mark_dependents_stale([artifact_id], exclude=target_artifacts):
                         stale_marked.add(dep_artifact)
+            # A changeset can contain several revisions of the same upstream
+            # artifact. A downstream item built against an earlier revision
+            # is not current merely because both items were accepted together.
+            for item in items:
+                artifact_id = item['artifact_id']
+                for upstream_rev in self.upstream_revs(item['revision_id']):
+                    upstream_record = self.get_revision(upstream_rev)
+                    upstream = upstream_record['artifact_id']
+                    if upstream == artifact_id:
+                        # A previous revision of this artifact can be lineage,
+                        # such as a formal manifest downgraded to a draft.
+                        continue
+                    accepted = self.accepted_rev_id(upstream)
+                    # Explicitly pinned curriculum snapshots are immutable
+                    # inputs, not accepted project outputs. Published teaching
+                    # rules use the same model but may later be withdrawn.
+                    if accepted is None and upstream_record['artifact_type'] == 'psychology_unit':
+                        if upstream_record.get('produced_by') == 'psychology-content-import':
+                            continue
+                    if accepted is None and upstream_record['artifact_type'] == 'psychology_rule':
+                        revisions = self.revisions_of(upstream)
+                        if (revisions and revisions[-1] == upstream_rev
+                                and upstream_record['content'].get('status') == 'PUBLISHED'):
+                            continue
+                    if accepted != upstream_rev or self.is_stale(upstream):
+                        self.set_stale(artifact_id, True)
+                        stale_marked.add(artifact_id)
+                        stale_marked.update(self.mark_dependents_stale([artifact_id]))
+                        break
             self._set_changeset_status(changeset_id, "accepted")
         return {"changeset_id": changeset_id, "status": "accepted", "stale_artifacts": sorted(stale_marked)}
 
@@ -602,7 +641,10 @@ class Store:
         return [self.get_run(r["run_id"]) for r in rows]
 
     def set_run_status(self, run_id: str, status: str) -> None:
-        self._exec("UPDATE runs SET status = ?, ended_at = ? WHERE run_id = ?", (status, now_iso(), run_id))
+        # Cancellation is terminal, including when a worker finishes or hits a
+        # budget limit concurrently after the user's cancellation.
+        self._exec("UPDATE runs SET status = ?, ended_at = ? WHERE run_id = ? AND status != 'cancelled'",
+                   (status, now_iso(), run_id))
 
     def add_step(self, run_id: str, step_id: str, title: str, status: str = "PENDING") -> None:
         self._exec(

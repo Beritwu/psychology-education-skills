@@ -14,7 +14,8 @@ INTENT_PRIORITY: list[tuple[str, list[str]]] = [
     ("revise", [r"修改|调整|润色|优化|改一下|改改"]),
 ]
 
-PRESERVE_PATTERNS = [r"不要(改|动|变)", r"不要修改", r"保持(不变|原样)", r"别动", r"无需修改"]
+PRESERVE_PATTERNS = [r"不要(?:改|动(?!画)|变)", r"不要修改", r"保持(不变|原样)", r"别动", r"无需修改",
+                     r"(?:保留|保持)[^，。；;,.!?！？\n]{1,40}(?:不变|原样)"]
 
 CN_DIGITS = {"一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9, "十": 10}
 
@@ -38,12 +39,12 @@ def _ordinals(text: str) -> list[int]:
 
 def _sentence_at(text: str, index: int) -> str:
     start = 0
-    for match in re.finditer(r"[，。；;,.!?！？\n]", text):
+    for match in re.finditer(r"[，。；;:：,.!?！？\n]", text):
         if match.start() >= index:
             break
         start = match.end()
     end = len(text)
-    for match in re.finditer(r"[，。；;,.!?！？\n]", text[start:]):
+    for match in re.finditer(r"[，。；;:：,.!?！？\n]", text[start:]):
         end = start + match.start()
         break
     return text[start:end]

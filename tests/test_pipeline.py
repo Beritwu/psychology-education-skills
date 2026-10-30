@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import pytest
 
 from conftest import REQUEST_1, REQUEST_2, FakeLLM, FakeResearch, MissingLLM, run_build
+from test_benchmark_evaluation import client  # noqa: F401
 
 from pebs import gates
 
@@ -94,39 +96,43 @@ def test_slide_plan_enforcement_survives_list_typed_model_fields(engine):
     assert isinstance(notes, list)
 
 
-def test_claim_refs_returned_as_objects_do_not_crash_the_script(engine):
+@pytest.mark.parametrize('malformed_refs', [
+    [{'id': 'clm_deadbeef', 'version': 1}],
+    ['clm_1@v1', ['clm_2@v1'], ''],
+])
+def test_claim_refs_returned_as_objects_do_not_crash_the_script(client, malformed_refs):
     """真实 run 缺陷：模型把 claim_refs 返回成对象时，`set(...)` 抛 unhashable dict。
 
     归一化后按"未获支持"处理（保守：标为待核验占位），而不是让整条运行 failed。
     """
-    from pebs import pipeline
+    from pebs import server
 
-    class _Ctx:
-        section = {"section_id": "sec1", "title": "标题"}
+    class MalformedRefsLLM(FakeLLM):
+        def generate_json(self, **kwargs):
+            result = super().generate_json(**kwargs)
+            if kwargs['task'] in ('script', 'script_fix'):
+                narration = next(unit for unit in result['units'] if unit['kind'] == 'narration')
+                narration['claim_refs'] = malformed_refs
+            return result
 
-        def content(self, artifact_id):
-            return None
-
-    units = [
-        {"kind": "title", "text": "标题"},
-        {
-            "kind": "narration",
-            "text": "正文",
-            "claim_refs": [{"id": "clm_deadbeef", "version": 1}],
-        },
-    ]
-    ctx = _Ctx()
-    ctx.evidence = type("E", (), {"is_supported": staticmethod(lambda ref: False)})()
-    result = pipeline._finalize_script(ctx, ctx.section, units)  # type: ignore[arg-type]
-    assert isinstance(result, dict)
-    assert all(isinstance(ref, str) for unit in units for ref in unit.get("claim_refs", []))
-    assert any(unit.get("placeholder") for unit in units)
-
-    # 数组/字符串混用同样不崩（注意 _finalize_script 会在首位插入 title 单元）
-    mixed = [{"kind": "narration", "text": "x", "claim_refs": ["clm_1@v1", ["clm_2@v1"], ""]}]
-    pipeline._finalize_script(ctx, ctx.section, mixed)  # type: ignore[arg-type]
-    narration = next(unit for unit in mixed if unit.get("kind") == "narration")
-    assert narration["claim_refs"] == ["clm_1@v1", "['clm_2@v1']"]
+    base = '/api/projects/malformed-script-refs'
+    client.post('/api/projects', json={'project_id': 'malformed-script-refs'})
+    engine = server.get_engine('malformed-script-refs')
+    engine.llm, engine.research = MalformedRefsLLM(), FakeResearch()
+    run_id, _ = run_build(engine, REQUEST_1, environment='test_fixture')
+    status = engine.run_status(run_id)
+    assert status['run']['status'] == 'succeeded', [(s['step_id'], s.get('error')) for s in status['steps'] if s['status'] == 'FAILED']
+    revision = engine.store.revisions_of('script:sec1')[-1]
+    response = client.get(base + '/artifacts/script:sec1', params={'rev': revision})
+    assert response.status_code == 200, response.text
+    units = response.json()['content']['units']
+    assert all(isinstance(ref, str) for unit in units for ref in unit.get('claim_refs', []))
+    narration = next(unit for unit in units if unit['kind'] == 'narration')
+    assert narration['placeholder'] is True
+    if isinstance(malformed_refs[0], str):
+        assert narration['claim_refs'] == ['clm_1@v1', "['clm_2@v1']"]
+    else:
+        assert narration['claim_refs'] == ["{'id': 'clm_deadbeef', 'version': 1}"]
 
 
 def test_unexpected_step_error_records_the_offending_frame(engine, monkeypatch):
@@ -256,13 +262,13 @@ def test_docx_export_publishes_only_after_accept(engine, no_pptx):
     accept = engine.accept(result["changeset_id"])
     assert accept["status"] == "accepted"
     published = {p.name for p in formal_dir.iterdir()}
-    assert {Path(p).name for p in staged_paths} <= published
+    assert {f"{result['changeset_id']}_{Path(p).name}" for p in staged_paths} <= published
     import docx
 
     docx_file = next(f for f in result["manifest"]["files"] if f["kind"] == "docx")
-    document = docx.Document(str(formal_dir / Path(docx_file["path"]).name))
+    document = docx.Document(str(formal_dir / f"{result['changeset_id']}_{Path(docx_file['path']).name}"))
     assert any("测试节" in p.text for p in document.paragraphs)
-    assert not (Path(engine.store.base_dir) / "outputs" / "staging" / result["changeset_id"]).exists()
+    assert all(Path(p).exists() for p in staged_paths)
     script = engine.store.accepted_content("script:sec1")
     assert script["word_count"]["count"] > 0
 
@@ -275,3 +281,29 @@ def test_rejecting_formal_export_discards_staging(engine):
     assert reject["status"] == "rejected"
     staging = Path(engine.store.base_dir) / "outputs" / "staging" / result["changeset_id"]
     assert not staging.exists()
+
+
+def test_formal_export_downgraded_by_g8_never_publishes_staged_formal_files(engine, no_pptx, monkeypatch):
+    from pebs import gates
+    _, changeset = run_build(engine, REQUEST_1)
+    engine.accept(changeset)
+    # Cross the r9/r10 boundary to catch lexicographic revision ordering.
+    while len(engine.store.revisions_of('export_manifest')) < 8:
+        engine.store.add_revision(artifact_id='export_manifest', artifact_type='export_manifest',
+                                  content={'mode': 'seed'}, produced_by='fixture')
+    original = gates.g8_artifact
+    count = 0
+    def fail_first(ctx, target):
+        nonlocal count
+        count += 1
+        result = original(ctx, target)
+        if count == 1:
+            result['status'] = 'NEEDS_REVIEW'
+            result['issues'] = [{'location': 'test', 'reason': 'forced failure', 'next_step': 'review'}]
+        return result
+    monkeypatch.setattr(gates, 'g8_artifact', fail_first)
+    export = engine.export_now('formal')
+    assert export['ok'] and export['mode'] == 'draft'
+    accepted = engine.accept(export['changeset_id'])
+    assert accepted['published'] == []
+    assert engine.store.accepted_content('export_manifest')['mode'] == 'draft'

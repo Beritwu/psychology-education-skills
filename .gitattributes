@@ -1,0 +1,6 @@
+# Preserve the exact bytes of versioned source snapshots and course-review artifacts.
+curriculum/psychology/** -text
+benchmarks/psychology/** -text
+examples/two-psychology-units/** -text
+docs/audits/2026-10-30* -text
+docs/audits/2026-10-30*/** -text

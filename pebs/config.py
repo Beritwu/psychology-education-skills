@@ -38,14 +38,14 @@ PROVIDERS_DIR = ROOT / "providers"
 RULES_VERSION = "rules-" + hashlib.sha256((CONFIG_DIR / "rules.yaml").read_bytes()).hexdigest()[:12]
 
 CHECK_VERSIONS = {
-    "G1": "g1-1.0",
+    "G1": "g1-1.1",
     "G2": "g2-1.0",
     "G3": "g3-1.0",
     "G4": "g4-1.0",
     "G5": "g5-1.0",
-    "G6": "g6-1.0",
+    "G6": "g6-1.1",
     "G7": "g7-1.0",
-    "G8": "g8-1.0",
+    "G8": "g8-1.1",
 }
 EVIDENCE_METHOD_VERSION = "ev-gate-1.0"
 FORMAL_GATES = ["G1", "G2", "G3", "G4", "G5", "G6", "G7"]

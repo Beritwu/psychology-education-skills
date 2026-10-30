@@ -1,0 +1,153 @@
+{
+  "project": "methods_two_lessons_20261029",
+  "run_id": "run_51625d71096e",
+  "changeset_id": "cs_ae95a13d86f2",
+  "export_manifest": "export_manifest@r20",
+  "mode": "formal",
+  "files": [
+    {
+      "file": "变量的操作性定义与相关_sec1.r15.md",
+      "role": "lesson_script",
+      "kind": "markdown",
+      "sha256": "aafa56f46a75e8d3d06ffe0571000a4f4f07af018419e08d1e597232b7ce2677"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec1.r15.docx",
+      "role": "lesson_script",
+      "kind": "docx",
+      "sha256": "fb7d87f4545c213db877671caa7e0eda59e7622f28b7062c80a5a3f481b41d2f"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec1_sec1-d1-e6afbbc8416e684cabdd7ca252b72b8b0971b305099863ab0c73f89b792e3a60.svg",
+      "role": "diagram",
+      "kind": "svg",
+      "sha256": "e6afbbc8416e684cabdd7ca252b72b8b0971b305099863ab0c73f89b792e3a60"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec1_0facc7e94a1b7a6c801a0be04894bb924ed7cf0f345565491d364cf9e420444b.svg",
+      "role": "diagram",
+      "kind": "svg",
+      "sha256": "0facc7e94a1b7a6c801a0be04894bb924ed7cf0f345565491d364cf9e420444b"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec1_eeea681791affd52ca55fdab6b9a4a890ae8375e22056c222b3015db18121a79.svg",
+      "role": "diagram",
+      "kind": "svg",
+      "sha256": "eeea681791affd52ca55fdab6b9a4a890ae8375e22056c222b3015db18121a79"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec1_sec1-d4-91ed56b752402a1b5d14bf7c076ede54bc1a8c7a22b0d9d12e8e49a61a72bb2f.svg",
+      "role": "diagram",
+      "kind": "svg",
+      "sha256": "91ed56b752402a1b5d14bf7c076ede54bc1a8c7a22b0d9d12e8e49a61a72bb2f"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec1_sec1-d5-7ea9579c32da19e516c59d8b3e2fa34ccb7dc91605436d32e53b16f38a105ac1.svg",
+      "role": "diagram",
+      "kind": "svg",
+      "sha256": "7ea9579c32da19e516c59d8b3e2fa34ccb7dc91605436d32e53b16f38a105ac1"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec1.r15.lesson.md",
+      "role": "lesson_plan",
+      "kind": "markdown",
+      "sha256": "d97d195189892dfb73b72236c2042cd3a379da8c5e5822f5b8fcde866ea4a5f3"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec1.r15.lesson.docx",
+      "role": "lesson_plan",
+      "kind": "docx",
+      "sha256": "8f3902bc803d68cac612e742853be2bc3615c8948f941f79571801daf33b0a35"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec1.r15.worksheet.student.md",
+      "role": "worksheet",
+      "kind": "markdown",
+      "sha256": "fa2839fcc1a5212270d0efbf3f607d5d56bd6f5fdeda5e386c0766eba3d35158"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec1.r15.worksheet.student.docx",
+      "role": "worksheet",
+      "kind": "docx",
+      "sha256": "7d1aa1006631a822c8e4ada1fb64a30ff41b12ce9d96a31d51a2399bd71a07bb"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec1.r15.worksheet.teacher.md",
+      "role": "worksheet_teacher",
+      "kind": "markdown",
+      "sha256": "f4b5ac4826d2b59e09c4cb55d5e6ff86b3f090a8f8778a41f5dd25526e8de82a"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec2.r18.md",
+      "role": "lesson_script",
+      "kind": "markdown",
+      "sha256": "2e3d15f3562de03980742d183ae06b013acd4838e6fcd59c770d3ef48169e7ee"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec2.r18.docx",
+      "role": "lesson_script",
+      "kind": "docx",
+      "sha256": "f8ed1c94990d5d1556c24f0481abebaab0184e2e64f135e8b9e98f0c182c798c"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec2_sec2-d1-f70a3689b948d7309df7d0684d342255268137812531b2fd825782f96e1e998b.svg",
+      "role": "diagram",
+      "kind": "svg",
+      "sha256": "f70a3689b948d7309df7d0684d342255268137812531b2fd825782f96e1e998b"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec2_fae53fc12a54e74ae08f218c42a30a51a0e3f42e29ea19c3d3ed15caaf93628f.svg",
+      "role": "diagram",
+      "kind": "svg",
+      "sha256": "fae53fc12a54e74ae08f218c42a30a51a0e3f42e29ea19c3d3ed15caaf93628f"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec2_5f0afb37d4179fdc9ef480b7ad892f298693c0419d77f223516e2a471c9d835f.svg",
+      "role": "diagram",
+      "kind": "svg",
+      "sha256": "5f0afb37d4179fdc9ef480b7ad892f298693c0419d77f223516e2a471c9d835f"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec2_sec2-d4-0a891536d062837292d9d0e1c36b8996dc58dcbe3ccf427c574ffc0ea03985d8.svg",
+      "role": "diagram",
+      "kind": "svg",
+      "sha256": "0a891536d062837292d9d0e1c36b8996dc58dcbe3ccf427c574ffc0ea03985d8"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec2_34e92d6f566f7a35b6ed72a5d5abc3a5f48c66e73117c0d5a1aaae88a91f1c15.svg",
+      "role": "diagram",
+      "kind": "svg",
+      "sha256": "34e92d6f566f7a35b6ed72a5d5abc3a5f48c66e73117c0d5a1aaae88a91f1c15"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec2.r18.lesson.md",
+      "role": "lesson_plan",
+      "kind": "markdown",
+      "sha256": "c6bb1e23e889fd9e5d73d640fc6bbc018b058663eb2e0a9ab2df11134e5621e1"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec2.r18.lesson.docx",
+      "role": "lesson_plan",
+      "kind": "docx",
+      "sha256": "e2aaa9a361c8a2d36a84f3780a6b097265ca9eafaacfe9484b4cfbc219b31204"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec2.r18.worksheet.student.md",
+      "role": "worksheet",
+      "kind": "markdown",
+      "sha256": "c2fb92152b5f4cc540dde3dccb00b528169ce6021bf3140b811cf28d6fea6bb5"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec2.r18.worksheet.student.docx",
+      "role": "worksheet",
+      "kind": "docx",
+      "sha256": "9095c0036f49903973b66c350494ceb6a5e2ff1b877ce6482f9f566b0b13a2d3"
+    },
+    {
+      "file": "变量的操作性定义与相关_sec2.r18.worksheet.teacher.md",
+      "role": "worksheet_teacher",
+      "kind": "markdown",
+      "sha256": "cc19016d990c7e5d2a1d32b5c763c6654689d4f07b1d9307de2c957356001e01"
+    }
+  ]
+}

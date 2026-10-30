@@ -7,6 +7,8 @@
 [![Code CI](https://github.com/Beritwu/psychology-education-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/Beritwu/psychology-education-skills/actions/workflows/ci.yml)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 
+**심리학 수업 단원:** [조작적 조건형성과 심리학 연구 방법](examples/two-psychology-units/current-course-materials/README.md)의 수업 자료, 진단 문항과 교사 검토 절차를 살펴보세요 (자료는 중국어).
+
 [**수업과 애니메이션 체험 →**](https://beritwu.github.io/psychology-education-skills/)
  · [사용 설명서 — 영어](docs/usage.md)
  · [사용 설명서 — 중국어](docs/usage.zh-CN.md)

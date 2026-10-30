@@ -1,0 +1,42 @@
+{
+  "source_project": "operant_final_20261029",
+  "changeset": "cs_c5cedd8af88f",
+  "files": [
+    {
+      "name": "课程内容_sec1.r7.docx",
+      "sha256": "af5141c768a8851a29a86b9be54755fb7943d9d3d32fbe8c0caa87852c9c781b"
+    },
+    {
+      "name": "课程内容_sec1.r7.lesson.docx",
+      "sha256": "f72b3c0fb2a8f9d221e37b811d84769c09b09f3558b89fc43dd1160dcc698e80"
+    },
+    {
+      "name": "课程内容_sec1.r7.lesson.md",
+      "sha256": "64856fe18f955c7ce93ab42d351e0de6e56a9d8aa648f87aae1417c476147c4a"
+    },
+    {
+      "name": "课程内容_sec1.r7.md",
+      "sha256": "ff5235288c27fd30d73a326dce26d35e6d3696c13c49351f659b55700539eb4d"
+    },
+    {
+      "name": "课程内容_sec1.r7.worksheet.student.docx",
+      "sha256": "656149dc80bf14ba1df779cfc2eae9e080572a5120455eae0aacb9217397dcc1"
+    },
+    {
+      "name": "课程内容_sec1.r7.worksheet.student.md",
+      "sha256": "f141694585a9fbfc085072e6d4999318bbe617f271c2ac83083c1d2d3b17cb5d"
+    },
+    {
+      "name": "课程内容_sec1.r7.worksheet.teacher.md",
+      "sha256": "d560cc25223c99652bea3d741e4fe94791ea3e23bdc976795376e2c4cbf6abc4"
+    },
+    {
+      "name": "课程内容_sec1_0235de289075eadcc66dbf3e2e7898f3b9d7c4e6a0d7b2a7552384c2413cfe4d.svg",
+      "sha256": "0235de289075eadcc66dbf3e2e7898f3b9d7c4e6a0d7b2a7552384c2413cfe4d"
+    },
+    {
+      "name": "课程内容_sec1_a8c778698a932146f8fb164ad9096b370e2cddf2e89e92fc3a97f1b1f12b6332.svg",
+      "sha256": "a8c778698a932146f8fb164ad9096b370e2cddf2e89e92fc3a97f1b1f12b6332"
+    }
+  ]
+}

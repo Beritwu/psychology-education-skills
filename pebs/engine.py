@@ -371,7 +371,28 @@ class Engine:
         plan = self.current_plan()
         steps = {s["step_id"]: s for s in plan["steps"]}
         order = [s["step_id"] for s in plan["steps"]]
-        tracked = set(order) if step_ids is None else set(step_ids)
+        # Include already completed and failed steps of the same run during a
+        # resume; they still constrain selected descendants.
+        tracked = ({step['step_id'] for step in self.store.get_steps(run_id)}
+                   | (set(order) if step_ids is None else set(step_ids)))
+
+        def tracked_dependencies(step_id: str) -> set[str]:
+            # A partial run can omit intermediate nodes. Follow through those
+            # nodes so an upstream failure still blocks a selected descendant.
+            pending = list(steps[step_id]["depends_on"])
+            seen: set[str] = set()
+            dependencies: set[str] = set()
+            while pending:
+                dep = pending.pop()
+                if dep in seen:
+                    continue
+                seen.add(dep)
+                if dep in tracked:
+                    dependencies.add(dep)
+                elif dep in steps:
+                    pending.extend(steps[dep]["depends_on"])
+            return dependencies
+
         for step_id in order:
             step = steps[step_id]
             if step_ids is not None and step_id not in step_ids:
@@ -384,8 +405,8 @@ class Engine:
                 continue
             blocked_by = [
                 dep
-                for dep in step["depends_on"]
-                if dep in tracked and self._step_status(run_id, dep) != "SUCCEEDED"
+                for dep in sorted(tracked_dependencies(step_id))
+                if self._step_status(run_id, dep) != "SUCCEEDED"
             ]
             if blocked_by:
                 self.store.set_step(
@@ -439,6 +460,8 @@ class Engine:
             return "failed"
         if "BLOCKED" in statuses:
             return "blocked"
+        if "PENDING" in statuses or "RUNNING" in statuses:
+            return "blocked"
         if "CANCELLED" in statuses and "PENDING" not in statuses and "RUNNING" not in statuses:
             return "cancelled"
         return "succeeded"
@@ -469,13 +492,22 @@ class Engine:
         are reused rather than executed a second time.
         """
         run = self.store.get_run(run_id)
+        if run['status'] == 'cancelled':
+            raise PlanEditRejected('运行已取消，不能续跑')
+        if run['status'] == 'running':
+            raise PlanEditRejected('运行仍在执行，不能并发续跑')
         applied = self.store.set_budgets(run_id, budgets) if budgets else None
+        steps = self.store.get_steps(run_id)
         blocked = [
             step["step_id"]
-            for step in self.store.get_steps(run_id)
+            for step in steps
             if step["status"] == "BLOCKED" and "预算耗尽" in (step.get("error") or "")
         ]
-        if not blocked:
+        pending = [step['step_id'] for step in steps if step['status'] == 'PENDING']
+        # Older versions could incorrectly mark a run successful with pending
+        # steps after resuming only its budget-blocked node.
+        recover_legacy = run['status'] == 'succeeded' and bool(pending)
+        if not blocked and not recover_legacy:
             self._finalize_run_status(run_id)
             return {
                 "run_id": run_id,
@@ -485,9 +517,20 @@ class Engine:
                 "run_status": self.store.get_run(run_id)["status"],
             }
         inputs = run.get("inputs") or {}
-        changeset_id = self.store.create_changeset(
-            run_id, f"resume: {run_id}", self.store.current_baseline()
-        )
+        # Continue the original candidate so one acceptance commits both the
+        # completed and resumed artifacts. Refuse ambiguous legacy runs and
+        # changed baselines instead of combining unrelated revisions silently.
+        candidates = [self.store.get_changeset(item['changeset_id']) for item in self.store.list_changesets()
+                      if item['status'] == 'candidate']
+        candidates = [item for item in candidates if item.get('run_id') == run_id]
+        if len(candidates) != 1:
+            raise PlanEditRejected('续跑需要一个未决的原始变更集；请检查历史变更集后重新构建')
+        changeset = candidates[0]
+        current = self.store.current_baseline()
+        baseline = changeset['baseline']
+        if any(current.get(key) != baseline.get(key) for key in set(current) | set(baseline)):
+            raise PlanEditRejected('续跑基线已变更；请基于当前版本重新构建')
+        changeset_id = changeset['changeset_id']
         ctx = self._new_context(
             run_id=run_id,
             changeset_id=changeset_id,
@@ -498,7 +541,8 @@ class Engine:
             explicit_skills=inputs.get("explicit_skills") or [],
         )
         for item in self.store.run_changeset_items(run_id):
-            ctx.outputs.setdefault(item["artifact_id"], item["revision_id"])
+            # Items are returned oldest first; later revisions supersede them.
+            ctx.outputs[item["artifact_id"]] = item["revision_id"]
         self.store.set_run_status(run_id, "running")
         if inputs.get("planner") == "dynamic":
             plan = self.store.accepted_content("build_plan_dynamic") or {}
@@ -508,7 +552,11 @@ class Engine:
 
             executor_mod.execute_plan(engine=self, run_id=run_id, ctx=ctx, plan=plan)
         else:
-            self._run_steps(ctx, run_id, step_ids=set(blocked))
+            selected = set(blocked + pending)
+            selected.update(step['step_id'] for step in steps
+                            if step['status'] == 'BLOCKED' and (step.get('error') or '').startswith('依赖步骤未成功'))
+            self._run_steps(ctx, run_id, step_ids=selected)
+            blocked = sorted(selected)
         return {
             "run_id": run_id,
             "resumed": sorted(blocked),
@@ -640,6 +688,7 @@ class Engine:
 
     def _publish_formal(self, changeset_id: str) -> list[str]:
         import shutil
+        from .store import file_hash
 
         staging = self._staging_dir(changeset_id)
         if not staging.exists():
@@ -648,20 +697,55 @@ class Engine:
         formal.mkdir(parents=True, exist_ok=True)
         published: list[str] = []
         cs = self.store.get_changeset(changeset_id)
+        accepted_manifest = self.store.accepted_rev_id('export_manifest')
+        g8_id = gates.gate_artifact_id('G8', 'export_manifest')
+        g8 = self.store.accepted_content(g8_id) or {}
+        if (self.store.is_stale('export_manifest') or self.store.is_stale(g8_id)
+                or g8.get('status') != 'PASS'
+                or g8.get('rules_version') != config.RULES_VERSION
+                or (g8.get('target') or {}).get('revision_id') != accepted_manifest):
+            return []
+        # Gate state may have changed after this export candidate was created.
+        if not gates.export_readiness(self.store)['ready']:
+            return []
         for item in cs["items"]:
             revision = item["revision"]
-            if revision["artifact_type"] != "export_manifest":
+            if revision["artifact_type"] != "export_manifest" or item['revision_id'] != accepted_manifest:
                 continue
             content = revision["content"]
             if content.get("mode") != "formal":
                 continue
-            for entry in content.get("files", []):
+            # Validate the complete set before copying any file. Resolve both
+            # sides so traversal and symlinks cannot escape the staging root.
+            sources: list[tuple[Path, Path]] = []
+            targets: set[Path] = set()
+            root = staging.resolve()
+            files = content.get("files", [])
+            if not isinstance(files, list) or not files:
+                return []
+            for entry in files:
+                if (not isinstance(entry, dict) or not isinstance(entry.get('path'), str) or not entry['path']
+                        or not isinstance(entry.get('sha256'), str) or not entry['sha256']):
+                    return []
                 source = Path(entry["path"])
-                if source.exists() and staging in source.parents:
-                    target = formal / source.name
-                    shutil.move(str(source), str(target))
-                    published.append(str(target))
-        shutil.rmtree(staging, ignore_errors=True)
+                try:
+                    resolved = source.resolve(strict=True)
+                except OSError:
+                    return []
+                target = formal / f"{changeset_id}_{source.name}"
+                if root not in resolved.parents or not resolved.is_file() or target in targets:
+                    return []
+                try:
+                    if file_hash(resolved) != entry['sha256']:
+                        return []
+                except OSError:
+                    return []
+                targets.add(target)
+                sources.append((resolved, target))
+            for source, target in sources:
+                shutil.copyfile(source, target)
+                published.append(str(target))
+        # Accepted manifests reference staged paths; retain these immutable bytes.
         return published
 
     def _discard_staging(self, changeset_id: str) -> None:
@@ -709,6 +793,51 @@ class Engine:
             )
         return diffs
 
+    def edit_assessment_item(
+        self, section_id: str, assessment_id: str, expected_revision: str, fields: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Stage a precise, version-checked edit without regenerating unrelated items."""
+        from . import schemas
+
+        allowed = {"question", "options", "answer", "rationale", "answer_verification",
+                   "remediation", "retest_question", "scoring", "distractors",
+                   "distractors_detail", "response_patterns"}
+        if not fields or set(fields) - allowed:
+            raise PlanEditRejected("没有修改内容或包含不支持的字段")
+        if pii.scan(json.dumps(fields, ensure_ascii=False)):
+            raise PiiBlocked("修改内容包含可识别学生资料，请先脱敏")
+        artifact_id = f"assessment:{section_id}"
+        with self.store._lock:
+            current = self.store.accepted_rev_id(artifact_id)
+            if not current or current != expected_revision:
+                raise ConflictError("评价版本已更新或尚未接受")
+            if self.store.is_locked(artifact_id):
+                raise ConflictError(f"artifact locked: {artifact_id}")
+            old = self.store.get_revision(current)
+            if old["artifact_type"] != "assessment" or self.store.is_stale(artifact_id):
+                raise ConflictError("评价类型不符或已过期")
+            content = json.loads(json.dumps(old["content"], ensure_ascii=False))
+            matches = [item for item in content.get("items", []) if item.get("assessment_id") == assessment_id]
+            if len(matches) != 1:
+                raise PlanEditRejected("评价题不存在或标识重复")
+            matches[0].update(fields)
+            try:
+                schemas.validate(content, "assessment")
+            except schemas.SchemaError as exc:
+                raise PlanEditRejected(f"评价格式无效: {exc}") from exc
+            environment = "test_fixture" if old.get("fixture") else "production"
+            run_id = self.store.create_run(environment=environment, request="manual assessment item edit")
+            changeset_id = self.store.create_changeset(run_id, "manual assessment item edit", self.store.current_baseline())
+            saved = self.store.add_revision(
+                artifact_id=artifact_id, artifact_type="assessment", content=content,
+                produced_by="manual-edit", run_id=run_id, rules_version=config.RULES_VERSION,
+                deps=self.store.upstream_revs(current), fixture=bool(old.get("fixture")),
+                note="精确修订候选；下游产物须重新构建，未自动产生教师审核或签署",
+            )
+            self.store.add_changeset_item(changeset_id, saved["revision_id"], artifact_id)
+            self.store.set_run_status(run_id, "succeeded")
+        return {"run_id": run_id, "changeset_id": changeset_id, "revision_id": saved["revision_id"]}
+
     # ------------------------------------------------------------------ case replace
 
     def case_replace(
@@ -718,12 +847,17 @@ class Engine:
         *,
         environment: str = "production",
     ) -> dict[str, Any]:
+        hits = pii.scan(instruction)
+        if hits:
+            raise PiiBlocked('请求文本包含可识别学生资料（' + pii.summarize(hits) + '），已在发送前暂停；请脱敏后重试')
         old_rev_id = self.store.accepted_rev_id(case_artifact_id)
         if not old_rev_id:
             raise StoreError(f"case not accepted: {case_artifact_id}")
         if self.store.is_locked(case_artifact_id):
             raise ConflictError(f"artifact locked: {case_artifact_id}")
         old_case = self.store.get_revision(old_rev_id)["content"]
+        if pii.scan(json.dumps(old_case, ensure_ascii=False)):
+            raise PiiBlocked('原案例包含可识别学生资料，已在发送前暂停；请脱敏后重试')
         run_id = self.store.create_run(environment=environment, request=f"replace {case_artifact_id}: {instruction}")
         changeset_id = self.store.create_changeset(
             run_id, f"replace {case_artifact_id}", self.store.current_baseline()
@@ -875,6 +1009,9 @@ class Engine:
 
         if not (message or "").strip():
             raise PlanEditRejected("修改消息为空")
+        hits = pii.scan(message)
+        if hits:
+            raise PiiBlocked('请求文本包含可识别学生资料（' + pii.summarize(hits) + '），已在发送前暂停；请脱敏后重试')
         requirements = self.store.accepted_content("requirements") or {}
         sections = requirements.get("sections", [])
         artifacts = self.store.list_artifacts()
@@ -889,10 +1026,18 @@ class Engine:
         resolved = resolver_mod.resolve(
             message, intent, sections=sections, artifacts=artifacts, slides=slides, script_units=script_units
         )
-        target_ids = list(resolved["artifact_ids"])
+        _, _, explicit_preserve = interpreter_mod.deterministic_intent(message)
+        preserve_kinds = {kind for kind, hints in resolver_mod.KIND_HINTS
+                          if any(hint in clause.lower() for clause in explicit_preserve for hint in hints)}
+        preserve_scope = set(resolved['section_ids']) or {section['section_id'] for section in sections}
+        preserved_ids = {artifact['artifact_id'] for artifact in artifacts
+                         if artifact.get('accepted_rev') and artifact['artifact_type'] in preserve_kinds
+                         and (':' not in artifact['artifact_id'] or
+                              any(part in preserve_scope for part in artifact['artifact_id'].split(':')[1:]))}
+        target_ids = [artifact_id for artifact_id in resolved["artifact_ids"] if artifact_id not in preserved_ids]
         if not target_ids and resolved["section_ids"]:
             for artifact in artifacts:
-                if not artifact.get("accepted_rev"):
+                if not artifact.get("accepted_rev") or artifact['artifact_id'] in preserved_ids:
                     continue
                 parts = artifact["artifact_id"].split(":")[1:]
                 if any(section_id in parts for section_id in resolved["section_ids"]):
@@ -901,24 +1046,31 @@ class Engine:
             raise PlanEditRejected(f"无法定位修改目标：{message}")
 
         impact_result = impact_mod.impact(self.store, target_ids)
-        write_types: set[str] = set()
-        for artifact_id in impact_result["affected"]:
-            type_name = artifact_id.split(":", 1)[0]
-            for producer in skill_registry.producers_of(type_name):
-                record = skill_registry.get(producer) or {}
-                write_types.update(record.get("emits") or record.get("produces", []))
-        affected = set(impact_result["affected"])
+        affected = set(impact_result["affected"]) - preserved_ids
         target_set = set(target_ids)
         section_scope = set(resolved["section_ids"])
-        for artifact in artifacts:
-            if not artifact.get("accepted_rev") or artifact["artifact_type"] not in write_types:
-                continue
-            artifact_id = artifact["artifact_id"]
-            if ":" in artifact_id and section_scope:
-                parts = artifact_id.split(":")[1:]
-                if not any(part in section_scope for part in parts):
+        while True:
+            write_types: set[str] = set()
+            for artifact_id in affected:
+                type_name = artifact_id.split(":", 1)[0]
+                for producer in skill_registry.producers_of(type_name):
+                    record = skill_registry.get(producer) or {}
+                    write_types.update(record.get("emits") or record.get("produces", []))
+            expanded = set(affected)
+            for artifact in artifacts:
+                if not artifact.get("accepted_rev") or artifact["artifact_type"] not in write_types:
                     continue
-            affected.add(artifact_id)
+                artifact_id = artifact["artifact_id"]
+                if artifact_id in preserved_ids:
+                    continue
+                if ":" in artifact_id and section_scope:
+                    parts = artifact_id.split(":")[1:]
+                    if not any(part in section_scope for part in parts):
+                        continue
+                expanded.add(artifact_id)
+            if expanded == affected:
+                break
+            affected = expanded
         impact_result["affected"] = sorted(affected)
         ordered = [artifact_id for artifact_id in impact_result["order"] if artifact_id in affected]
         impact_result["order"] = ordered + sorted(affected - set(ordered))
@@ -935,6 +1087,10 @@ class Engine:
             for producer in skill_registry.producers_of(type_name):
                 record = skill_registry.get(producer) or {}
                 step_filter.update(record.get("handler", {}).get("steps", []))
+        for kind in preserve_kinds:
+            for producer in skill_registry.producers_of(kind):
+                record = skill_registry.get(producer) or {}
+                step_filter.difference_update(record.get('handler', {}).get('steps', []))
         locked = sorted(
             artifact["artifact_id"]
             for artifact in artifacts

@@ -1,0 +1,514 @@
+{
+  "unit_id": "operant-conditioning",
+  "version": "0.1.2",
+  "teacher_review": {
+    "status": "PENDING",
+    "reviewer": null
+  },
+  "sources": [
+    {
+      "source_id": "openstax-psychology2e-6-3",
+      "url": "https://openstax.org/books/psychology-2e/pages/6-3-operant-conditioning",
+      "title": "Psychology 2e, 6.3 Operant Conditioning",
+      "verification_status": "PENDING",
+      "snapshot_sha256": "7b7553b6807107baaac94496b11a864f162e45ff5b9a063f31e6be0794efa260",
+      "license": "CC-BY-4.0",
+      "version_url": "https://raw.githubusercontent.com/openstax/osbooks-psychology/e061043bf2f9e86ace51c4e8dc9555160f60a99d/modules/m82201/index.cnxml",
+      "attribution": "OpenStax, Rice University. Access for free at openstax.org."
+    }
+  ],
+  "concepts": [
+    {
+      "concept_id": "positive-reinforcement",
+      "version": "0.1.0",
+      "terms": {
+        "zh-CN": {
+          "full": "正强化",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Positive reinforcement",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "正の強化",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "정적 강화",
+          "review_status": "PENDING"
+        }
+      },
+      "definition": "行为后加入某刺激，且该行为随后增加。",
+      "source_refs": [
+        "openstax-psychology2e-6-3"
+      ],
+      "misconceptions": [
+        {
+          "misconception_id": "positive-reinforcement-1",
+          "text": "仅凭刺激加入或移除判断强化还是惩罚，忽略行为变化。",
+          "basis": "model_hypothesis",
+          "remediation": "先识别后果是加入还是移除，再核对同一行为随后增加还是减少。",
+          "retest_goal": "在新情境中同时说明后果操作与行为变化。"
+        },
+        {
+          "misconception_id": "positive-reinforcement-2",
+          "text": "把正负等同于好坏，或把刺激变化方向与行为变化方向混为一谈。",
+          "basis": "model_hypothesis",
+          "remediation": "正负描述加入或移除，强化与惩罚描述行为变化方向。",
+          "retest_goal": "独立辨别两个维度。"
+        }
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-6-3",
+        "start_char": 3586,
+        "end_char": 3764,
+        "text": "The most effective way to teach a person or animal a new behavior is with positive reinforcement. In positive reinforcement, a desirable stimulus is added to increase a behavior.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "prerequisites": [],
+      "boundary": "教学示例明确给出行为及后果后变化；仅凭施加后果的意图或时间先后不能证明因果作用。",
+      "examples": {
+        "positive": {
+          "text": "虚构情境：完成练习后获得积分，之后完成练习次数增加。",
+          "fictional": true
+        },
+        "counterexample": {
+          "text": "仅知道行为后发生某个后果，但没有行为变化记录，不能确认强化或惩罚的实际效果。",
+          "fictional": true
+        }
+      },
+      "content_review_status": "PENDING"
+    },
+    {
+      "concept_id": "negative-reinforcement",
+      "version": "0.1.0",
+      "terms": {
+        "zh-CN": {
+          "full": "负强化",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Negative reinforcement",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "負の強化",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "부적 강화",
+          "review_status": "PENDING"
+        }
+      },
+      "definition": "行为后移除某刺激，且该行为随后增加。",
+      "source_refs": [
+        "openstax-psychology2e-6-3"
+      ],
+      "misconceptions": [
+        {
+          "misconception_id": "negative-reinforcement-1",
+          "text": "仅凭刺激加入或移除判断强化还是惩罚，忽略行为变化。",
+          "basis": "model_hypothesis",
+          "remediation": "先识别后果是加入还是移除，再核对同一行为随后增加还是减少。",
+          "retest_goal": "在新情境中同时说明后果操作与行为变化。"
+        },
+        {
+          "misconception_id": "negative-reinforcement-2",
+          "text": "把正负等同于好坏，或把刺激变化方向与行为变化方向混为一谈。",
+          "basis": "model_hypothesis",
+          "remediation": "正负描述加入或移除，强化与惩罚描述行为变化方向。",
+          "retest_goal": "独立辨别两个维度。"
+        }
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-6-3",
+        "start_char": 5578,
+        "end_char": 6265,
+        "text": "In negative reinforcement, an undesirable stimulus is removed to increase a behavior. For example, car manufacturers use the principles of negative reinforcement in their seatbelt systems, which go “beep, beep, beep” until you fasten your seatbelt. The annoying sound stops when you exhibit the desired behavior, increasing the likelihood that you will buckle up in the future. Negative reinforcement is also used frequently in horse training. Riders apply pressure—by pulling the reins or squeezing their legs—and then remove the pressure when the horse performs the desired behavior, such as turning or speeding up. The pressure is the negative stimulus that the horse wants to remove.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "prerequisites": [],
+      "boundary": "教学示例明确给出行为及后果后变化；仅凭施加后果的意图或时间先后不能证明因果作用。",
+      "examples": {
+        "positive": {
+          "text": "虚构情境：系安全带后提示音停止，之后及时系安全带次数增加。",
+          "fictional": true
+        },
+        "counterexample": {
+          "text": "仅知道行为后发生某个后果，但没有行为变化记录，不能确认强化或惩罚的实际效果。",
+          "fictional": true
+        }
+      },
+      "content_review_status": "PENDING"
+    },
+    {
+      "concept_id": "positive-punishment",
+      "version": "0.1.0",
+      "terms": {
+        "zh-CN": {
+          "full": "正惩罚",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Positive punishment",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "正の罰",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "정적 처벌",
+          "review_status": "PENDING"
+        }
+      },
+      "definition": "行为后加入某刺激，且该行为随后减少。",
+      "source_refs": [
+        "openstax-psychology2e-6-3"
+      ],
+      "misconceptions": [
+        {
+          "misconception_id": "positive-punishment-1",
+          "text": "仅凭刺激加入或移除判断强化还是惩罚，忽略行为变化。",
+          "basis": "model_hypothesis",
+          "remediation": "先识别后果是加入还是移除，再核对同一行为随后增加还是减少。",
+          "retest_goal": "在新情境中同时说明后果操作与行为变化。"
+        },
+        {
+          "misconception_id": "positive-punishment-2",
+          "text": "把正负等同于好坏，或把刺激变化方向与行为变化方向混为一谈。",
+          "basis": "model_hypothesis",
+          "remediation": "正负描述加入或移除，强化与惩罚描述行为变化方向。",
+          "retest_goal": "独立辨别两个维度。"
+        }
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-6-3",
+        "start_char": 6277,
+        "end_char": 7061,
+        "text": "Many people confuse negative reinforcement with punishment in operant conditioning, but they are two very different mechanisms. Remember that reinforcement, even when it is negative, always increases a behavior. In contrast, punishment always decreases a behavior. In positive punishment, you add an undesirable stimulus to decrease a behavior. An example of positive punishment is scolding a student to get the student to stop texting in class. In this case, a stimulus (the reprimand) is added in order to decrease the behavior (texting in class). In negative punishment, you remove a pleasant stimulus to decrease behavior. For example, when a child misbehaves, a parent can take away a favorite toy. In this case, a stimulus (the toy) is removed in order to decrease the behavior.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "prerequisites": [],
+      "boundary": "教学示例明确给出行为及后果后变化；仅凭施加后果的意图或时间先后不能证明因果作用。",
+      "examples": {
+        "positive": {
+          "text": "虚构情境：某行为后增加一次口头提醒，之后该行为出现次数减少。",
+          "fictional": true
+        },
+        "counterexample": {
+          "text": "仅知道行为后发生某个后果，但没有行为变化记录，不能确认强化或惩罚的实际效果。",
+          "fictional": true
+        }
+      },
+      "content_review_status": "PENDING"
+    },
+    {
+      "concept_id": "negative-punishment",
+      "version": "0.1.0",
+      "terms": {
+        "zh-CN": {
+          "full": "负惩罚",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Negative punishment",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "負の罰",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "부적 처벌",
+          "review_status": "PENDING"
+        }
+      },
+      "definition": "行为后移除某刺激，且该行为随后减少。",
+      "source_refs": [
+        "openstax-psychology2e-6-3"
+      ],
+      "misconceptions": [
+        {
+          "misconception_id": "negative-punishment-1",
+          "text": "仅凭刺激加入或移除判断强化还是惩罚，忽略行为变化。",
+          "basis": "model_hypothesis",
+          "remediation": "先识别后果是加入还是移除，再核对同一行为随后增加还是减少。",
+          "retest_goal": "在新情境中同时说明后果操作与行为变化。"
+        },
+        {
+          "misconception_id": "negative-punishment-2",
+          "text": "把正负等同于好坏，或把刺激变化方向与行为变化方向混为一谈。",
+          "basis": "model_hypothesis",
+          "remediation": "正负描述加入或移除，强化与惩罚描述行为变化方向。",
+          "retest_goal": "独立辨别两个维度。"
+        }
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-6-3",
+        "start_char": 6277,
+        "end_char": 7061,
+        "text": "Many people confuse negative reinforcement with punishment in operant conditioning, but they are two very different mechanisms. Remember that reinforcement, even when it is negative, always increases a behavior. In contrast, punishment always decreases a behavior. In positive punishment, you add an undesirable stimulus to decrease a behavior. An example of positive punishment is scolding a student to get the student to stop texting in class. In this case, a stimulus (the reprimand) is added in order to decrease the behavior (texting in class). In negative punishment, you remove a pleasant stimulus to decrease behavior. For example, when a child misbehaves, a parent can take away a favorite toy. In this case, a stimulus (the toy) is removed in order to decrease the behavior.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "prerequisites": [],
+      "boundary": "教学示例明确给出行为及后果后变化；仅凭施加后果的意图或时间先后不能证明因果作用。",
+      "examples": {
+        "positive": {
+          "text": "虚构情境：某行为后暂停一项活动，之后该行为出现次数减少。",
+          "fictional": true
+        },
+        "counterexample": {
+          "text": "仅知道行为后发生某个后果，但没有行为变化记录，不能确认强化或惩罚的实际效果。",
+          "fictional": true
+        }
+      },
+      "content_review_status": "PENDING"
+    }
+  ],
+  "assessments": [
+    {
+      "assessment_id": "positive-reinforcement-diagnostic",
+      "concept_ref": "positive-reinforcement",
+      "kind": "diagnostic",
+      "question": "虚构情境：完成练习后获得积分，之后完成练习次数增加。 按题设的观察分类，哪项最合适？",
+      "options": [
+        "正强化：加入积分，完成练习增加",
+        "负强化：移除了刺激",
+        "正惩罚：行为减少"
+      ],
+      "answer": "正强化：加入积分，完成练习增加",
+      "rationale": "行为后加入某刺激，且该行为随后增加。 例子为虚构教学观察，前后变化不单独证明因果关系。",
+      "misconception_ref": "positive-reinforcement-1",
+      "followup_ref": "positive-reinforcement-retest",
+      "teacher_note": "错误仅用于追问，不能据一次作答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "positive-reinforcement-diagnostic-a",
+          "text": "正强化：加入积分，完成练习增加",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "positive-reinforcement-diagnostic-b",
+          "text": "负强化：移除了刺激",
+          "misconception_ref": "positive-reinforcement-1",
+          "retest_goal_ref": "positive-reinforcement-1"
+        },
+        {
+          "option_id": "positive-reinforcement-diagnostic-c",
+          "text": "正惩罚：行为减少",
+          "misconception_ref": "positive-reinforcement-2",
+          "retest_goal_ref": "positive-reinforcement-2"
+        }
+      ]
+    },
+    {
+      "assessment_id": "positive-reinforcement-retest",
+      "concept_ref": "positive-reinforcement",
+      "kind": "retest",
+      "question": "虚构情境中举手发言后得到反馈，之后举手次数增加。解释新增后果与行为变化的关系。",
+      "scoring_guidance": "行为后加入某刺激，且该行为随后增加。 检查学生分别指出后果操作和行为方向；不要把单次观察写成已证实因果。",
+      "review_status": "PENDING"
+    },
+    {
+      "assessment_id": "negative-reinforcement-diagnostic",
+      "concept_ref": "negative-reinforcement",
+      "kind": "diagnostic",
+      "question": "虚构情境：系安全带后提示音停止，之后及时系安全带次数增加。 按题设的观察分类，哪项最合适？",
+      "options": [
+        "负强化：移除提示音，系安全带增加",
+        "负惩罚：移除了刺激所以行为必然减少",
+        "正强化：加入提示音"
+      ],
+      "answer": "负强化：移除提示音，系安全带增加",
+      "rationale": "行为后移除某刺激，且该行为随后增加。 例子为虚构教学观察，前后变化不单独证明因果关系。",
+      "misconception_ref": "negative-reinforcement-1",
+      "followup_ref": "negative-reinforcement-retest",
+      "teacher_note": "错误仅用于追问，不能据一次作答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "negative-reinforcement-diagnostic-a",
+          "text": "负强化：移除提示音，系安全带增加",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "negative-reinforcement-diagnostic-b",
+          "text": "负惩罚：移除了刺激所以行为必然减少",
+          "misconception_ref": "negative-reinforcement-1",
+          "retest_goal_ref": "negative-reinforcement-1"
+        },
+        {
+          "option_id": "negative-reinforcement-diagnostic-c",
+          "text": "正强化：加入提示音",
+          "misconception_ref": "negative-reinforcement-2",
+          "retest_goal_ref": "negative-reinforcement-2"
+        }
+      ]
+    },
+    {
+      "assessment_id": "negative-reinforcement-retest",
+      "concept_ref": "negative-reinforcement",
+      "kind": "retest",
+      "question": "虚构情境中完成整理后持续提醒停止，之后及时整理次数增加。指出后果和行为方向。",
+      "scoring_guidance": "行为后移除某刺激，且该行为随后增加。 检查学生分别指出后果操作和行为方向；不要把单次观察写成已证实因果。",
+      "review_status": "PENDING"
+    },
+    {
+      "assessment_id": "positive-punishment-diagnostic",
+      "concept_ref": "positive-punishment",
+      "kind": "diagnostic",
+      "question": "虚构情境：某行为后增加一次口头提醒，之后该行为出现次数减少。 按题设的观察分类，哪项最合适？",
+      "options": [
+        "正惩罚：加入提醒，该行为减少",
+        "正强化：加入任何刺激都算强化",
+        "负惩罚：移除了提醒"
+      ],
+      "answer": "正惩罚：加入提醒，该行为减少",
+      "rationale": "行为后加入某刺激，且该行为随后减少。 例子为虚构教学观察，前后变化不单独证明因果关系。",
+      "misconception_ref": "positive-punishment-1",
+      "followup_ref": "positive-punishment-retest",
+      "teacher_note": "错误仅用于追问，不能据一次作答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "positive-punishment-diagnostic-a",
+          "text": "正惩罚：加入提醒，该行为减少",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "positive-punishment-diagnostic-b",
+          "text": "正强化：加入任何刺激都算强化",
+          "misconception_ref": "positive-punishment-1",
+          "retest_goal_ref": "positive-punishment-1"
+        },
+        {
+          "option_id": "positive-punishment-diagnostic-c",
+          "text": "负惩罚：移除了提醒",
+          "misconception_ref": "positive-punishment-2",
+          "retest_goal_ref": "positive-punishment-2"
+        }
+      ]
+    },
+    {
+      "assessment_id": "positive-punishment-retest",
+      "concept_ref": "positive-punishment",
+      "kind": "retest",
+      "question": "虚构办公情境：每次错误提交后，系统增加一项简短检查步骤；此后错误提交次数减少。指出新增后果、目标行为变化和分类，并说明这条记录不能单独证明什么。",
+      "scoring_guidance": "增加检查步骤，错误提交减少，符合正惩罚的两维描述；前后观察本身不能单独证明该步骤导致变化。",
+      "review_status": "PENDING"
+    },
+    {
+      "assessment_id": "negative-punishment-diagnostic",
+      "concept_ref": "negative-punishment",
+      "kind": "diagnostic",
+      "question": "虚构情境：某行为后暂停一项活动，之后该行为出现次数减少。 按题设的观察分类，哪项最合适？",
+      "options": [
+        "负惩罚：移除活动，该行为减少",
+        "负强化：移除任何刺激都算强化",
+        "正惩罚：增加了一项活动"
+      ],
+      "answer": "负惩罚：移除活动，该行为减少",
+      "rationale": "行为后移除某刺激，且该行为随后减少。 例子为虚构教学观察，前后变化不单独证明因果关系。",
+      "misconception_ref": "negative-punishment-1",
+      "followup_ref": "negative-punishment-retest",
+      "teacher_note": "错误仅用于追问，不能据一次作答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "negative-punishment-diagnostic-a",
+          "text": "负惩罚：移除活动，该行为减少",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "negative-punishment-diagnostic-b",
+          "text": "负强化：移除任何刺激都算强化",
+          "misconception_ref": "negative-punishment-1",
+          "retest_goal_ref": "negative-punishment-1"
+        },
+        {
+          "option_id": "negative-punishment-diagnostic-c",
+          "text": "正惩罚：增加了一项活动",
+          "misconception_ref": "negative-punishment-2",
+          "retest_goal_ref": "negative-punishment-2"
+        }
+      ]
+    },
+    {
+      "assessment_id": "negative-punishment-retest",
+      "concept_ref": "negative-punishment",
+      "kind": "retest",
+      "question": "虚构情境中某行为后失去一个游戏回合，该行为随后减少。说明后果变化和行为变化。",
+      "scoring_guidance": "行为后移除某刺激，且该行为随后减少。 检查学生分别指出后果操作和行为方向；不要把单次观察写成已证实因果。",
+      "review_status": "PENDING"
+    },
+    {
+      "assessment_id": "negative-reinforcement-application-1",
+      "concept_ref": "negative-reinforcement",
+      "kind": "diagnostic",
+      "question": "虚构练习中，每次按键后移除遮罩；相同机会数下按键次数从每轮2次升到6次。按观察模式分类，哪项合适？",
+      "options": [
+        "负表示坏，故一定是负惩罚",
+        "移除刺激且同一行为增加，符合负强化的观察模式",
+        "只要移除刺激就一定是惩罚，无须观察行为变化"
+      ],
+      "answer": "移除刺激且同一行为增加，符合负强化的观察模式",
+      "rationale": "负表示刺激移除，强化对应同一行为增加；前后记录不单独证明因果。",
+      "misconception_ref": "negative-reinforcement-1",
+      "followup_ref": "negative-reinforcement-retest",
+      "teacher_note": "错答仅触发追问，不能据一次回答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "negative-reinforcement-application-1-c",
+          "text": "负表示坏，故一定是负惩罚",
+          "misconception_ref": "negative-reinforcement-2",
+          "retest_goal_ref": "negative-reinforcement-2"
+        },
+        {
+          "option_id": "negative-reinforcement-application-1-a",
+          "text": "移除刺激且同一行为增加，符合负强化的观察模式",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "negative-reinforcement-application-1-b",
+          "text": "只要移除刺激就一定是惩罚，无须观察行为变化",
+          "misconception_ref": "negative-reinforcement-1",
+          "retest_goal_ref": "negative-reinforcement-1"
+        }
+      ]
+    },
+    {
+      "assessment_id": "positive-punishment-application-2",
+      "concept_ref": "positive-punishment",
+      "kind": "diagnostic",
+      "question": "虚构练习中，每次提前点击后加入闪框；相同机会数下提前点击从每轮7次降到3次。按观察模式分类，哪项合适？",
+      "options": [
+        "加入刺激且同一行为减少，符合正惩罚的观察模式",
+        "只看加入刺激即可断定强化，无须观察行为变化",
+        "正表示好，故一定是正强化"
+      ],
+      "answer": "加入刺激且同一行为减少，符合正惩罚的观察模式",
+      "rationale": "正表示刺激加入，惩罚对应同一行为减少；前后记录不单独证明因果。",
+      "misconception_ref": "positive-punishment-1",
+      "followup_ref": "positive-punishment-retest",
+      "teacher_note": "错答仅触发追问，不能据一次回答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "positive-punishment-application-2-a",
+          "text": "加入刺激且同一行为减少，符合正惩罚的观察模式",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "positive-punishment-application-2-b",
+          "text": "只看加入刺激即可断定强化，无须观察行为变化",
+          "misconception_ref": "positive-punishment-1",
+          "retest_goal_ref": "positive-punishment-1"
+        },
+        {
+          "option_id": "positive-punishment-application-2-c",
+          "text": "正表示好，故一定是正强化",
+          "misconception_ref": "positive-punishment-2",
+          "retest_goal_ref": "positive-punishment-2"
+        }
+      ]
+    }
+  ]
+}

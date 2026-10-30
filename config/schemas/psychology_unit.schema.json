@@ -1,0 +1,338 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "unit_id",
+    "version",
+    "teacher_review",
+    "sources",
+    "concepts",
+    "assessments"
+  ],
+  "properties": {
+    "unit_id": {
+      "enum": ["classical-conditioning", "operant-conditioning", "research-methods"]
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "teacher_review": {
+      "type": "object",
+      "required": [
+        "status",
+        "reviewer"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "CHANGES_REQUIRED"
+          ]
+        },
+        "reviewer": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "source_id",
+          "url",
+          "verification_status"
+        ]
+      }
+    },
+    "concepts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "concept_id",
+          "version",
+          "terms",
+          "definition",
+          "source_refs",
+          "misconceptions"
+        ],
+        "properties": {
+          "concept_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "misconceptions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "misconception_id",
+                "text",
+                "basis",
+                "remediation",
+                "retest_goal"
+              ]
+            }
+          },
+          "terms": {
+            "type": "object",
+            "required": [
+              "zh-CN"
+            ],
+            "additionalProperties": {
+              "type": "object",
+              "required": [
+                "full"
+              ],
+              "properties": {
+                "full": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "review_status": {
+                  "enum": [
+                    "PENDING",
+                    "APPROVED",
+                    "CHANGES_REQUIRED"
+                  ]
+                }
+              }
+            }
+          },
+          "prerequisites": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "boundary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "examples": {
+            "type": "object",
+            "required": [
+              "positive",
+              "counterexample"
+            ],
+            "additionalProperties": {
+              "type": "object",
+              "required": [
+                "text",
+                "fictional"
+              ],
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "fictional": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "assessments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "assessment_id",
+          "concept_ref",
+          "kind",
+          "question"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "diagnostic",
+              "retest"
+            ]
+          },
+          "question": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "diagnostic"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "options",
+                "answer",
+                "rationale",
+                "misconception_ref",
+                "followup_ref"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "retest"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "scoring_guidance",
+                "review_status"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "terminology": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "required": [
+          "term_id",
+          "definition",
+          "learning_status",
+          "terms",
+          "source_refs",
+          "evidence_anchor"
+        ],
+        "properties": {
+          "term_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "definition": {
+            "type": "string",
+            "minLength": 1
+          },
+          "learning_status": {
+            "enum": [
+              "unlearned",
+              "neutral",
+              "learned"
+            ]
+          },
+          "auxiliary_abbreviations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "terms": {
+            "type": "object",
+            "required": [
+              "zh-CN",
+              "en",
+              "ja",
+              "ko"
+            ]
+          },
+          "source_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidence_anchor": {
+            "type": "object",
+            "required": [
+              "source_ref",
+              "start_char",
+              "end_char",
+              "text",
+              "verification_status"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "version": {
+            "enum": [
+              "0.4.0",
+              "0.4.1",
+              "0.5.0",
+              "0.6.0",
+              "0.7.0"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "concepts": {
+            "items": {
+              "required": [
+                "prerequisites",
+                "boundary",
+                "examples"
+              ],
+              "properties": {
+                "terms": {
+                  "required": [
+                    "zh-CN",
+                    "en",
+                    "ja",
+                    "ko"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "version": {
+            "enum": [
+              "0.6.0",
+              "0.7.0"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "terminology"
+        ]
+      }
+    }
+  ]
+}

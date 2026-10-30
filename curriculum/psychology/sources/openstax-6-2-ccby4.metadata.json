@@ -1,0 +1,13 @@
+{
+  "url": "https://raw.githubusercontent.com/openstax/osbooks-psychology/e061043bf2f9e86ace51c4e8dc9555160f60a99d/modules/m82200/index.cnxml",
+  "retrieved_at": "2026-10-29",
+  "sha256": "5eb8001f8103ba5c3f8f8a06f3bb94fff0e09aa44d5b11d94086bc7ac45fb1bd",
+  "title": "Psychology 2e, 6.2 Classical Conditioning",
+  "source_type": "textbook",
+  "license": "CC-BY-4.0",
+  "attribution": "OpenStax, Rice University. Access for free at openstax.org.",
+  "commit": "e061043bf2f9e86ace51c4e8dc9555160f60a99d",
+  "license_url": "https://raw.githubusercontent.com/openstax/osbooks-psychology/e061043bf2f9e86ace51c4e8dc9555160f60a99d/LICENSE",
+  "verification_status": "PENDING",
+  "extraction": "CNXML paragraph/title text, whitespace normalized; no images"
+}

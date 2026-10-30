@@ -7,6 +7,8 @@
 [![Code CI](https://github.com/Beritwu/psychology-education-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/Beritwu/psychology-education-skills/actions/workflows/ci.yml)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 
+**Psychology teaching units:** Explore [operant conditioning and research methods](examples/two-psychology-units/current-course-materials/README.md), including classroom materials, diagnostic questions and a teacher review workflow (materials in Chinese).
+
 [**Try the interactive lesson →**](https://beritwu.github.io/psychology-education-skills/)
  · [Sample course](examples/classical-conditioning/course.zh-CN.md)
  · [Complete usage guide](docs/usage.md)

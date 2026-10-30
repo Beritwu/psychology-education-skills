@@ -63,6 +63,12 @@
               "type": "string"
             }
           },
+          "evidence_status": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
           "student_viewable": {
             "type": "boolean"
           },
@@ -86,12 +92,106 @@
                 }
               }
             }
+          },
+          "response_patterns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "response_pattern",
+                "linked_misconception"
+              ],
+              "properties": {
+                "response_pattern": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "linked_misconception": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "basis": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "retest_question": {
+            "type": "object",
+            "required": [
+              "question",
+              "answer"
+            ],
+            "properties": {
+              "question": {
+                "type": "string",
+                "minLength": 1
+              },
+              "answer": {
+                "type": "string",
+                "minLength": 1
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
     },
     "diagnostic_use": {
-      "type": "string"
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "required": [
+            "administration"
+          ],
+          "properties": {
+            "administration": {
+              "type": "string"
+            },
+            "decision_rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "assessment_ref",
+                  "trigger",
+                  "action"
+                ],
+                "properties": {
+                  "assessment_ref": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "trigger": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "action": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "interpretation_boundary": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
     }
   }
 }

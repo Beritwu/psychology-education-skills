@@ -1,0 +1,3 @@
+Specifically, it is assumed that the independent variable precedes the mediator, and the mediator in turn precedes the dependent variable in time (Stuart et al., 2021).
+
+In mediation analysis, manipulating only the independent variable is not sufficient to identify the causal effect of interest, because the effect of the independent variable on the outcome consists not only of a direct effect, but also of an effect transmitted through the mediator.

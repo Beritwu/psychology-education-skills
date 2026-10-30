@@ -231,6 +231,11 @@ def g1_requirements(ctx: GateContext, script_artifact: str) -> dict[str, Any]:
             )
     rules = reqs.get("word_rules", {})
     wc = script.get("word_count", {})
+    if not any(isinstance(unit.get('text'), str) and any(char.isalnum() for char in unit['text']) for unit in script.get('units', [])
+               if unit.get('kind') == 'narration'):
+        issues.append({'location': f'{script_artifact}:units',
+                       'reason': '教师讲解正文为空，不能作为完整课程交付',
+                       'next_step': '补充真实讲解正文并重新核验'})
     if rules.get("min") and rules.get("max"):
         if wc.get("method") != config.RULES["word_counting"]["method"]:
             issues.append(
@@ -709,6 +714,12 @@ def g6_multimedia(ctx: GateContext, script_artifact: str) -> dict[str, Any]:
                     }
                 )
     load_review = ctx.accepted(f"load_review:{section_id}") or {}
+    if load_review and load_review.get('reviewed_script') != {'revision_id': rev_id, 'content_hash': rev_hash}:
+        needs_review.append({
+            'location': f'load_review:{section_id}',
+            'reason': '认知负荷审阅未绑定当前讲稿修订，需按修订后正文重新审阅',
+            'next_step': '从 load_review 重跑，更新审阅后再检查门禁',
+        })
     cognitive_load = load_review.get("cognitive_load") or {}
     if cognitive_load.get("level") == "HIGH":
         suggestions = "；".join(str(item) for item in cognitive_load.get("improvements", [])[:3])
@@ -939,7 +950,7 @@ def g8_artifact(ctx: GateContext, export_artifact: str) -> dict[str, Any]:
                             "next_step": "重新生成正式导出",
                         }
                     )
-            if role == "worksheet" and "答案：" in content:
+            if role == "worksheet" and re.search(r"(?m)^\s*\*\*答案[：:]\*\*", content):
                 issues.append(
                     {
                         "location": file_entry["path"],
@@ -1174,6 +1185,7 @@ def export_readiness(
             current = (
                 result["target"]["revision_id"] == rev_id
                 and result["rules_version"] == config.RULES_VERSION
+                and (key in (overrides or {}) or not store.is_stale(key))
             )
             entry["status"] = result["status"]
             entry["current"] = current

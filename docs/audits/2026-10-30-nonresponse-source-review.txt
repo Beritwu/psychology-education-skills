@@ -1,0 +1,6 @@
+{
+  "claim": "受邀者拒绝参加或未回应，可能使实际获得的数据不再代表原总体。",
+  "support": "direct",
+  "quote": "Non-response or refusal of subject to participate: The collected responses may no longer be representative of the population.",
+  "limitations": "该命题是对所给摘录的近义改写，来源以“may”表述可能性而非必然性，也未量化偏差程度。摘录仅称“the population”，未明确写“原总体”，命题中的“原总体”属合理但非逐字的限定。来源提到持强烈正负意见者更可能作答，可影响结果，但未展开其他未回应机制。此外，所给材料为可定位摘录而非全章，评估范围限于此摘录；本评估为模型独立判断，不构成教师审核或同行评审。"
+}

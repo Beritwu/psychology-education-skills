@@ -55,8 +55,8 @@ def allowed_strategies(knowledge_type: str) -> list[str]:
 
 def parse_word_range(text: str) -> tuple[int | None, int | None]:
     patterns = [
-        r"(\d{2,5})\s*[-–—~至]\s*(\d{2,5})\s*字",
-        r"每?[节课][^0-9]{0,10}(\d{2,5})\s*[-–—~至]\s*(\d{2,5})",
+        r"(\d{2,5})\s*[-–—~至到]\s*(\d{2,5})\s*字",
+        r"每?[节课][^0-9]{0,10}(\d{2,5})\s*[-–—~至到]\s*(\d{2,5})",
     ]
     for pattern in patterns:
         match = re.search(pattern, text)
@@ -93,6 +93,9 @@ def parse_section_titles(text: str) -> list[str]:
 
 
 def requirements_from_request(request: str, template_spec: dict[str, Any] | None = None) -> dict[str, Any]:
+    from .routing.intent import extract_deterministic
+
+    constraints = extract_deterministic(request)
     items: list[dict[str, Any]] = []
     sections: list[dict[str, Any]] = []
     outputs: list[str] = []
@@ -110,7 +113,7 @@ def requirements_from_request(request: str, template_spec: dict[str, Any] | None
                 "status": "confirmed",
             }
         )
-    if re.search(r"动画", request):
+    if re.search(r"动画|\banimations?\b", request, re.I) and not constraints['no_animation']:
         required_components.append("animation")
         items.append(
             {

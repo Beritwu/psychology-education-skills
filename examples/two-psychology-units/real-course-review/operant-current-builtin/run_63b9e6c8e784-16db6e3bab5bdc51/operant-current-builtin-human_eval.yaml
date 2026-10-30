@@ -1,0 +1,203 @@
+package_manifest: manifest.json
+target:
+  format: 1
+  project_id: operant_final_20261029
+  run_id: run_63b9e6c8e784
+  rules_version: rules-9ef8373f0272
+  artifacts:
+    animation_decisions:sec1:
+      revision_id: animation_decisions:sec1@r8
+      content_hash: 35e40fbb6c12153aca5b6aff59bab2ea254f72e7971a60a6dda565d200390dd7
+      artifact_type: animation_decisions
+      rules_version: rules-9ef8373f0272
+    assessment:sec1:
+      revision_id: assessment:sec1@r2
+      content_hash: 17836d361398ec9261834e37927440b9e36d23ba10dd24f383a6a16ca62058c8
+      artifact_type: assessment
+      rules_version: rules-9ef8373f0272
+    case:sec1:1:
+      revision_id: case:sec1:1@r2
+      content_hash: 3ba0359bc5c38cda69356f316acf212f2537280872f824cedf1645fb25936446
+      artifact_type: case
+      rules_version: rules-9ef8373f0272
+    claims:
+      revision_id: claims@r2
+      content_hash: 88f61c090da0651d185756ee68303de4545e7fa0b88a7f63572c2ce2ebaafb2c
+      artifact_type: claims_set
+      rules_version: rules-9ef8373f0272
+    diagrams:sec1:
+      revision_id: diagrams:sec1@r6
+      content_hash: 065ff3d76e7837a91c250e3040ddf1bae05ad3554480abdf82e574a27a12f384
+      artifact_type: diagrams
+      rules_version: rules-9ef8373f0272
+    evidence_assets:
+      revision_id: evidence_assets@r8
+      content_hash: ec59bb71502e18bebbb4f9f9d83626b498f102dc09beab942bd8c3362c68300b
+      artifact_type: evidence_assets
+      rules_version: rules-9ef8373f0272
+    evidence_index:
+      revision_id: evidence_index@r2
+      content_hash: a781b45609289e49d9f89b7474983bef81d3cec3e0bdd2f9f9611f4e1d81672b
+      artifact_type: evidence_index
+      rules_version: rules-9ef8373f0272
+    export_manifest:
+      revision_id: export_manifest@r10
+      content_hash: 8ea7e6fe22b5fd1cc38e5491a49edcb57127d2118187a2d8f347e062c11eafc4
+      artifact_type: export_manifest
+      rules_version: rules-9ef8373f0272
+    gate:G1:script:sec1:
+      revision_id: gate:G1:script:sec1@r7
+      content_hash: 77e5699765ee2c389ebf194cbb62df99274740572e39b4691225756832c6e818
+      artifact_type: gate_result
+      rules_version: rules-9ef8373f0272
+    gate:G2:script:sec1:
+      revision_id: gate:G2:script:sec1@r7
+      content_hash: d06a106ac06ebdc4754146bca277d8a19aafef029419521462d2fd218e359e69
+      artifact_type: gate_result
+      rules_version: rules-9ef8373f0272
+    gate:G3:script:sec1:
+      revision_id: gate:G3:script:sec1@r7
+      content_hash: a1f27397f13cb6116e6f2298acb7be35d0483a289c5e85e3b32ff715d3b23028
+      artifact_type: gate_result
+      rules_version: rules-9ef8373f0272
+    gate:G4:script:sec1:
+      revision_id: gate:G4:script:sec1@r7
+      content_hash: e76345df8d6ec4c4b3fedbdfc802018ab1bc10dfbab6b7e14ee85e494e0e5a55
+      artifact_type: gate_result
+      rules_version: rules-9ef8373f0272
+    gate:G5:script:sec1:
+      revision_id: gate:G5:script:sec1@r7
+      content_hash: b9703ef942dd58f94a04b7bf3f273e7974548b1a2ab7c331bd0d1bacaaa28c13
+      artifact_type: gate_result
+      rules_version: rules-9ef8373f0272
+    gate:G6:script:sec1:
+      revision_id: gate:G6:script:sec1@r7
+      content_hash: ffae4c9f5f72a5dbd9fe8477d16e84a66774711f0b8b4ba4c56c1510f8f60418
+      artifact_type: gate_result
+      rules_version: rules-9ef8373f0272
+    gate:G7:script:sec1:
+      revision_id: gate:G7:script:sec1@r7
+      content_hash: 6dcbe4ea326defd0f4da08c8de837bbc5f5674096b7d7929874a044679fb6deb
+      artifact_type: gate_result
+      rules_version: rules-9ef8373f0272
+    gate:G8:export_manifest:
+      revision_id: gate:G8:export_manifest@r10
+      content_hash: 01bc625cb9f828754b7407ca4bfc0aa57effbb3023d1b0a3c98fdf9c5be469ad
+      artifact_type: gate_result
+      rules_version: rules-9ef8373f0272
+    learning_design:sec1:
+      revision_id: learning_design:sec1@r4
+      content_hash: 10ffcab56cfa8dd3b8796f69193c52f83a8a92d439c65a7af0289e8fc50f8c3d
+      artifact_type: learning_design
+      rules_version: rules-9ef8373f0272
+    lesson_plan:sec1:
+      revision_id: lesson_plan:sec1@r3
+      content_hash: e61bd6f98109d2693b12762bc9069b1be3463bdd4d3a650b178a3b302e731b59
+      artifact_type: lesson_plan
+      rules_version: rules-9ef8373f0272
+    load_review:sec1:
+      revision_id: load_review:sec1@r8
+      content_hash: fb3e1cd47a13825578d7fbae2d7bb5239a61b13beede0a773370ed68005ee783
+      artifact_type: load_review
+      rules_version: rules-9ef8373f0272
+    materials:
+      revision_id: materials@r4
+      content_hash: b0763438a4a785edb560ddb5698f58370c2f89c486842ed761d084670ac84912
+      artifact_type: materials
+      rules_version: rules-9ef8373f0272
+    media_plan:sec1:
+      revision_id: media_plan:sec1@r5
+      content_hash: dd95b19d4eccaed3555813c53cd987f45967a8c9f537266a23c3d7f30f6a1a71
+      artifact_type: media_plan
+      rules_version: rules-9ef8373f0272
+    patch_plan:
+      revision_id: patch_plan@r7
+      content_hash: ce83a714fde8478946150358a53e56a7fc30deca5da5197a968e10e5174d23a6
+      artifact_type: patch_plan
+      rules_version: rules-9ef8373f0272
+    preview:
+      revision_id: preview@r7
+      content_hash: 173875763b0903239175c596e6f42ec5cb5b79b933d859754068b42d8c57600a
+      artifact_type: preview
+      rules_version: rules-9ef8373f0272
+    requirements:
+      revision_id: requirements@r4
+      content_hash: d3a6f57ef9f8c7e812914fbc032053cf549fb72c06a84134ca21b1f99e76a839
+      artifact_type: requirements
+      rules_version: rules-9ef8373f0272
+    script:sec1:
+      revision_id: script:sec1@r7
+      content_hash: fef17ec4d4a92a9c55b85d70df0d2f88d59b3f22287b43f619aceb44f83eab49
+      artifact_type: script
+      rules_version: rules-9ef8373f0272
+    skill_invocations:
+      revision_id: skill_invocations@r4
+      content_hash: 8290be032c25c182098c2f1f778ee49713aa14757b4680fcd23a6ff4805cd6b7
+      artifact_type: skill_invocations
+      rules_version: rules-9ef8373f0272
+    storyboard:sec1:
+      revision_id: storyboard:sec1@r8
+      content_hash: 41619623ca0e9ec44917f66f81d39a996786faebdcd0ca2c20b1f98a45848e15
+      artifact_type: storyboard
+      rules_version: rules-9ef8373f0272
+    teaching_plan:sec1:
+      revision_id: teaching_plan:sec1@r2
+      content_hash: d16b872025c43f2aae7242e6b187bd9a16e5354886af1777939d405b28d8390d
+      artifact_type: teaching_plan
+      rules_version: rules-9ef8373f0272
+    template_spec:
+      revision_id: template_spec@r4
+      content_hash: b5907b0bfa2dabc9d3306d339b1a1eba8630fe624e324fe4bab790560e2437ba
+      artifact_type: template_spec
+      rules_version: rules-9ef8373f0272
+    worksheet:sec1:
+      revision_id: worksheet:sec1@r4
+      content_hash: 13ccac0bb354a266fd7ef8efba7dd72305b71d0b87ef1b413c29e6e0cc60df83
+      artifact_type: worksheet
+      rules_version: rules-9ef8373f0272
+evaluation_kind: human
+run:
+  case_id: operant-current
+  mode: builtin
+  run_id: run_63b9e6c8e784
+  run_status: succeeded
+  run_dir: null
+  artifact_count: 30
+  evidence_policy: null
+reviewer: ''
+role: teacher
+scores:
+  subject_accuracy: null
+  teaching_logic: null
+  goal_clarity: null
+  content_alignment: null
+  concept_clarity: null
+  case_quality: null
+  executability: null
+  student_engagement: null
+  cognitive_challenge: null
+  assessment_design: null
+  language_naturalness: null
+  visual_necessity: null
+  coherence: null
+  teacher_usability: null
+  spoken_naturalness: null
+comment: ''
+must_fix: []
+nice_to_have: []
+evidence_errors: 0
+routing_errors: 0
+plan_errors: 0
+edits:
+  generated_text: ''
+  edited_text: ''
+  items:
+  - category: ''
+    severity: ''
+notes:
+- 填写说明见 benchmarks/reports/worksheets/README.md
+- scores 使用 1–5；spoken_naturalness 仅脚本类任务必填
+- edits.items 的 category 取值：fact correction / teaching restructure / tone edit / case
+  replacement / media correction / assessment correction / template correction
+- edits.items 的 severity 取值：S0 cosmetic / S1 wording / S2 local teaching improvement
+  / S3 conceptual correction / S4 factual-evidence correction / S5 major redesign

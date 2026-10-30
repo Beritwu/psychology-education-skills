@@ -86,10 +86,18 @@ def merge_research_items(existing: list[dict[str, Any]], incoming: list[dict[str
         if current is None:
             merged[key] = dict(item)
             continue
+        sources = list(dict.fromkeys(
+            [s for s in (current.get('sources') or []) if s]
+            + [s for s in (current.get('source'), current.get('database')) if s]
+            + [s for s in (item.get('sources') or []) if s]
+            + [s for s in (item.get('source'), item.get('database')) if s]
+        ))
         if _level_rank(item.get("content_level", "metadata")) > _level_rank(current.get("content_level", "metadata")):
             current.update(
-                {k: v for k, v in item.items() if k in ("content_level", "abstract", "fulltext_url")}
+                {k: v for k, v in item.items() if k in ("content_level", "abstract", "fulltext_url", "source", "database")}
             )
+        if sources:
+            current['sources'] = sources
         if not current.get("fulltext_url") and item.get("fulltext_url"):
             current["fulltext_url"] = item["fulltext_url"]
     return list(merged.values())
@@ -519,7 +527,8 @@ class CompositeResearch:
                 errors[name] = str(exc)
                 continue
             per_source[name] = len(found)
-            items.extend(found)
+            # Preserve the adapter identity even when the record has no DOI.
+            items.extend({**item, "source": item.get("source") or name} for item in found)
         return ResearchResult(items=merge_research_items([], items), per_source=per_source, errors=errors)
 
     def find_fulltext(self, doi: str) -> str | None:

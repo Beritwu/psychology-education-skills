@@ -1,0 +1,114 @@
+审计结论：给定用例能证明“直接依赖旧 revision 时下游会被标 stale”以及“manifest 已 stale 时正式导出的早退分支”，但**没有覆盖任何成功正式导出**，也没有覆盖“应保持新鲜”的反例，因此无法证明 stale 传播不过度、正式导出复制逻辑正确。
+
+## 一、可复现的实现问题
+
+1. **`_publish_formal` 的 staging 包含检查可被 `..` 绕过**
+   - `staging in source.parents` 是词法判断，`Path` 不会解析 `..`。
+   - 若 manifest 文件路径为 `staging/../outside.md`，`source.parents` 仍包含 `staging`，且 `source.exists()` 为真，代码会把 staging 外的文件复制到 `outputs/formal`。
+   - 软链接同理：`staging/link.md -> /outside.md` 也会通过检查。
+   - 这与注释“retain these immutable bytes”不符，且无测试。
+
+2. **同名文件会互相覆盖**
+   - 目标名是 `formal / f"{changeset_id}_{source.name}"`，只取 `source.name`。
+   - manifest 同时包含 `staging/a/report.md` 和 `staging/b/report.md` 时，两个目标都是 `formal/{changeset_id}_report.md`，第二个覆盖第一个，`published` 还会重复返回同一路径。
+   - 代码允许嵌套目录（`staging in source.parents`），因此该场景可达。无测试。
+
+3. **缺失文件被静默跳过，正式导出可能部分成功**
+   - `if source.exists() and staging in source.parents` 为假时直接跳过，不报错。
+   - manifest 有 `ok.md` 和 `missing.md` 时，会复制 `ok.md` 并返回成功，`missing.md` 无任何错误信号。
+   - 若 manifest 指向目录，`source.exists()` 为真且路径检查通过，但 `shutil.copyfile` 会抛 `IsADirectoryError`；代码没有 `is_file()` 检查。
+   - 正式导出是否允许“部分发布”未定义，也没有测试覆盖。
+
+4. **上游没有 accepted revision 时不会标 stale**
+   - 第二段传播逻辑是：
+     ```python
+     accepted = self.accepted_rev_id(upstream)
+     if accepted and (accepted != upstream_rev or self.is_stale(upstream)):
+         ...
+     ```
+   - 若下游 revision 依赖 `U1`，但 `U` 从未被接受，`accepted` 为 `None`，条件直接为假，下游不会被标 stale。
+   - 所给代码没有禁止这种状态：可以先 `add_revision` 一个未被接受的 `U1`，再建 `X(deps=[U1])`，接受只含 `X` 的 changeset，最终 `X` 被接受且 `is_stale('X') == False`。
+   - 这是当前“过期传播”逻辑的实际漏洞，无测试。
+
+5. **同版本 revision 的选择不确定**
+   - `newest` 用严格 `>` 比较：
+     ```python
+     if old is None or item['revision']['version'] > old['revision']['version']:
+     ```
+   - 同一 artifact 出现两个相同 `version` 的不同 revision 时，先出现的那个被保留，结果依赖 `cs['items']` 顺序，且不报冲突。
+   - 若版本值是字符串，`"10" > "9"` 为假，也不符合注释所说的“highest numeric version”；代码没有转 `int` 或校验类型。
+   - 现有测试只覆盖 1/2/3，无法发现 9/10、字符串或同版本问题。
+
+6. **baseline 冲突只检查 changeset items**
+   - 冲突检查只遍历 `newest` 后的 `items`，不检查 `cs["baseline"]` 中未被本 changeset 包含的 artifact。
+   - 若 baseline 记录 `B1`，候选创建后 `B2` 被接受，而本 changeset 只包含 `A`，接受时不会检测到 `B` 的基线已变化。
+   - 如果 baseline 被当作全量快照使用，这会导致 changeset 在基线已过期时仍被接受。现有测试没有覆盖“baseline 有、items 无”的 artifact。
+
+## 二、漏测
+
+### 1. 接受与 stale 传播
+
+- **没有“应保持新鲜”的反例。**
+  - 当前两个测试都只断言某些 artifact 变 stale。
+  - 如果实现把 changeset 内所有 item 都标 stale，两个测试仍会通过。
+  - 需要测试：下游依赖同一 changeset 中**最终被接受的最高版本**时，`down` 必须 `stale=False`，`up` 也必须不 stale。
+
+- **没有传递依赖测试。**
+  - 只有 `A -> manifest` 这一层。
+  - 需要 `A1 <- B1 <- C1`，候选包含 `A2`、`B2`（依赖 `A1`）、`C2`（依赖 `B2`），断言 `B` 和 `C` 都 stale；最好包含 changeset 外的依赖。
+
+- **没有断言 `stale_artifacts` 返回值。**
+  - 测试只看 `store.is_stale(...)`，没有验证 accept 返回的 `stale_artifacts` 是否完整、去重、排序、与 store 标志一致。
+  - 也没有测试直接依赖与传递依赖是否都出现在返回值中。
+
+- **G8 gate 的 stale 传播未被断言。**
+  - `test_stale_formal_manifest_is_not_published_on_accept` 只断言 `export_manifest` stale，没有断言 `gate:G8:export_manifest` 也 stale。
+  - 如果 gate 没被标 stale，但 manifest stale 仍能阻止发布，测试不会失败。
+
+- **没有多 manifest revision 测试。**
+  - `newest` 的“formal manifest 后跟 draft downgrade”场景没有测试。
+  - 需要覆盖同一 changeset 内多个 `export_manifest` revision，验证最高版本被接受、draft 不发布、低版本 formal 不发布。
+
+- **没有 9/10 或多位数版本测试。**
+  - 现有 1/2/3 无法区分数值比较和字符串比较。
+  - 也没有同版本冲突/选择测试。
+
+- **没有“上游未接受”测试。**
+  - 需要覆盖 `accepted_rev_id(upstream) is None` 时下游是否应 stale 或 accept 应拒绝。
+
+- **没有 baseline 非 item artifact 变化测试。**
+  - 需要覆盖 baseline 中存在但 changeset 未包含的 artifact 被并发更新时，接受是否应冲突。
+
+### 2. 正式导出
+
+- **没有成功导出用例。**
+  - `test_stale_formal_manifest_is_not_published_on_accept` 在 `_publish_formal` 开头就因 manifest stale 返回 `[]`，复制循环完全没有执行。
+  - 因此 `_publish_formal` 即使永远返回 `[]`，现有测试也能通过。
+  - 需要测试：manifest 新鲜、G8 PASS、target 匹配时，文件确实被复制到 `outputs/formal`，内容正确，`published` 路径正确。
+
+- **G8 三个条件全部未被实际触发。**
+  - `_publish_formal` 的条件是：
+    ```python
+    if (is_stale('export_manifest') or is_stale(g8_id)
+        or g8.status != 'PASS'
+        or g8.target.revision_id != accepted_manifest):
+    ```
+  - 测试中 `is_stale('export_manifest')` 为真，Python `or` 短路，后面的 `g8` stale、status、target 三个条件一个都没执行。
+  - 需要分别测试：G8 stale、G8 非 PASS、G8 target 不匹配，且 manifest 本身新鲜。
+
+- **没有 draft manifest 测试。**
+  - 需要验证 `content["mode"] != "formal"` 时即使 G8 PASS 也不发布。
+
+- **没有 staging 路径安全测试。**
+  - 未覆盖 `..` 路径、软链接、staging 外绝对路径。
+  - 未覆盖“两个文件同名不同目录”的覆盖问题。
+  - 未覆盖缺失源文件、源文件是目录、部分文件缺失时是否允许部分发布。
+
+- **测试中的 gate id 是硬编码的。**
+  - 实现使用 `gates.gate_artifact_id('G8', 'export_manifest')`，测试却写死 `'gate:G8:export_manifest'`。
+  - 一旦 helper 格式变化，测试可能把 gate 写到错误 artifact id，导致 `_publish_formal` 取不到 gate；当前测试因 manifest stale 提前返回，仍可能显示通过。
+  - 应使用与实现相同的 helper。
+
+- **`result['published']` 的契约未闭合。**
+  - 附带的 `Store.accept_changeset` 只返回 `changeset_id`、`status`、`stale_artifacts`，没有 `published`。
+  - 测试断言 `result['published'] == []` 依赖未展示的 endpoint 合并 `_publish_formal` 的逻辑；仅从附带代码无法确认该键一定存在。

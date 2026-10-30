@@ -6,9 +6,10 @@ import shutil
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
+from typing import Literal
 
 from fastapi import FastAPI, HTTPException, UploadFile
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -27,12 +28,462 @@ app = FastAPI(title="Psychology Education Build System", version="0.1.0")
 _engines: dict[str, Engine] = {}
 
 
+@app.get("/api/psychology/units/{unit_id}")
+def get_psychology_unit(unit_id: str) -> dict[str, Any]:
+    from .psychology import UNIT_SOURCES, load_unit
+
+    if unit_id not in UNIT_SOURCES:
+        raise HTTPException(status_code=404, detail="学科单元不存在")
+    try:
+        return load_unit(unit_id)
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(status_code=503, detail=f"学科内容包不可用：{exc}") from exc
+
+
+@app.get("/api/psychology/units/{unit_id}/materials")
+def get_psychology_materials(
+    unit_id: str,
+    audience: Literal["student", "teacher"] = "student",
+    mode: Literal["draft", "formal"] = "draft",
+) -> dict[str, Any]:
+    from .psychology import teaching_materials
+
+    unit = get_psychology_unit(unit_id)
+    if mode == "formal":
+        raise HTTPException(status_code=409, detail="单元材料尚未绑定项目核验、当前门禁和教师签署，请使用项目正式导出路径")
+    return teaching_materials(unit, audience)
+
+
 def get_engine(project_id: str) -> Engine:
     if not PROJECT_ID_RE.match(project_id):
         raise HTTPException(status_code=400, detail="非法项目 ID")
     if project_id not in _engines:
         _engines[project_id] = Engine(project_id)
     return _engines[project_id]
+
+
+class DiagnosticIn(BaseModel):
+    assessment_id: str
+    option_id: str
+
+
+class ProjectDiagnosticIn(DiagnosticIn):
+    revision_id: str
+
+
+class PsychologyFeedbackIn(BaseModel):
+    revision_id: str
+    content_hash: str
+    reviewer: str = Field(min_length=1)
+    role: Literal['teacher'] = 'teacher'
+    comment: str = Field(min_length=1)
+    category: str
+    basis: str = Field(min_length=1)
+
+
+@app.post('/api/projects/{project_id}/psychology/units/{unit_id}/feedback')
+def submit_psychology_feedback(
+    project_id: str, unit_id: str, payload: PsychologyFeedbackIn,
+) -> dict[str, Any]:
+    import uuid
+    from .benchmark.evaluation import EDIT_CATEGORIES
+    from .store import now_iso
+
+    revision = psychology_revision(project_id, unit_id, payload.revision_id)
+    if revision['content_hash'] != payload.content_hash:
+        raise HTTPException(status_code=409, detail='反馈内容哈希与受评修订不匹配')
+    if payload.category not in EDIT_CATEGORIES or not all(
+        value.strip() for value in (payload.reviewer, payload.comment, payload.basis)
+    ):
+        raise HTTPException(status_code=422, detail='反馈类别或必填文字无效')
+    artifact_id = f'psychology_feedback:{uuid.uuid4().hex}'
+    content = payload.model_dump()
+    content.update({'status': 'SUBMITTED', 'submitted_at': now_iso(),
+                    'target': {'project_id': project_id, 'artifact_id': revision['artifact_id'],
+                               'revision_id': payload.revision_id, 'content_hash': payload.content_hash}})
+    saved = get_engine(project_id).store.add_revision(
+        artifact_id=artifact_id, artifact_type='psychology_feedback', content=content,
+        produced_by='teacher', deps=[payload.revision_id],
+        note='教师反馈提交；尚未经审核，不改变课程批准或证据状态',
+    )
+    return {'artifact_id': artifact_id, 'revision_id': saved['revision_id'],
+            'content_hash': saved['content_hash'], 'status': 'SUBMITTED'}
+
+
+def psychology_revision(project_id: str, unit_id: str, revision_id: str) -> dict[str, Any]:
+    from .psychology import validate_unit, source_snapshot
+
+    try:
+        revision = get_engine(project_id).store.get_revision(revision_id)
+    except StoreError as exc:
+        raise HTTPException(status_code=404, detail='学科修订不存在') from exc
+    if revision['artifact_id'] != f'psychology_unit:{unit_id}':
+        raise HTTPException(status_code=409, detail='修订与学科单元不匹配')
+    if revision['content'].get('unit_id') != unit_id:
+        raise HTTPException(status_code=409, detail='修订内容与学科单元不匹配')
+    try:
+        frozen = revision['content'].get('frozen_source')
+        metadata, text = (frozen['metadata'], frozen['text']) if 'frozen_source' in revision['content'] else source_snapshot(unit_id)
+        validate_unit(revision['content'], metadata, text, revision['content'].get('frozen_extra_sources'))
+    except (OSError, ValueError, KeyError, TypeError, StopIteration) as exc:
+        raise HTTPException(status_code=409, detail=f'学科修订内容校验失败：{exc}') from exc
+    return revision
+
+
+class PsychologyFeedbackDecisionIn(BaseModel):
+    feedback_id: str
+    expected_revision_id: str
+    decision: Literal['ACCEPTED', 'REJECTED', 'MORE_EVIDENCE']
+    reviewer: str = Field(min_length=1)
+    basis: str = Field(min_length=1)
+
+
+@app.post('/api/projects/{project_id}/psychology/units/{unit_id}/feedback/decide')
+def decide_psychology_feedback(
+    project_id: str, unit_id: str, payload: PsychologyFeedbackDecisionIn,
+) -> dict[str, Any]:
+    from .store import now_iso
+
+    if not payload.reviewer.strip() or not payload.basis.strip():
+        raise HTTPException(status_code=422, detail='审核人和依据不能为空')
+    store = get_engine(project_id).store
+    with store._lock:
+        revisions = store.revisions_of(payload.feedback_id)
+        if not revisions:
+            raise HTTPException(status_code=404, detail='反馈不存在')
+        if revisions[-1] != payload.expected_revision_id:
+            raise HTTPException(status_code=409, detail='反馈已更新，请重新读取后审核')
+        previous = store.get_revision(revisions[-1])
+        content = previous['content']
+        if previous['artifact_type'] != 'psychology_feedback' or content['target']['artifact_id'] != f'psychology_unit:{unit_id}':
+            raise HTTPException(status_code=409, detail='反馈与学科单元不匹配')
+        if content['status'] != 'SUBMITTED':
+            raise HTTPException(status_code=409, detail='反馈需要先补充材料或已完成审核')
+        updated = dict(content)
+        updated.update({'status': payload.decision, 'decision': {
+            'reviewer': payload.reviewer, 'basis': payload.basis, 'decided_at': now_iso(),
+            'previous_revision_id': previous['revision_id']}})
+        saved = store.add_revision(
+            artifact_id=payload.feedback_id, artifact_type='psychology_feedback', content=updated,
+            produced_by='teacher', deps=[content['target']['revision_id'], previous['revision_id']],
+            note='反馈审核决定；采纳不等于课程、规则或证据批准',
+        )
+        return {'artifact_id': payload.feedback_id, 'revision_id': saved['revision_id'],
+                'content_hash': saved['content_hash'], 'status': payload.decision}
+
+
+class PsychologyFeedbackSupplementIn(BaseModel):
+    feedback_id: str
+    expected_revision_id: str
+    reviewer: str = Field(min_length=1)
+    basis: str = Field(min_length=1)
+
+
+@app.post('/api/projects/{project_id}/psychology/units/{unit_id}/feedback/supplement')
+def supplement_psychology_feedback(
+    project_id: str, unit_id: str, payload: PsychologyFeedbackSupplementIn,
+) -> dict[str, Any]:
+    from .store import now_iso
+
+    if not payload.reviewer.strip() or not payload.basis.strip():
+        raise HTTPException(status_code=422, detail='补充人及说明不能为空')
+    store = get_engine(project_id).store
+    with store._lock:
+        revisions = store.revisions_of(payload.feedback_id)
+        if not revisions:
+            raise HTTPException(status_code=404, detail='反馈不存在')
+        previous = store.get_revision(revisions[-1])
+        if previous['revision_id'] != payload.expected_revision_id:
+            raise HTTPException(status_code=409, detail='反馈已更新')
+        content = previous['content']
+        if previous['artifact_type'] != 'psychology_feedback' or content['target']['artifact_id'] != f'psychology_unit:{unit_id}':
+            raise HTTPException(status_code=409, detail='反馈与学科单元不匹配')
+        if content['status'] != 'MORE_EVIDENCE':
+            raise HTTPException(status_code=409, detail='当前反馈未要求补充材料')
+        updated = dict(content)
+        updated['status'] = 'SUBMITTED'
+        updated['supplements'] = content.get('supplements', []) + [{
+            'reviewer': payload.reviewer, 'basis': payload.basis, 'submitted_at': now_iso(),
+            'requested_by_revision': previous['revision_id'],
+        }]
+        saved = store.add_revision(
+            artifact_id=payload.feedback_id, artifact_type='psychology_feedback', content=updated,
+            produced_by='teacher', deps=[previous['revision_id'], content['target']['revision_id']],
+            note='补充审核说明；其事实依据仍需独立核验',
+        )
+    return {'artifact_id': payload.feedback_id, 'revision_id': saved['revision_id'],
+            'status': 'SUBMITTED', 'content_hash': saved['content_hash']}
+
+
+@app.post('/api/projects/{project_id}/psychology/units/{unit_id}/diagnose')
+def diagnose_project_psychology_answer(
+    project_id: str, unit_id: str, payload: ProjectDiagnosticIn,
+) -> dict[str, Any]:
+    from .psychology import diagnose
+
+    revision = psychology_revision(project_id, unit_id, payload.revision_id)
+    try:
+        result = diagnose(revision['content'], payload.assessment_id, payload.option_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    result['target'] = {'project_id': project_id, 'artifact_id': revision['artifact_id'],
+                        'revision_id': payload.revision_id, 'content_hash': revision['content_hash']}
+    return result
+
+
+@app.post("/api/projects/{project_id}/psychology/units/{unit_id}")
+def pin_psychology_unit(project_id: str, unit_id: str) -> dict[str, Any]:
+    from .psychology import source_snapshot, extra_source_snapshots
+
+    unit = get_psychology_unit(unit_id)
+    metadata, text = source_snapshot(unit_id)
+    unit['frozen_source'] = {'metadata': metadata, 'text': text}
+    if len(unit.get('sources', [])) > 1:
+        unit['frozen_extra_sources'] = extra_source_snapshots(unit_id)
+    engine = get_engine(project_id)
+    existing = engine.store.revisions_of(f'psychology_unit:{unit_id}')
+    if existing:
+        latest = engine.store.get_revision(existing[-1])
+        if latest['content'] == unit:
+            return {'artifact_id': latest['artifact_id'],
+                    'revision_id': latest['revision_id'], 'content_hash': latest['content_hash']}
+    try:
+        revision = engine.store.add_revision(
+            artifact_id=f"psychology_unit:{unit_id}", artifact_type="psychology_unit",
+            content=unit, produced_by="psychology-content-import",
+            note="课程学科输入快照；不代表证据支持或教师批准",
+        )
+    except ConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {'artifact_id': f'psychology_unit:{unit_id}',
+            'revision_id': revision['revision_id'], 'content_hash': revision['content_hash']}
+
+
+@app.post("/api/psychology/units/{unit_id}/diagnose")
+def diagnose_psychology_answer(unit_id: str, payload: DiagnosticIn) -> dict[str, Any]:
+    from .psychology import diagnose
+
+    unit = get_psychology_unit(unit_id)
+    try:
+        return diagnose(unit, payload.assessment_id, payload.option_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.get("/api/projects/{project_id}/psychology/units/{unit_id}/materials")
+def get_project_psychology_materials(
+    project_id: str, unit_id: str, revision_id: str,
+    audience: Literal['student', 'teacher'] = 'student',
+) -> dict[str, Any]:
+    from .psychology import teaching_materials
+
+    revision = psychology_revision(project_id, unit_id, revision_id)
+    materials = teaching_materials(revision['content'], audience)
+    if audience == 'teacher':
+        store = get_engine(project_id).store
+        reviews = store.revisions_of(f'psychology_review:{revision_id}')
+        if reviews:
+            materials['teacher_review'] = store.get_revision(reviews[-1])['content']
+    materials['target'] = {
+        'project_id': project_id, 'artifact_id': revision['artifact_id'],
+        'revision_id': revision_id, 'content_hash': revision['content_hash'],
+    }
+    return materials
+
+
+@app.get('/api/projects/{project_id}/psychology/units/{unit_id}/export')
+def export_psychology_materials(
+    project_id: str, unit_id: str, revision_id: str,
+    audience: Literal['student', 'teacher'] = 'student',
+    mode: Literal['draft', 'formal'] = 'draft',
+) -> Response:
+    from .psychology import materials_markdown
+
+    if mode == 'formal':
+        raise HTTPException(status_code=409, detail='请通过项目核验、门禁和签署后的正式导出路径交付')
+    materials = get_project_psychology_materials(project_id, unit_id, revision_id, audience)
+    return Response(materials_markdown(materials), media_type='text/markdown; charset=utf-8',
+                    headers={'Content-Disposition': f'attachment; filename="{unit_id}-{audience}-draft.md"'})
+
+
+class PsychologyReviewIn(BaseModel):
+    revision_id: str
+    content_hash: str
+    reviewer: str = Field(min_length=1)
+    role: Literal['teacher'] = 'teacher'
+    decision: Literal['APPROVED', 'CHANGES_REQUIRED']
+    basis: str = Field(min_length=1)
+
+
+@app.post('/api/projects/{project_id}/psychology/units/{unit_id}/review')
+def review_psychology_unit(project_id: str, unit_id: str, payload: PsychologyReviewIn) -> dict[str, Any]:
+    from .store import now_iso
+
+    revision = psychology_revision(project_id, unit_id, payload.revision_id)
+    if revision['content_hash'] != payload.content_hash:
+        raise HTTPException(status_code=409, detail='审核目标哈希不匹配')
+    if not payload.reviewer.strip() or not payload.basis.strip():
+        raise HTTPException(status_code=422, detail='审核人和依据不能为空')
+    artifact_id = f'psychology_review:{payload.revision_id}'
+    content = {'status': payload.decision, 'reviewer': payload.reviewer, 'basis': payload.basis,
+               'role': payload.role, 'reviewed_at': now_iso(),
+               'target': {'revision_id': payload.revision_id, 'content_hash': payload.content_hash,
+                          'project_id': project_id, 'artifact_id': revision['artifact_id']}}
+    saved = get_engine(project_id).store.add_revision(
+        artifact_id=artifact_id, artifact_type='psychology_review', content=content,
+        produced_by='teacher', deps=[payload.revision_id],
+        note='教师学科内容审核；不代替证据核验、评分或正式签署',
+    )
+    return {'artifact_id': artifact_id, 'revision_id': saved['revision_id'], **content}
+
+
+@app.get('/api/projects/{project_id}/psychology/units/{unit_id}/rules')
+def get_psychology_rules(project_id: str, unit_id: str, revision_id: str) -> dict[str, Any]:
+    from .psychology import published_rules
+
+    revision = psychology_revision(project_id, unit_id, revision_id)
+    try:
+        return {'rules': published_rules(get_engine(project_id).store, revision)}
+    except (ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(status_code=409, detail=f'规则校验失败：{exc}') from exc
+
+
+class PsychologyRuleIn(BaseModel):
+    feedback_id: str
+    feedback_revision_id: str
+    concept_refs: list[str] = Field(min_length=1)
+    recommendation: str = Field(min_length=1)
+    reviewer: str = Field(min_length=1)
+    basis: str = Field(min_length=1)
+
+
+@app.post('/api/projects/{project_id}/psychology/units/{unit_id}/rules')
+def propose_psychology_rule(project_id: str, unit_id: str, payload: PsychologyRuleIn) -> dict[str, Any]:
+    import uuid
+    from . import pii
+    from .store import now_iso
+
+    if pii.scan(payload.recommendation):
+        raise HTTPException(status_code=422, detail='教学建议含可识别资料，请脱敏后再起草规则')
+    store = get_engine(project_id).store
+    try:
+        feedback = store.get_revision(payload.feedback_revision_id)
+    except StoreError as exc:
+        raise HTTPException(status_code=404, detail='反馈修订不存在') from exc
+    content = feedback['content']
+    if feedback['artifact_id'] != payload.feedback_id or feedback['artifact_type'] != 'psychology_feedback':
+        raise HTTPException(status_code=409, detail='反馈标识不匹配')
+    if content['status'] != 'ACCEPTED':
+        raise HTTPException(status_code=409, detail='只有已采纳反馈可形成规则候选')
+    unit = psychology_revision(project_id, unit_id, content['target']['revision_id'])
+    concepts = {c['concept_id'] for c in unit['content']['concepts']}
+    if not set(payload.concept_refs) <= concepts or not all(
+        value.strip() for value in (payload.recommendation, payload.reviewer, payload.basis)
+    ):
+        raise HTTPException(status_code=422, detail='概念范围或规则说明无效')
+    artifact_id = f'psychology_rule:{uuid.uuid4().hex}'
+    record = {**payload.model_dump(), 'status': 'DRAFT', 'created_at': now_iso(),
+              'unit_id': unit_id, 'target': content['target'],
+              'rule_kind': 'teaching_recommendation', 'verification_status': 'PENDING'}
+    saved = store.add_revision(
+        artifact_id=artifact_id, artifact_type='psychology_rule', content=record,
+        produced_by='teacher', deps=[payload.feedback_revision_id, unit['revision_id']],
+        note='教学规则候选；未经回归和发布审核，不进入运行提示',
+    )
+    return {'artifact_id': artifact_id, 'revision_id': saved['revision_id'],
+            'content_hash': saved['content_hash'], 'status': 'DRAFT'}
+
+
+class PsychologyRuleCaseIn(BaseModel):
+    kind: Literal['positive', 'counterexample']
+    text: str = Field(min_length=1)
+    passed: bool
+    rationale: str = Field(min_length=1)
+
+
+class PsychologyRuleVerificationIn(BaseModel):
+    rule_id: str
+    expected_revision_id: str
+    reviewer: str = Field(min_length=1)
+    role: Literal['teacher'] = 'teacher'
+    basis: str = Field(min_length=1)
+    cases: list[PsychologyRuleCaseIn] = Field(min_length=2)
+
+
+@app.post('/api/projects/{project_id}/psychology/units/{unit_id}/rules/verify')
+def verify_psychology_rule(project_id: str, unit_id: str, payload: PsychologyRuleVerificationIn) -> dict[str, Any]:
+    from .store import now_iso
+
+    if {case.kind for case in payload.cases} != {'positive', 'counterexample'} or not all(
+        value.strip() for value in [payload.reviewer, payload.basis] +
+        [value for case in payload.cases for value in (case.text, case.rationale)]
+    ):
+        raise HTTPException(status_code=422, detail='需正例、反例及逐项审核依据')
+    store = get_engine(project_id).store
+    with store._lock:
+        revisions = store.revisions_of(payload.rule_id)
+        if not revisions:
+            raise HTTPException(status_code=404, detail='规则不存在')
+        previous = store.get_revision(revisions[-1])
+        content = previous['content']
+        if previous['revision_id'] != payload.expected_revision_id:
+            raise HTTPException(status_code=409, detail='规则已更新')
+        if previous['artifact_type'] != 'psychology_rule' or content['unit_id'] != unit_id or content['status'] not in ('DRAFT', 'VERIFICATION_FAILED'):
+            raise HTTPException(status_code=409, detail='规则范围或状态不允许验证')
+        updated = dict(content)
+        passed = all(case.passed for case in payload.cases)
+        updated.update({'status': 'VERIFIED' if passed else 'VERIFICATION_FAILED',
+                        'verification_status': 'PASS' if passed else 'FAIL',
+                        'verification': {**payload.model_dump(), 'verified_at': now_iso(),
+                                         'method': 'teacher_case_review'}})
+        saved = store.add_revision(
+            artifact_id=payload.rule_id, artifact_type='psychology_rule', content=updated,
+            produced_by='teacher', deps=[previous['revision_id']],
+            note='人工正反例核对记录；非自动教学有效性测量，尚未发布',
+        )
+    return {'artifact_id': payload.rule_id, 'revision_id': saved['revision_id'],
+            'status': updated['status'], 'content_hash': saved['content_hash']}
+
+
+class PsychologyRuleDecisionIn(BaseModel):
+    rule_id: str
+    expected_revision_id: str
+    decision: Literal['PUBLISHED', 'WITHDRAWN']
+    reviewer: str = Field(min_length=1)
+    basis: str = Field(min_length=1)
+    role: Literal['teacher'] = 'teacher'
+
+
+@app.post('/api/projects/{project_id}/psychology/units/{unit_id}/rules/decide')
+def decide_psychology_rule(project_id: str, unit_id: str, payload: PsychologyRuleDecisionIn) -> dict[str, Any]:
+    from .store import now_iso
+
+    if not payload.reviewer.strip() or not payload.basis.strip():
+        raise HTTPException(status_code=422, detail='审核人及依据不能为空')
+    store = get_engine(project_id).store
+    with store._lock:
+        revisions = store.revisions_of(payload.rule_id)
+        if not revisions:
+            raise HTTPException(status_code=404, detail='规则不存在')
+        previous = store.get_revision(revisions[-1])
+        content = previous['content']
+        if previous['revision_id'] != payload.expected_revision_id:
+            raise HTTPException(status_code=409, detail='规则已更新')
+        if previous['artifact_type'] != 'psychology_rule' or content['unit_id'] != unit_id:
+            raise HTTPException(status_code=409, detail='规则不属于此学科单元')
+        required = 'VERIFIED' if payload.decision == 'PUBLISHED' else 'PUBLISHED'
+        if content['status'] != required or (payload.decision == 'PUBLISHED' and content.get('verification_status') != 'PASS'):
+            raise HTTPException(status_code=409, detail='规则尚未验证通过或当前状态不允许此操作')
+        updated = dict(content)
+        updated.update({'status': payload.decision, 'publication_decision': {
+            **payload.model_dump(), 'decided_at': now_iso()}})
+        saved = store.add_revision(
+            artifact_id=payload.rule_id, artifact_type='psychology_rule', content=updated,
+            produced_by='teacher', deps=[previous['revision_id']],
+            note='教学建议发布状态；不更改来源支持、真人评分或项目门禁',
+        )
+    return {'artifact_id': payload.rule_id, 'revision_id': saved['revision_id'],
+            'content_hash': saved['content_hash'], 'status': payload.decision}
 
 
 class ProjectIn(BaseModel):
@@ -56,6 +507,12 @@ class PlanEditIn(BaseModel):
 class CaseReplaceIn(BaseModel):
     case_artifact_id: str
     instruction: str = Field(min_length=1)
+
+
+class AssessmentEditIn(BaseModel):
+    assessment_id: str = Field(min_length=1)
+    expected_revision: str = Field(min_length=1)
+    fields: dict[str, Any]
 
 
 class ExportIn(BaseModel):
@@ -304,7 +761,7 @@ def conversation(project_id: str, payload: ConversationIn) -> dict[str, Any]:
     engine = get_engine(project_id)
     try:
         return engine.conversation_edit(payload.message, execute=payload.execute)
-    except PlanEditRejected as exc:
+    except (PlanEditRejected, PiiBlocked, ConflictError) as exc:
         return JSONResponse(status_code=409, content={"ok": False, "reason": str(exc)})
 
 
@@ -579,12 +1036,24 @@ def outputs(project_id: str) -> dict[str, Any]:
     return {"manifest": manifest, "formal_files": formal_files}
 
 
+@app.post("/api/projects/{project_id}/assessment-edit/{section_id}")
+def assessment_edit(project_id: str, section_id: str, payload: AssessmentEditIn) -> dict[str, Any]:
+    try:
+        return get_engine(project_id).edit_assessment_item(
+            section_id, payload.assessment_id, payload.expected_revision, payload.fields
+        )
+    except (StoreError, ConflictError, PiiBlocked) as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except PlanEditRejected as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @app.post("/api/projects/{project_id}/case-replace")
 def case_replace(project_id: str, payload: CaseReplaceIn) -> dict[str, Any]:
     engine = get_engine(project_id)
     try:
         return engine.case_replace(payload.case_artifact_id, payload.instruction)
-    except (StoreError, ConflictError) as exc:
+    except (StoreError, ConflictError, PiiBlocked) as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
@@ -641,6 +1110,25 @@ def project_file(project_id: str, path: str) -> FileResponse:
     target = Path(path).resolve()
     if target != base and base not in target.parents:
         raise HTTPException(status_code=403, detail="文件不在项目目录内")
+    if not target.is_file():
+        # Accepted manifests are immutable and retain their staging paths.
+        # Resolve only an exact, hash-matching entry from the accepted manifest.
+        from .store import file_hash
+
+        manifest = get_engine(project_id).store.accepted_content('export_manifest') or {}
+        if manifest.get('mode') == 'formal':
+            for entry in manifest.get('files', []):
+                if Path(entry['path']).resolve() != target:
+                    continue
+                published = (base / 'outputs' / 'formal' / target.name).resolve()
+                if base not in published.parents or not published.is_file():
+                    continue
+                try:
+                    if file_hash(published) == entry.get('sha256'):
+                        target = published
+                        break
+                except OSError:
+                    continue
     if not target.exists() or not target.is_file():
         raise HTTPException(status_code=404, detail="文件不存在")
     return FileResponse(str(target))

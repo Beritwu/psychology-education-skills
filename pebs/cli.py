@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 
 from . import providers
-from .engine import Engine, PlanEditRejected
+from .engine import Engine, PiiBlocked, PlanEditRejected
 from .store import StoreError
 
 
@@ -251,7 +251,7 @@ def cmd_conversation(args: argparse.Namespace) -> int:
     engine = Engine(args.project)
     try:
         result = engine.conversation_edit(args.message, execute=not args.plan_only)
-    except PlanEditRejected as exc:
+    except (PlanEditRejected, PiiBlocked) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
     patch = {

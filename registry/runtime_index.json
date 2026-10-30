@@ -47,12 +47,17 @@
         ]
       },
       "requires": [
-        "lesson_plan"
+        "teaching_plan",
+        "case"
       ],
       "produces": [
         "assessment"
       ],
-      "optional_requires": [],
+      "optional_requires": [
+        "materials",
+        "evidence_index",
+        "learning_design"
+      ],
       "invocation": {
         "auto": true,
         "explicit": false
@@ -117,7 +122,9 @@
         "case"
       ],
       "optional_requires": [
-        "requirements"
+        "requirements",
+        "learning_design",
+        "materials"
       ],
       "invocation": {
         "auto": true,
@@ -281,7 +288,12 @@
       "produces": [
         "diagrams"
       ],
-      "optional_requires": [],
+      "optional_requires": [
+        "script",
+        "case",
+        "learning_design",
+        "materials"
+      ],
       "invocation": {
         "auto": true,
         "explicit": true
@@ -553,7 +565,14 @@
       ],
       "optional_requires": [
         "claims_set",
-        "load_review"
+        "load_review",
+        "materials",
+        "learning_design",
+        "teaching_plan",
+        "lesson_plan",
+        "assessment",
+        "worksheet",
+        "case"
       ],
       "invocation": {
         "auto": true,
@@ -683,12 +702,18 @@
         ]
       },
       "requires": [
-        "teaching_plan"
+        "teaching_plan",
+        "case",
+        "assessment"
       ],
       "produces": [
         "lesson_plan"
       ],
-      "optional_requires": [],
+      "optional_requires": [
+        "materials",
+        "learning_design",
+        "requirements"
+      ],
       "invocation": {
         "auto": true,
         "explicit": false
@@ -964,7 +989,8 @@
       ],
       "optional_requires": [
         "case",
-        "materials"
+        "materials",
+        "worksheet"
       ],
       "invocation": {
         "auto": true,
@@ -1193,7 +1219,12 @@
       "produces": [
         "worksheet"
       ],
-      "optional_requires": [],
+      "optional_requires": [
+        "lesson_plan",
+        "learning_design",
+        "case",
+        "materials"
+      ],
       "invocation": {
         "auto": true,
         "explicit": false

@@ -1,0 +1,230 @@
+[
+  {
+    "unit_id": "classical-conditioning",
+    "assessment": {
+      "assessment_id": "extinction-application-1",
+      "concept_ref": "extinction",
+      "kind": "diagnostic",
+      "question": "虚构实验中，已习得的提示音多次单独呈现后，记录到的反应逐渐减少。仅凭这些记录，哪项结论最合适？",
+      "options": [
+        "该条件下反应减少，不能据此断言原学习完全消失",
+        "反应减少证明原学习被彻底删除",
+        "反应减少说明无法区分消退与从未习得，无需考虑先前记录"
+      ],
+      "answer": "该条件下反应减少，不能据此断言原学习完全消失",
+      "rationale": "消退时反应减少不等于证明学习被删除；题干已给出先前习得。",
+      "misconception_ref": "extinction-1",
+      "followup_ref": "extinction-retest",
+      "teacher_note": "错答仅触发追问，不能据一次回答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "extinction-application-1-a",
+          "text": "该条件下反应减少，不能据此断言原学习完全消失",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "extinction-application-1-b",
+          "text": "反应减少证明原学习被彻底删除",
+          "misconception_ref": "extinction-1",
+          "retest_goal_ref": "extinction-1"
+        },
+        {
+          "option_id": "extinction-application-1-c",
+          "text": "反应减少说明无法区分消退与从未习得，无需考虑先前记录",
+          "misconception_ref": "extinction-2",
+          "retest_goal_ref": "extinction-2"
+        }
+      ]
+    }
+  },
+  {
+    "unit_id": "classical-conditioning",
+    "assessment": {
+      "assessment_id": "generalization-application-2",
+      "concept_ref": "generalization",
+      "kind": "diagnostic",
+      "question": "虚构实验中个体对原提示音和较相似的新提示音均作出反应，但对另一种声音没有作出反应。哪项表述符合记录？",
+      "options": [
+        "泛化意味着所有声音必然引出同样反应",
+        "只要出现泛化就证明个体无法辨别任何声音",
+        "记录可能体现对相似刺激的泛化，所测的另一种声音没有引发反应"
+      ],
+      "answer": "记录可能体现对相似刺激的泛化，所测的另一种声音没有引发反应",
+      "rationale": "对相似刺激有反应并不等于完全无法区分；题干已报告所测另一种声音无反应，其余未测声音不可补造。",
+      "misconception_ref": "generalization-1",
+      "followup_ref": "generalization-retest",
+      "teacher_note": "错答仅触发追问，不能据一次回答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "generalization-application-2-b",
+          "text": "泛化意味着所有声音必然引出同样反应",
+          "misconception_ref": "generalization-1",
+          "retest_goal_ref": "generalization-1"
+        },
+        {
+          "option_id": "generalization-application-2-c",
+          "text": "只要出现泛化就证明个体无法辨别任何声音",
+          "misconception_ref": "generalization-2",
+          "retest_goal_ref": "generalization-2"
+        },
+        {
+          "option_id": "generalization-application-2-a",
+          "text": "记录可能体现对相似刺激的泛化，所测的另一种声音没有引发反应",
+          "misconception_ref": null
+        }
+      ]
+    }
+  },
+  {
+    "unit_id": "operant-conditioning",
+    "assessment": {
+      "assessment_id": "negative-reinforcement-application-1",
+      "concept_ref": "negative-reinforcement",
+      "kind": "diagnostic",
+      "question": "虚构练习中，每次按键后移除遮罩；相同机会数下按键次数从每轮2次升到6次。按观察模式分类，哪项合适？",
+      "options": [
+        "负表示坏，故一定是负惩罚",
+        "移除刺激且同一行为增加，符合负强化的观察模式",
+        "只要移除刺激就一定是惩罚，无须观察行为变化"
+      ],
+      "answer": "移除刺激且同一行为增加，符合负强化的观察模式",
+      "rationale": "负表示刺激移除，强化对应同一行为增加；前后记录不单独证明因果。",
+      "misconception_ref": "negative-reinforcement-1",
+      "followup_ref": "negative-reinforcement-retest",
+      "teacher_note": "错答仅触发追问，不能据一次回答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "negative-reinforcement-application-1-c",
+          "text": "负表示坏，故一定是负惩罚",
+          "misconception_ref": "negative-reinforcement-2",
+          "retest_goal_ref": "negative-reinforcement-2"
+        },
+        {
+          "option_id": "negative-reinforcement-application-1-a",
+          "text": "移除刺激且同一行为增加，符合负强化的观察模式",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "negative-reinforcement-application-1-b",
+          "text": "只要移除刺激就一定是惩罚，无须观察行为变化",
+          "misconception_ref": "negative-reinforcement-1",
+          "retest_goal_ref": "negative-reinforcement-1"
+        }
+      ]
+    }
+  },
+  {
+    "unit_id": "operant-conditioning",
+    "assessment": {
+      "assessment_id": "positive-punishment-application-2",
+      "concept_ref": "positive-punishment",
+      "kind": "diagnostic",
+      "question": "虚构练习中，每次提前点击后加入闪框；相同机会数下提前点击从每轮7次降到3次。按观察模式分类，哪项合适？",
+      "options": [
+        "加入刺激且同一行为减少，符合正惩罚的观察模式",
+        "只看加入刺激即可断定强化，无须观察行为变化",
+        "正表示好，故一定是正强化"
+      ],
+      "answer": "加入刺激且同一行为减少，符合正惩罚的观察模式",
+      "rationale": "正表示刺激加入，惩罚对应同一行为减少；前后记录不单独证明因果。",
+      "misconception_ref": "positive-punishment-1",
+      "followup_ref": "positive-punishment-retest",
+      "teacher_note": "错答仅触发追问，不能据一次回答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "positive-punishment-application-2-a",
+          "text": "加入刺激且同一行为减少，符合正惩罚的观察模式",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "positive-punishment-application-2-b",
+          "text": "只看加入刺激即可断定强化，无须观察行为变化",
+          "misconception_ref": "positive-punishment-1",
+          "retest_goal_ref": "positive-punishment-1"
+        },
+        {
+          "option_id": "positive-punishment-application-2-c",
+          "text": "正表示好，故一定是正强化",
+          "misconception_ref": "positive-punishment-2",
+          "retest_goal_ref": "positive-punishment-2"
+        }
+      ]
+    }
+  },
+  {
+    "unit_id": "research-methods",
+    "assessment": {
+      "assessment_id": "correlation-application-1",
+      "concept_ref": "correlation",
+      "kind": "diagnostic",
+      "question": "一项虚构观察研究报告睡眠时长与测验得分相关，但未操纵睡眠或排除其他因素。哪项表述有证据支持？",
+      "options": [
+        "睡眠时长已被证明导致得分变化",
+        "既然相关，其他可能解释都已被排除",
+        "报告存在相关，但仅凭这些信息不能确认因果"
+      ],
+      "answer": "报告存在相关，但仅凭这些信息不能确认因果",
+      "rationale": "相关不单独确立因果，也不能排除其他解释。",
+      "misconception_ref": "correlation-1",
+      "followup_ref": "correlation-retest",
+      "teacher_note": "错答仅触发追问，不能据一次回答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "correlation-application-1-b",
+          "text": "睡眠时长已被证明导致得分变化",
+          "misconception_ref": "correlation-1",
+          "retest_goal_ref": "correlation-1"
+        },
+        {
+          "option_id": "correlation-application-1-c",
+          "text": "既然相关，其他可能解释都已被排除",
+          "misconception_ref": "correlation-2",
+          "retest_goal_ref": "correlation-2"
+        },
+        {
+          "option_id": "correlation-application-1-a",
+          "text": "报告存在相关，但仅凭这些信息不能确认因果",
+          "misconception_ref": null
+        }
+      ]
+    }
+  },
+  {
+    "unit_id": "research-methods",
+    "assessment": {
+      "assessment_id": "random-assignment-application-2",
+      "concept_ref": "random-assignment",
+      "kind": "diagnostic",
+      "question": "一项虚构研究通过自愿报名招募参与者，再用随机数把报名者分到两个条件。哪项判断最合适？",
+      "options": [
+        "随机分配保证两组基线的所有特征完全相同",
+        "参与者被随机分配；自愿报名不等于从目标人群随机抽样",
+        "随机分配说明报名者必然是目标人群的随机样本"
+      ],
+      "answer": "参与者被随机分配；自愿报名不等于从目标人群随机抽样",
+      "rationale": "招募方式决定进入样本，随机分配决定已招募者进入条件；有限样本的基线不保证完全平衡。",
+      "misconception_ref": "random-assignment-1",
+      "followup_ref": "random-assignment-retest",
+      "teacher_note": "错答仅触发追问，不能据一次回答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "random-assignment-application-2-c",
+          "text": "随机分配保证两组基线的所有特征完全相同",
+          "misconception_ref": "random-assignment-2",
+          "retest_goal_ref": "random-assignment-2"
+        },
+        {
+          "option_id": "random-assignment-application-2-a",
+          "text": "参与者被随机分配；自愿报名不等于从目标人群随机抽样",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "random-assignment-application-2-b",
+          "text": "随机分配说明报名者必然是目标人群的随机样本",
+          "misconception_ref": "random-assignment-1",
+          "retest_goal_ref": "random-assignment-1"
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "claim": "仅凭两个变量相关，不能断定其中一个变量导致另一个变量变化。",
+    "support": "direct",
+    "quote": "Even when we cannot point to clear confounding variables, we should not assume that a correlation between two variables implies that one variable causes changes in another.",
+    "limitations": "原文措辞为“should not assume”，属于方法论告诫；该句针对相关与因果推断，未展开形式化的因果识别条件。"
+  },
+  {
+    "claim": "随机分配是将已经进入样本的参与者随机分入研究条件。",
+    "support": "direct",
+    "quote": "Now that we have a sample, the next step of the experimental process is to split the participants into experimental and control groups through random assignment. With random assignment, all participants have an equal chance of being assigned to either group.",
+    "limitations": "原文具体描述的是把样本中的参与者分入实验组和控制组，未涵盖多于两组的“研究条件”；该段也未讨论随机抽样。"
+  },
+  {
+    "claim": "把某变量作为候选共同原因，意味着它可能分别影响所研究的两个变量；仅凭相关本身不能确定这一候选解释。",
+    "support": "indirect",
+    "quote": "However, correlation is limited because establishing the existence of a relationship tells us little about cause and effect. While variables are sometimes correlated because one does cause the other, it could also be that some other factor, a confounding variable, is actually causing the systematic movement in our variables of interest.",
+    "limitations": "原文使用“confounding variable”而非“候选共同原因”，也未明确表述“分别影响”两个变量；只能据此推断混杂因素可能解释两变量间关系，原文未判定任何具体候选解释为真。"
+  }
+]

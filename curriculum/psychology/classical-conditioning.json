@@ -1,0 +1,706 @@
+{
+  "unit_id": "classical-conditioning",
+  "version": "0.7.1",
+  "teacher_review": {
+    "status": "PENDING",
+    "reviewer": null
+  },
+  "sources": [
+    {
+      "source_id": "openstax-psychology2e-6-2",
+      "url": "https://openstax.org/books/psychology-2e/pages/6-2-classical-conditioning",
+      "title": "Psychology 2e, 6.2 Classical Conditioning",
+      "verification_status": "PENDING",
+      "snapshot_sha256": "5eb8001f8103ba5c3f8f8a06f3bb94fff0e09aa44d5b11d94086bc7ac45fb1bd",
+      "license": "CC-BY-4.0",
+      "version_url": "https://raw.githubusercontent.com/openstax/osbooks-psychology/e061043bf2f9e86ace51c4e8dc9555160f60a99d/modules/m82200/index.cnxml",
+      "attribution": "OpenStax, Rice University. Access for free at openstax.org."
+    }
+  ],
+  "concepts": [
+    {
+      "concept_id": "conditioning",
+      "version": "0.2.0",
+      "terms": {
+        "zh-CN": {
+          "full": "经典条件作用",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Classical conditioning",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "古典的条件づけ",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "고전적 조건형성",
+          "review_status": "PENDING"
+        }
+      },
+      "definition": "通过刺激之间的关系形成学习。",
+      "source_refs": [
+        "openstax-psychology2e-6-2"
+      ],
+      "misconceptions": [
+        {
+          "misconception_id": "conditioning-1",
+          "text": "把任何行为改变都归为经典条件作用",
+          "basis": "model_hypothesis",
+          "remediation": "比较刺激之间的关系与行为后果的作用。",
+          "retest_goal": "在新情境中说明分类依据。"
+        },
+        {
+          "misconception_id": "conditioning-2",
+          "text": "把条件刺激当作天生有效",
+          "basis": "model_hypothesis",
+          "remediation": "对照学习前后同一刺激的反应。",
+          "retest_goal": "指出学习前后刺激功能的变化。"
+        }
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-6-2",
+        "start_char": 2831,
+        "end_char": 3536,
+        "text": "When Pavlov paired the tone with the meat powder over and over again, the previously neutral stimulus (the tone) also began to elicit salivation from the dogs. Thus, the neutral stimulus became the conditioned stimulus (CS), which is a stimulus that elicits a response after repeatedly being paired with an unconditioned stimulus. Eventually, the dogs began to salivate to the tone alone, just as they previously had salivated at the sound of the assistants’ footsteps. The behavior caused by the conditioned stimulus is called the conditioned response (CR). In the case of Pavlov’s dogs, they had learned to associate the tone (CS) with being fed, and they began to salivate (CR) in anticipation of food.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "prerequisites": [],
+      "boundary": "依据刺激之间的学习关系判断；单有行为改变不足以分类。无条件刺激/反应须有未经学习的反射性前提，仅配对前有效不足以单独确立其身份。",
+      "examples": {
+        "positive": {
+          "text": "虚构教材情境设定食物引出唾液为未经学习的反射。提示音配对食物前不引起唾液，配对后单独提示音引起唾液；仅据提示音配对前后功能变化判读其从中性刺激到条件刺激的变化。",
+          "fictional": true
+        },
+        "counterexample": {
+          "text": "仅因完成作业得到奖励而增加作业行为，不能仅凭行为增加认定经典条件作用。",
+          "fictional": true
+        }
+      },
+      "content_review_status": "PENDING"
+    },
+    {
+      "concept_id": "acquisition",
+      "version": "0.1.0",
+      "terms": {
+        "zh-CN": {
+          "full": "习得",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Acquisition",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "獲得",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "습득",
+          "review_status": "PENDING"
+        }
+      },
+      "definition": "形成条件反应的学习过程。",
+      "source_refs": [
+        "openstax-psychology2e-6-2"
+      ],
+      "misconceptions": [
+        {
+          "misconception_id": "acquisition-1",
+          "text": "一次同时出现必然形成学习",
+          "basis": "model_hypothesis",
+          "remediation": "检查配对关系，避免将一次呈现当成充分条件。",
+          "retest_goal": "解释为何不能从一次配对断言习得。"
+        },
+        {
+          "misconception_id": "acquisition-2",
+          "text": "只要时间接近就一定学会",
+          "basis": "model_hypothesis",
+          "remediation": "比较时间关系与预测关系。",
+          "retest_goal": "说明情境信息不足时应保留判断。"
+        }
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-6-2",
+        "start_char": 9240,
+        "end_char": 10129,
+        "text": "Now that you know how classical conditioning works and have seen several examples, let’s take a look at some of the general processes involved. In classical conditioning, the initial period of learning is known as acquisition, when an organism learns to connect a neutral stimulus and an unconditioned stimulus. During acquisition, the neutral stimulus begins to elicit the conditioned response, and eventually the neutral stimulus becomes a conditioned stimulus capable of eliciting the conditioned response by itself. Timing is important for conditioning to occur. Typically, there should only be a brief interval between presentation of the conditioned stimulus and the unconditioned stimulus. Depending on what is being conditioned, sometimes this interval is as little as five seconds (Chance, 2009). However, with other types of conditioning, the interval can be up to several hours.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "prerequisites": [
+        "conditioning"
+      ],
+      "boundary": "描述形成条件反应的学习阶段；一次呈现不能单独证明已学会。",
+      "examples": {
+        "positive": {
+          "text": "记录配对前后提示音单独呈现时的反应变化。",
+          "fictional": true
+        },
+        "counterexample": {
+          "text": "只记录提示音与食物同时出现，没有学习结果的观察。",
+          "fictional": true
+        }
+      },
+      "content_review_status": "PENDING"
+    },
+    {
+      "concept_id": "extinction",
+      "version": "0.1.0",
+      "terms": {
+        "zh-CN": {
+          "full": "消退",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Extinction",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "消去",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "소거",
+          "review_status": "PENDING"
+        }
+      },
+      "definition": "条件刺激不再伴随无条件刺激时，条件反应减弱。",
+      "source_refs": [
+        "openstax-psychology2e-6-2"
+      ],
+      "misconceptions": [
+        {
+          "misconception_id": "extinction-1",
+          "text": "消退证明原学习完全删除",
+          "basis": "model_hypothesis",
+          "remediation": "用后续恢复现象讨论删除解释的局限。",
+          "retest_goal": "区分反应减弱与记忆彻底删除。"
+        },
+        {
+          "misconception_id": "extinction-2",
+          "text": "消退就是没有学会",
+          "basis": "model_hypothesis",
+          "remediation": "比较习得之前与习得后不再配对的阶段。",
+          "retest_goal": "根据学习历史区分未习得与消退。"
+        }
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-6-2",
+        "start_char": 13178,
+        "end_char": 14253,
+        "text": "Once we have established the connection between the unconditioned stimulus and the conditioned stimulus, how do we break that connection and get the dog, cat, or child to stop responding? In Tiger’s case, imagine what would happen if you stopped using the electric can opener for her food and began to use it only for human food. Now, Tiger would hear the can opener, but she would not get food. In classical conditioning terms, you would be giving the conditioned stimulus, but not the unconditioned stimulus. Pavlov explored this scenario in his experiments with dogs: sounding the tone without giving the dogs the meat powder. Soon the dogs stopped responding to the tone. Extinction is the decrease in the conditioned response when the unconditioned stimulus is no longer presented with the conditioned stimulus. When presented with the conditioned stimulus alone, the dog, cat, or other organism would show a weaker and weaker response, and finally no response. In classical conditioning terms, there is a gradual weakening and disappearance of the conditioned response.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "prerequisites": [
+        "conditioning",
+        "acquisition"
+      ],
+      "boundary": "以既往习得为背景，描述不再配对后反应减弱；不能据此证明记忆完全删除。",
+      "examples": {
+        "positive": {
+          "text": "习得后单独呈现提示音，多次观察到反应减弱。",
+          "fictional": true
+        },
+        "counterexample": {
+          "text": "从未经历相关学习的动物对提示音没有反应，不能直接叫作消退。",
+          "fictional": true
+        }
+      },
+      "content_review_status": "PENDING"
+    },
+    {
+      "concept_id": "generalization",
+      "version": "0.2.0",
+      "terms": {
+        "zh-CN": {
+          "full": "刺激泛化",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Stimulus generalization",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "刺激般化",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "자극 일반화",
+          "review_status": "PENDING"
+        }
+      },
+      "definition": "与条件刺激相似的刺激也可能引出条件反应。",
+      "source_refs": [
+        "openstax-psychology2e-6-2"
+      ],
+      "misconceptions": [
+        {
+          "misconception_id": "generalization-1",
+          "text": "对所有刺激都会有相同反应",
+          "basis": "model_hypothesis",
+          "remediation": "先核对测试刺激未与无条件刺激配对，再比较各刺激自己的前测基线及原刺激学习后的单独测试；只对已测试刺激作有限结论。",
+          "retest_goal": "用限定语说明泛化范围。"
+        },
+        {
+          "misconception_id": "generalization-2",
+          "text": "泛化意味着完全无法辨别",
+          "basis": "model_hypothesis",
+          "remediation": "区分反应扩展与辨别能力。",
+          "retest_goal": "解释泛化不能证明无法辨别。"
+        }
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-6-2",
+        "start_char": 18672,
+        "end_char": 19561,
+        "text": "On the other hand, when an organism demonstrates the conditioned response to stimuli that are similar to the conditioned stimulus, it is called stimulus generalization, the opposite of stimulus discrimination. The more similar a stimulus is to the conditioned stimulus, the more likely the organism is to give the conditioned response. For instance, if the electric mixer sounds very similar to the electric can opener, Tiger may come running after hearing its sound. But if you do not feed her following the electric mixer sound, and you continue to feed her consistently after the electric can opener sound, she will quickly learn to discriminate between the two sounds (provided they are sufficiently dissimilar that she can tell them apart). In our other example, Moisha continued to feel ill whenever visiting other oncologists or other doctors in the same building as her oncologist.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "prerequisites": [
+        "conditioning",
+        "acquisition"
+      ],
+      "boundary": "描述反应扩展到相似刺激；课堂判读应交代测试刺激从未与无条件刺激配对，排除另一刺激直接习得的解释。比较其学习前基线与学习后单独测试，范围和强度仍受实际观察限制，不等于完全没有辨别。",
+      "examples": {
+        "positive": {
+          "text": "虚构教学情境：仅1000赫兹音调与食物配对；1100赫兹音调从未与食物配对，其配对前单独测试无唾液、原音调配对后单独测试有唾液，支持反应扩展到这个已测试的相近音调。",
+          "fictional": true
+        },
+        "counterexample": {
+          "text": "仅对原音调反应，没有测试相似刺激，不能据此断言泛化。",
+          "fictional": true
+        }
+      },
+      "content_review_status": "PENDING"
+    }
+  ],
+  "assessments": [
+    {
+      "assessment_id": "conditioning-diagnostic",
+      "concept_ref": "conditioning",
+      "kind": "diagnostic",
+      "question": "虚构教材情境假定食物引出唾液属于未经学习的反射。目标反应为是否出现唾液；提示音配对前单独测试无唾液，多次在提示音后呈现食物后，提示音单独测试有唾液。主要学到了什么？",
+      "options": [
+        "刺激之间的关系",
+        "任何行为改变都是经典条件作用",
+        "提示音天生就能引起唾液反应，配对历史不重要"
+      ],
+      "answer": "刺激之间的关系",
+      "rationale": "食物与唾液的无条件关系来自题设的未经学习反射前提，不是仅由配对前有效推断。提示音单独引出唾液的学习前后变化支持刺激之间的学习关系，不能仅凭行为改变分类。",
+      "misconception_ref": "conditioning-1",
+      "followup_ref": "conditioning-retest",
+      "teacher_note": "错误选择仅用于追问；也需排查读题困难或题目歧义。",
+      "option_details": [
+        {
+          "option_id": "conditioning-diagnostic-a",
+          "text": "刺激之间的关系",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "conditioning-diagnostic-b",
+          "text": "任何行为改变都是经典条件作用",
+          "misconception_ref": "conditioning-1",
+          "retest_goal_ref": "conditioning-1"
+        },
+        {
+          "option_id": "conditioning-diagnostic-c",
+          "text": "提示音天生就能引起唾液反应，配对历史不重要",
+          "misconception_ref": "conditioning-2",
+          "retest_goal_ref": "conditioning-2"
+        }
+      ]
+    },
+    {
+      "assessment_id": "conditioning-retest",
+      "concept_ref": "conditioning",
+      "kind": "retest",
+      "question": "换成原本中性的灯光提示。本虚构教材情境同样假定食物引出唾液属于未经学习的反射。说明还需记录哪些灯光单独呈现的学习前基线、灯光与食物配对过程及学习后测试，才能判断刺激功能发生了什么变化。",
+      "scoring_guidance": "先区分题设的未经学习反射与待判断的灯光学习关系；比较灯光学习前后单独呈现的目标反应，说明中性刺激成为条件刺激所需的证据。",
+      "review_status": "PENDING"
+    },
+    {
+      "assessment_id": "acquisition-diagnostic",
+      "concept_ref": "acquisition",
+      "kind": "diagnostic",
+      "question": "只观察到提示音与食物同时出现一次，能否断定已经习得？",
+      "options": [
+        "能，一次同时出现必然形成学习",
+        "只要两种刺激在时间上接近，就必然形成条件反应",
+        "不能，需要进一步观察学习后的反应"
+      ],
+      "answer": "不能，需要进一步观察学习后的反应",
+      "rationale": "呈现了配对不等于已经观察到学习结果。",
+      "misconception_ref": "acquisition-1",
+      "followup_ref": "acquisition-retest",
+      "teacher_note": "错误选择仅用于追问；也需排查读题困难或题目歧义。",
+      "option_details": [
+        {
+          "option_id": "acquisition-diagnostic-b",
+          "text": "能，一次同时出现必然形成学习",
+          "misconception_ref": "acquisition-1",
+          "retest_goal_ref": "acquisition-1"
+        },
+        {
+          "option_id": "acquisition-diagnostic-c",
+          "text": "只要两种刺激在时间上接近，就必然形成条件反应",
+          "misconception_ref": "acquisition-2",
+          "retest_goal_ref": "acquisition-2"
+        },
+        {
+          "option_id": "acquisition-diagnostic-a",
+          "text": "不能，需要进一步观察学习后的反应",
+          "misconception_ref": null
+        }
+      ]
+    },
+    {
+      "assessment_id": "acquisition-retest",
+      "concept_ref": "acquisition",
+      "kind": "retest",
+      "question": "某虚构实验仅记录刺激呈现，未记录配对后的反应。请指出结论缺少什么证据。",
+      "scoring_guidance": "呈现了配对不等于已经观察到学习结果。",
+      "review_status": "PENDING"
+    },
+    {
+      "assessment_id": "extinction-diagnostic",
+      "concept_ref": "extinction",
+      "kind": "diagnostic",
+      "question": "习得后，提示音反复单独呈现，唾液反应逐渐减弱。最合理的结论是什么？",
+      "options": [
+        "先前根本没有发生学习，因此现在反应减弱",
+        "观察到消退，不能据此断言原学习完全删除",
+        "原学习已完全删除"
+      ],
+      "answer": "观察到消退，不能据此断言原学习完全删除",
+      "rationale": "反应减弱描述当前表现，并不单独证明原学习被删除。",
+      "misconception_ref": "extinction-1",
+      "followup_ref": "extinction-retest",
+      "teacher_note": "错误选择仅用于追问；也需排查读题困难或题目歧义。",
+      "option_details": [
+        {
+          "option_id": "extinction-diagnostic-c",
+          "text": "先前根本没有发生学习，因此现在反应减弱",
+          "misconception_ref": "extinction-2",
+          "retest_goal_ref": "extinction-2"
+        },
+        {
+          "option_id": "extinction-diagnostic-a",
+          "text": "观察到消退，不能据此断言原学习完全删除",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "extinction-diagnostic-b",
+          "text": "原学习已完全删除",
+          "misconception_ref": "extinction-1",
+          "retest_goal_ref": "extinction-1"
+        }
+      ]
+    },
+    {
+      "assessment_id": "extinction-retest",
+      "concept_ref": "extinction",
+      "kind": "retest",
+      "question": "虚构案例中反应减弱后隔一段时间又出现。解释这对完全删除的说法意味着什么。",
+      "scoring_guidance": "反应减弱描述当前表现，并不单独证明原学习被删除。",
+      "review_status": "PENDING"
+    },
+    {
+      "assessment_id": "generalization-diagnostic",
+      "concept_ref": "generalization",
+      "kind": "diagnostic",
+      "question": "虚构教学情境：目标反应为是否出现可观察的唾液。食物引出唾液在本例设为未经学习的反射。仅1000赫兹音调与食物配对；1100赫兹音调从未与食物配对，且与1000赫兹在频率上相近。1100赫兹音调在配对前单独测试2次均无唾液，在原音调配对后单独测试2次均有唾液；其他频率未测试，唾液量未记录。最审慎的结论是什么？",
+      "options": [
+        "可能出现刺激泛化，范围仍需观察",
+        "对所有刺激都有相同反应",
+        "出现相近音调的反应，证明完全无法辨别音调"
+      ],
+      "answer": "可能出现刺激泛化，范围仍需观察",
+      "rationale": "已交代相近测试刺激未与食物配对，且有其自己的前测基线和原刺激学习后的单独测试；支持泛化到1100赫兹，不能推广为所有刺激都引起同等强度反应。",
+      "misconception_ref": "generalization-1",
+      "followup_ref": "generalization-retest",
+      "teacher_note": "错误选择仅用于追问；也需排查读题困难或题目歧义。",
+      "option_details": [
+        {
+          "option_id": "generalization-diagnostic-a",
+          "text": "可能出现刺激泛化，范围仍需观察",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "generalization-diagnostic-b",
+          "text": "对所有刺激都有相同反应",
+          "misconception_ref": "generalization-1",
+          "retest_goal_ref": "generalization-1"
+        },
+        {
+          "option_id": "generalization-diagnostic-c",
+          "text": "出现相近音调的反应，证明完全无法辨别音调",
+          "misconception_ref": "generalization-2",
+          "retest_goal_ref": "generalization-2"
+        }
+      ]
+    },
+    {
+      "assessment_id": "generalization-retest",
+      "concept_ref": "generalization",
+      "kind": "retest",
+      "question": "同一虚构情境已观察到对原1000赫兹音调和从未与食物配对的1100赫兹音调有反应。若要比较其他频率的泛化范围，应选择同样从未与食物配对的测试音调，并记录哪些配对前基线和原音调配对后的单独测试？说明为何还需比较具体相似程度，以及未记录反应强度时不能下什么结论。",
+      "scoring_guidance": "选择未与食物配对的测试刺激，交代其与原音调的相似维度；分别记录每种测试刺激的配对前基线和原刺激学习后单独测试结果。只对已测刺激及是否出现反应作结论，未测强度时不比较强度。",
+      "review_status": "PENDING"
+    },
+    {
+      "assessment_id": "extinction-application-1",
+      "concept_ref": "extinction",
+      "kind": "diagnostic",
+      "question": "虚构实验中，已习得的提示音多次单独呈现后，记录到的反应逐渐减少。仅凭这些记录，哪项结论最合适？",
+      "options": [
+        "该条件下反应减少，不能据此断言原学习完全消失",
+        "反应减少证明原学习被彻底删除",
+        "反应减少说明无法区分消退与从未习得，无需考虑先前记录"
+      ],
+      "answer": "该条件下反应减少，不能据此断言原学习完全消失",
+      "rationale": "消退时反应减少不等于证明学习被删除；题干已给出先前习得。",
+      "misconception_ref": "extinction-1",
+      "followup_ref": "extinction-retest",
+      "teacher_note": "错答仅触发追问，不能据一次回答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "extinction-application-1-a",
+          "text": "该条件下反应减少，不能据此断言原学习完全消失",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "extinction-application-1-b",
+          "text": "反应减少证明原学习被彻底删除",
+          "misconception_ref": "extinction-1",
+          "retest_goal_ref": "extinction-1"
+        },
+        {
+          "option_id": "extinction-application-1-c",
+          "text": "反应减少说明无法区分消退与从未习得，无需考虑先前记录",
+          "misconception_ref": "extinction-2",
+          "retest_goal_ref": "extinction-2"
+        }
+      ]
+    },
+    {
+      "assessment_id": "generalization-application-2",
+      "concept_ref": "generalization",
+      "kind": "diagnostic",
+      "question": "虚构实验中个体对原提示音和较相似的新提示音均作出反应，但对另一种声音没有作出反应。哪项表述符合记录？",
+      "options": [
+        "泛化意味着所有声音必然引出同样反应",
+        "只要出现泛化就证明个体无法辨别任何声音",
+        "记录可能体现对相似刺激的泛化，所测的另一种声音没有引发反应"
+      ],
+      "answer": "记录可能体现对相似刺激的泛化，所测的另一种声音没有引发反应",
+      "rationale": "对相似刺激有反应并不等于完全无法区分；题干已报告所测另一种声音无反应，其余未测声音不可补造。",
+      "misconception_ref": "generalization-1",
+      "followup_ref": "generalization-retest",
+      "teacher_note": "错答仅触发追问，不能据一次回答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "generalization-application-2-b",
+          "text": "泛化意味着所有声音必然引出同样反应",
+          "misconception_ref": "generalization-1",
+          "retest_goal_ref": "generalization-1"
+        },
+        {
+          "option_id": "generalization-application-2-c",
+          "text": "只要出现泛化就证明个体无法辨别任何声音",
+          "misconception_ref": "generalization-2",
+          "retest_goal_ref": "generalization-2"
+        },
+        {
+          "option_id": "generalization-application-2-a",
+          "text": "记录可能体现对相似刺激的泛化，所测的另一种声音没有引发反应",
+          "misconception_ref": null
+        }
+      ]
+    }
+  ],
+  "terminology": [
+    {
+      "term_id": "unconditioned-stimulus",
+      "definition": "无需学习即可引出反射性反应的刺激；本次配对前已经有效并不足以单独证明其为无条件刺激。",
+      "learning_status": "unlearned",
+      "terms": {
+        "zh-CN": {
+          "full": "无条件刺激",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "unconditioned stimulus",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "無条件刺激",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "무조건 자극",
+          "review_status": "PENDING"
+        }
+      },
+      "auxiliary_abbreviations": [
+        "US",
+        "UCS"
+      ],
+      "source_refs": [
+        "openstax-psychology2e-6-2"
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-6-2",
+        "start_char": 2088,
+        "end_char": 2219,
+        "text": "The meat powder in this situation was an unconditioned stimulus (UCS): a stimulus that elicits a reflexive response in an organism.",
+        "verification_status": "LOCATED_ONLY"
+      }
+    },
+    {
+      "term_id": "unconditioned-response",
+      "definition": "由无条件刺激引出的、未经学习的自然反应。",
+      "learning_status": "unlearned",
+      "terms": {
+        "zh-CN": {
+          "full": "无条件反应",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "unconditioned response",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "無条件反応",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "무조건 반응",
+          "review_status": "PENDING"
+        }
+      },
+      "auxiliary_abbreviations": [
+        "UR",
+        "UCR"
+      ],
+      "source_refs": [
+        "openstax-psychology2e-6-2"
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-6-2",
+        "start_char": 2220,
+        "end_char": 2329,
+        "text": "The dogs’ salivation was an unconditioned response (UCR): a natural (unlearned) reaction to a given stimulus.",
+        "verification_status": "LOCATED_ONLY"
+      }
+    },
+    {
+      "term_id": "neutral-stimulus",
+      "definition": "在当前条件作用形成之前，不能自然引出所讨论目标反应的刺激；中性是相对于该目标反应而言。",
+      "learning_status": "neutral",
+      "terms": {
+        "zh-CN": {
+          "full": "中性刺激",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "neutral stimulus",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "中性刺激",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "중성 자극",
+          "review_status": "PENDING"
+        }
+      },
+      "auxiliary_abbreviations": [
+        "NS"
+      ],
+      "source_refs": [
+        "openstax-psychology2e-6-2"
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-6-2",
+        "start_char": 2599,
+        "end_char": 2701,
+        "text": "The tone was the neutral stimulus (NS), which is a stimulus that does not naturally elicit a response.",
+        "verification_status": "LOCATED_ONLY"
+      }
+    },
+    {
+      "term_id": "conditioned-stimulus",
+      "definition": "原先不能引出目标反应的中性刺激，在与无条件刺激配对并获得引出条件反应的能力后成为条件刺激；仅参与配对尚不足以认定。",
+      "learning_status": "learned",
+      "terms": {
+        "zh-CN": {
+          "full": "条件刺激",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "conditioned stimulus",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "条件刺激",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "조건 자극",
+          "review_status": "PENDING"
+        }
+      },
+      "auxiliary_abbreviations": [
+        "CS"
+      ],
+      "source_refs": [
+        "openstax-psychology2e-6-2"
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-6-2",
+        "start_char": 2991,
+        "end_char": 3161,
+        "text": "Thus, the neutral stimulus became the conditioned stimulus (CS), which is a stimulus that elicits a response after repeatedly being paired with an unconditioned stimulus.",
+        "verification_status": "LOCATED_ONLY"
+      }
+    },
+    {
+      "term_id": "conditioned-response",
+      "definition": "条件作用形成后，由条件刺激引出的已学习反应。",
+      "learning_status": "learned",
+      "terms": {
+        "zh-CN": {
+          "full": "条件反应",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "conditioned response",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "条件反応",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "조건 반응",
+          "review_status": "PENDING"
+        }
+      },
+      "auxiliary_abbreviations": [
+        "CR"
+      ],
+      "source_refs": [
+        "openstax-psychology2e-6-2"
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-6-2",
+        "start_char": 3301,
+        "end_char": 3389,
+        "text": "The behavior caused by the conditioned stimulus is called the conditioned response (CR).",
+        "verification_status": "LOCATED_ONLY"
+      }
+    }
+  ]
+}

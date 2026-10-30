@@ -1,0 +1,12 @@
+{
+  "repository": "https://github.com/openstax/osbooks-psychology",
+  "commit": "e061043bf2f9e86ace51c4e8dc9555160f60a99d",
+  "module": "modules/m82200/index.cnxml",
+  "source_url": "https://raw.githubusercontent.com/openstax/osbooks-psychology/e061043bf2f9e86ace51c4e8dc9555160f60a99d/modules/m82200/index.cnxml",
+  "license_url": "https://raw.githubusercontent.com/openstax/osbooks-psychology/e061043bf2f9e86ace51c4e8dc9555160f60a99d/LICENSE",
+  "license": "CC-BY-4.0",
+  "license_sha256": "0ff174546cbe3dd1287da231f9796618ac2f6e6595b2d11f567b2c9790f64868",
+  "source_sha256": "c71672e84b71f7477fd95a98ef56a8b168866583fecfcfb9b683a71fadc10ba2",
+  "retrieved_at": "2026-10-29",
+  "status": "version_verified; pending integration"
+}

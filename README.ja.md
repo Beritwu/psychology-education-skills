@@ -7,6 +7,8 @@
 [![Code CI](https://github.com/Beritwu/psychology-education-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/Beritwu/psychology-education-skills/actions/workflows/ci.yml)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 
+**心理学の授業単元：** [オペラント条件づけと心理学研究法](examples/two-psychology-units/current-course-materials/README.md)の授業資料、診断問題、教師によるレビュー手順を公開しています（教材は中国語）。
+
 [**授業・アニメーションを試す →**](https://beritwu.github.io/psychology-education-skills/)
  · [利用ガイド（英語）](docs/usage.md)
  · [利用ガイド（中国語）](docs/usage.zh-CN.md)

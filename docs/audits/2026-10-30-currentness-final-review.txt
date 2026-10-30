@@ -1,0 +1,85 @@
+以下仅依据你给出的四段代码（`accept_changeset`、`_publish_formal`、`export_readiness`、`_write_text_docx`）判断，未给出的实现（`add_revision`、`mark_dependents_stale`、`upstream_revs`、`materialize`、`_staging_dir`、`PASSING`、export 端点、`accept` 与 `_publish_formal` 的组装顺序）不假定。
+
+## A. 版本过期
+
+**A1（高）部分失败会让 changeset 永久不可重试。**
+baseline 校验通过后，循环里逐项 `UPDATE pointers ... stale = 0` → `materialize` → `mark_dependents_stale`，没有任何事务/回滚/异常捕获。若 `materialize`（或 mark_dependents）在第 2 项抛错：第 1 项已 accepted、changeset 仍是 `candidate`；重试时 `current != expected`（baseline 里记的仍是旧的 accepted），直接进入 `_set_changeset_status(..., "conflict")`。即"指针已提交、文件未落盘"的中间态无法通过重试修复。
+
+**A2（中）版本比较依赖 `version` 为数值，且无 tie-break。**
+`item['revision']['version'] > old['revision']['version']` 直接比较，无 `int()`/类型校验；注释声称"numeric version"，但代码没有强制。若任一产出方写入字符串版本（如 `"v10"`），则是字典序比较且静默出错。同一 artifact 出现相同版本的两条 item 时，后到者被静默丢弃，changeset 仍标 `accepted`（该 revision 从此不可达）。`add_revision` 未给出，故只能确认"这段代码把正确性押在一个未在本段校验的不变量上"。
+
+**A3（中高）`export_readiness` 与 `_publish_formal` 的 gate 覆盖面不一致。**
+`export_readiness` 的 gate 循环全部以 script 为主键：`gate_artifact_id(gate_id, artifact_id)`，`artifact_id` 来自 `scripts`。它从不检查 `export_manifest` 或 `gate:G8:export_manifest`。因此 `ready == True` 不能推出 `_publish_formal` 会发布（后者单独查 G8）。反过来，`script_applicable` 为假时所有 gate 直接判 `NOT_APPLICABLE` 且 `ready=True`，此时 G8 完全未被检查。
+
+**A4（中高）`_publish_formal` 的 G8 检查缺 RULES_VERSION 校验。**
+只查 `status/target.revision_id/stale`，没比较 `rules_version`；而 `export_readiness` 对 script gate 是查 `result["rules_version"] == config.RULES_VERSION` 的。规则版本升级若不置 stale，旧规则下通过的 G8 仍能放行正式发布。
+
+**A5（中）per-script 路径完全不使用 `gate_applicability`，与 docstring 矛盾。**
+docstring 说"适用但无结果才阻塞；不适用者报 NOT_APPLICABLE + 确定性原因"。但 `gate_applicability` 只在 `GATE_ORDER[0]` 和"全部不适用"分支被调用；per-script 循环中某个 gate 对该 artifact 不适用、又没有结果行时，仍会 `blocking.append(f"{gate_id} 尚未在 ... 上运行")`。
+
+**A6（中）fixture 检查只覆盖 script 自身 revision。**
+`if rev_row and rev_row.get("fixture")`，不检查 `deps`/上游 revision；上游 fixture 内容可以进入正式导出。
+
+**A7（中）`overrides` 有两套键空间。**
+`rev_id = overrides.get(artifact_id)`（script id），而 `current` 用 `key in overrides`（`gate:*` id）。同一字典承载两种 id；只要使用方法不统一，就会一边生效一边不生效。另：命中 override 时 `script["stale"]` 也不再阻塞。
+
+**A8（低）悬空 accepted_rev 可被报为 ready。**
+`get_revision` 抛 `StoreError` 时 `rev_row = None`，只跳过 fixture 检查，**不加入 blocking**；只要 gate 结果 target 匹配，仍可能 `ready=True`。
+
+**A9（低）`continue` 造成 summary 空洞。**
+`rev_id` 为空时 `continue` 跳过整个 gate 循环，该 artifact 在 `summary` 里一条都没有；按 `summary` 渲染的调用方会看到缺失而非阻塞项。
+
+## B. 正式文件发布校验
+
+**B1（高）所有校验失败路径都静默 `return []`。**
+共 7 处：staging 不存在、manifest/G8 stale、G8 非 PASS、G8 target 不符、`export_readiness` 未 ready、路径解析失败、越界/非文件/重名、hash 不符。发布发生在 changeset 已 `accepted` 之后（`accept_changeset` 的返回值里没有 `published`，需外层合并），因此"校验失败"与"没有可发布内容"对外完全同形：无状态变更、无 gate 结果、无诊断字段、无日志。
+
+**B2（高）sha256 校验是可选分支。**
+`if entry.get('sha256') and file_hash(resolved) != entry['sha256']` —— manifest 条目不带 `sha256` 时**整段完整性校验被跳过**。`test_formal_publish_rejects_files_changed_after_validation` 只在该字段存在时才成立。
+
+**B3（中）`files` 为空/缺省视为成功。**
+`content.get("files", [])` 为空 → `sources` 空 → 不复制、不报错、返回 `[]`。"正式发布 0 个文件"与"发布被拒"无法区分；没有任何 `published` 非空断言。
+
+**B4（中）重名直接整批放弃。**
+`target = formal / f"{changeset_id}_{source.name}"`，`source.name` 只取 basename；两个不同子目录下同名文件（`a/course.md`、`b/course.md`）→ `target in targets` → 整个 changeset 一个文件都不发，且无提示。`targets` 还是逐 manifest item 新建的，同一 manifest revision 在 changeset 中被 `add_changeset_item` 两次时会重复复制并重复 append `published`。
+
+**B5（中，条件性）目标文件名未做清洗。**
+`f"{changeset_id}_{source.name}"` 直接把 `changeset_id` 拼进路径；`changeset_id` 是否在上游被校验（本段没有任何校验/白名单）未给出，若含 `..` 或分隔符即可写出 `outputs/formal` 之外。另外 `source.name` 取自**未解析**路径，而校验/读取用 `resolved`，符号链接情形下"校验的是 A，落盘名是 B"。
+
+**B6（中，条件性）容器基准是 `staging.resolve()`。**
+两侧都按符号链接解析，因此若 `_staging_dir()` 返回的是指向外部的 symlink，`root not in resolved.parents` 这个"在 staging 内"的判定会随之成立。`_staging_dir` 未给出，只能确认该检查的强度完全取决于它。
+
+**B7（中）TOCTOU + 无原子性。**
+hash 校验与 `shutil.copyfile` 之间 `resolved` 仍可被替换（未用 fd 复制）；逐文件 `copyfile` 无暂存/rename/回滚，中途失败会留下部分正式文件，而 `published` 随异常一起丢失，无人知道已落盘几个。
+
+## C. 学生表格（docx 转换）
+
+**C1（中高）行长度不一致不做校验，会静默串列。**
+`table.cell(row_index, column_index).text = cell` 按位置赋值，`width = max(len(row))` 只补尾部空列。作者漏写一个 `|`（例如成绩表某行少一格）时，该行后续值整体左移，不报错、不可察觉。
+
+**C2（中）单元格内 `**bold**` 不剥离。**
+`re.sub(r'\*\*(.*?)\*\*', ...)` 在表格分支之后执行，表格 `continue` 掉了；学生名单/表头里的粗体标记会以字面 `**` 出现在 Word 里。
+
+**C3（中）单元格内转义竖线 `\|` 不支持。**
+`row[1:-1].split('|')` 硬切分，含 `\|` 的单元格直接造成列错位。
+
+**C4（中低）合法 markdown 表格若省略尾部 `|` 则整块不识别。**
+判定要求 `startswith('|') and endswith('|')`；缺尾部竖线时退化为普通段落，原始 `| a | b` 直出正文。
+
+**C5（低）对齐标记被解析但从不应用。**
+`re.fullmatch(r':?-{3,}:?', cell)` 只用于判断"这是分隔行"，`:` 对齐信息丢弃，列对齐不进 Word。
+
+**C6（低）只有分隔行的块会丢内容。**
+`if rows:` 为空时直接 `continue`，那几行既不建表也不作为文本输出。
+
+**C7（低）表头未做 header 化。**
+首行不做加粗/`repeat header row`，列宽/`autofit` 未设置；正文 `#` 标题被压到 `level = min(len(#), 3)`，与 `add_heading(title, level=1)` 的文档标题同级；缩进代码块中以 `|` 开头的行同样会被当成表格。
+
+## 明确无法从本段确定（不做判断）
+
+- `add_revision` 的 `version` 类型/自增方式、是否允许同版本多 revision（决定 A2 的实际触发条件）。
+- `mark_dependents_stale` 是否递归、`exclude` 是否剪枝；`upstream_revs` 是否只取直接依赖（决定 A 段"上游首次接受 + 下游不在 changeset"那一类边界是否真的会漏标）。
+- `set_stale` 是否自带级联、`materialize` 的写入语义与失败模式。
+- `_staging_dir` 是否可能返回 symlink；`changeset_id` 是否在上游做过字符校验（B5/B6 是否可触发）。
+- `PASSING` 是否含 `NOT_APPLICABLE`；`latest_gate_results` 的 override 键空间。
+- export 端点是否把 `sha256` 写进 manifest（B2 的实际暴露面），以及 `published` 是由哪一层合并进 accept 响应。

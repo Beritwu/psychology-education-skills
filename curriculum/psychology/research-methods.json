@@ -1,0 +1,695 @@
+{
+  "unit_id": "research-methods",
+  "version": "0.1.3",
+  "teacher_review": {
+    "status": "PENDING",
+    "reviewer": null
+  },
+  "sources": [
+    {
+      "source_id": "openstax-psychology2e-2-3",
+      "url": "https://openstax.org/books/psychology-2e/pages/2-3-analyzing-findings",
+      "title": "Psychology 2e, 2.3 Analyzing Findings",
+      "verification_status": "PENDING",
+      "snapshot_sha256": "b5657827125dcca0802f9a0031d99e0a9fffe9bb7ddd3878ac68387402f3c3d5",
+      "license": "CC-BY-4.0",
+      "version_url": "https://raw.githubusercontent.com/openstax/osbooks-psychology/e061043bf2f9e86ace51c4e8dc9555160f60a99d/modules/m82169/index.cnxml",
+      "attribution": "OpenStax, Rice University. Access for free at openstax.org."
+    },
+    {
+      "source_id": "kim-thoemmes-2026-mediation",
+      "url": "https://doi.org/10.1525/collabra.171584",
+      "title": "A Systematic Literature Review of Causal Mediation Analysis in Social Psychology",
+      "verification_status": "PENDING",
+      "snapshot_sha256": "e279b4a67ff3e712283f179e7f728b979800af6f6b1729c6da823e7305d93918",
+      "license": "CC-BY-4.0",
+      "attribution": "Jiwoo Kim and Felix Thoemmes (2026), Collabra: Psychology 12(1), 171584, https://doi.org/10.1525/collabra.171584"
+    }
+  ],
+  "concepts": [
+    {
+      "concept_id": "operational-definition",
+      "version": "0.1.0",
+      "terms": {
+        "zh-CN": {
+          "full": "操作性定义",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Operational definition",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "操作的定義",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "조작적 정의",
+          "review_status": "PENDING"
+        }
+      },
+      "definition": "对研究变量如何被测量或操作作出具体、可检验的描述。",
+      "source_refs": [
+        "openstax-psychology2e-2-3"
+      ],
+      "misconceptions": [
+        {
+          "misconception_id": "operational-definition-1",
+          "text": "把抽象标签当作已能测量的操作性定义。",
+          "basis": "model_hypothesis",
+          "remediation": "明确可观察指标、测量场景、时间窗口和计分规则。",
+          "retest_goal": "在新情境中说明结论及其边界。"
+        },
+        {
+          "misconception_id": "operational-definition-2",
+          "text": "认为只给变量起名就可以重复测量。",
+          "basis": "model_hypothesis",
+          "remediation": "说明由谁、在何时、如何记录与计分，使他人能够复现。",
+          "retest_goal": "辨别概念并说明具体判断依据。"
+        }
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-2-3",
+        "start_char": 12152,
+        "end_char": 13023,
+        "text": "We also need to precisely define, or operationalize, how we measure learning of algebra. An operational definition is a precise description of our variables, and it is important in allowing others to understand exactly how and what a researcher measures in a particular experiment. In operationalizing learning, we might choose to look at performance on a test covering the material on which the individuals were taught by the teacher or the computer program. We might also ask our participants to summarize the information that was just presented in some way. Whatever we determine, it is important that we operationalize learning in such a way that anyone who hears about our study for the first time knows exactly what we mean by learning. This aids peoples’ ability to interpret our data as well as their capacity to repeat our experiment should they choose to do so.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "prerequisites": [],
+      "boundary": "研究设计、样本来源和测量限制决定推断范围；单个实例不证明普遍因果关系。",
+      "examples": {
+        "positive": {
+          "text": "虚构研究把睡眠时长定义为连续七天佩戴设备记录的每夜睡眠分钟数。",
+          "fictional": true
+        },
+        "counterexample": {
+          "text": "仅将课堂参与定义为“积极”，没有可观察指标、计数方式和时间范围。",
+          "fictional": true
+        }
+      },
+      "content_review_status": "PENDING"
+    },
+    {
+      "concept_id": "correlation",
+      "version": "0.1.0",
+      "terms": {
+        "zh-CN": {
+          "full": "相关",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Correlation",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "相関",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "상관관계",
+          "review_status": "PENDING"
+        }
+      },
+      "definition": "两个或多个变量之间的统计关联；这种关联本身不能单独确立因果关系，也不能确定因果方向。",
+      "source_refs": [
+        "openstax-psychology2e-2-3"
+      ],
+      "misconceptions": [
+        {
+          "misconception_id": "correlation-1",
+          "text": "认为相关足以证明一个变量导致另一个变量。",
+          "basis": "model_hypothesis",
+          "remediation": "区分统计关联和因果关系，考虑反向因果与共同影响因素。",
+          "retest_goal": "在新情境中说明结论及其边界。"
+        },
+        {
+          "misconception_id": "correlation-2",
+          "text": "认为只要存在相关就不可能有其他解释。",
+          "basis": "model_hypothesis",
+          "remediation": "相关可以由共同因素、反向因果或其他机制产生，应根据设计进一步判断。",
+          "retest_goal": "辨别概念并说明具体判断依据。"
+        }
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-2-3",
+        "start_char": 1118,
+        "end_char": 1695,
+        "text": "Correlation means that there is a relationship between two or more variables (such as ice cream consumption and crime), but this relationship does not necessarily imply cause and effect. When two variables are correlated, it simply means that as one variable changes, so does the other. We can measure correlation by calculating a statistic known as a correlation coefficient. A correlation coefficient is a number from -1 to +1 that indicates the strength and direction of the relationship between variables. The correlation coefficient is usually represented by the letter r.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "prerequisites": [],
+      "boundary": "研究设计、样本来源和测量限制决定推断范围；单个实例不证明普遍因果关系。",
+      "examples": {
+        "positive": {
+          "text": "虚构调查发现学习时间与成绩之间存在关联，但没有操纵学习时间或控制其他差异。",
+          "fictional": true
+        },
+        "counterexample": {
+          "text": "相关一定意味着学习时间导致成绩变化",
+          "fictional": true
+        }
+      },
+      "content_review_status": "PENDING"
+    },
+    {
+      "concept_id": "random-assignment",
+      "version": "0.1.0",
+      "terms": {
+        "zh-CN": {
+          "full": "随机分配",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Random assignment",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "ランダム割り当て",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "무선 할당",
+          "review_status": "PENDING"
+        }
+      },
+      "definition": "使用预先确定的随机机制，将已纳入的参与者分配到研究条件；各组分配概率可按设计相同或不同。",
+      "source_refs": [
+        "openstax-psychology2e-2-3"
+      ],
+      "misconceptions": [
+        {
+          "misconception_id": "random-assignment-1",
+          "text": "把随机分配已招募参与者误认为从目标人群随机抽样。",
+          "basis": "model_hypothesis",
+          "remediation": "随机抽样决定谁进入样本，随机分配决定样本中谁进入哪组；前者涉及代表性。",
+          "retest_goal": "在新情境中说明结论及其边界。"
+        },
+        {
+          "misconception_id": "random-assignment-2",
+          "text": "认为随机分配保证各组所有特征完全相同。",
+          "basis": "model_hypothesis",
+          "remediation": "随机分配降低系统性分配偏差，但有限样本可能仍存在组间差异。",
+          "retest_goal": "辨别概念并说明具体判断依据。"
+        }
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-2-3",
+        "start_char": 20439,
+        "end_char": 20845,
+        "text": "Now that we have a sample, the next step of the experimental process is to split the participants into experimental and control groups through random assignment. With random assignment, all participants have an equal chance of being assigned to either group. There is statistical software that will randomly assign each of the algebra students in the sample to either the experimental or the control group.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "prerequisites": [],
+      "boundary": "随机分配不等于从目标人群随机抽样，也不保证有限样本各组特征完全相同；本教材介绍等概率分配示例。",
+      "examples": {
+        "positive": {
+          "text": "虚构实验将已经招募的参与者通过随机机制分配到两种教学条件。",
+          "fictional": true
+        },
+        "counterexample": {
+          "text": "随机分配保证样本代表所有人群",
+          "fictional": true
+        }
+      },
+      "content_review_status": "PENDING"
+    },
+    {
+      "concept_id": "confounding-variable",
+      "version": "0.1.0",
+      "terms": {
+        "zh-CN": {
+          "full": "混淆变量",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Confounding variable",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "交絡変数",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "교란변인",
+          "review_status": "PENDING"
+        }
+      },
+      "definition": "在本课的暴露—结果框架中，可能先于暴露并同时影响暴露与结果的共同原因；仅凭与两者相关不能确认其角色。",
+      "source_refs": [
+        "openstax-psychology2e-2-3"
+      ],
+      "misconceptions": [
+        {
+          "misconception_id": "confounding-variable-1",
+          "text": "认为观察到关联就证明研究变量直接导致结果。",
+          "basis": "model_hypothesis",
+          "remediation": "检查可能同时影响暴露与结果的其他变量；关联本身不能单独确立因果。",
+          "retest_goal": "在新情境中说明结论及其边界。"
+        },
+        {
+          "misconception_id": "confounding-variable-2",
+          "text": "认为发现可能的混淆因素就证明原变量绝无作用。",
+          "basis": "model_hypothesis",
+          "remediation": "可能的混淆因素提供替代解释；它不能单独证明原变量没有作用，需要进一步研究或控制。",
+          "retest_goal": "辨别概念并说明具体判断依据。"
+        }
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-2-3",
+        "start_char": 4741,
+        "end_char": 5383,
+        "text": "Correlational research is useful because it allows us to discover the strength and direction of relationships that exist between two variables. However, correlation is limited because establishing the existence of a relationship tells us little about cause and effect. While variables are sometimes correlated because one does cause the other, it could also be that some other factor, a confounding variable, is actually causing the systematic movement in our variables of interest. In the ice cream/crime rate example mentioned earlier, temperature is a confounding variable that could account for the relationship between the two variables.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "prerequisites": [],
+      "boundary": "研究设计、样本来源和测量限制决定推断范围；单个实例不证明普遍因果关系。",
+      "examples": {
+        "positive": {
+          "text": "虚构观察发现冰淇淋销量与户外事故同时上升；天气炎热可能同时影响两者。",
+          "fictional": true
+        },
+        "counterexample": {
+          "text": "冰淇淋销量必然导致事故",
+          "fictional": true
+        }
+      },
+      "content_review_status": "PENDING"
+    }
+  ],
+  "assessments": [
+    {
+      "assessment_id": "operational-definition-diagnostic",
+      "concept_ref": "operational-definition",
+      "kind": "diagnostic",
+      "question": "虚构研究把睡眠时长定义为连续七天佩戴设备记录的每夜睡眠分钟数。 哪项判断最合适？",
+      "options": [
+        "操作性定义明确变量的具体测量方式",
+        "任何抽象词都已经是可重复测量的定义",
+        "给变量命名后无需说明何时如何计数"
+      ],
+      "answer": "操作性定义明确变量的具体测量方式",
+      "rationale": "对研究变量如何被测量或操作作出具体、可检验的描述。 本案例是虚构教学材料。",
+      "misconception_ref": "operational-definition-1",
+      "followup_ref": "operational-definition-retest",
+      "teacher_note": "错误仅用于追问，不据单次作答判定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "operational-definition-diagnostic-a",
+          "text": "操作性定义明确变量的具体测量方式",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "operational-definition-diagnostic-b",
+          "text": "任何抽象词都已经是可重复测量的定义",
+          "misconception_ref": "operational-definition-1",
+          "retest_goal_ref": "operational-definition-1"
+        },
+        {
+          "option_id": "operational-definition-diagnostic-c",
+          "text": "给变量命名后无需说明何时如何计数",
+          "misconception_ref": "operational-definition-2",
+          "retest_goal_ref": "operational-definition-2"
+        }
+      ]
+    },
+    {
+      "assessment_id": "operational-definition-retest",
+      "concept_ref": "operational-definition",
+      "kind": "retest",
+      "question": "设计一个新情境，明确“课堂参与”通过什么行为、何时和如何计数。",
+      "scoring_guidance": "对研究变量如何被测量或操作作出具体、可检验的描述。 应结合该新情境解释依据与范围，不补造观察。",
+      "review_status": "PENDING"
+    },
+    {
+      "assessment_id": "correlation-diagnostic",
+      "concept_ref": "correlation",
+      "kind": "diagnostic",
+      "question": "虚构调查发现学习时间与成绩之间存在关联，但没有操纵学习时间或控制其他差异。 哪项判断最合适？",
+      "options": [
+        "观察到关联，但仅凭该调查不能确定因果",
+        "相关一定意味着学习时间导致成绩变化",
+        "只要存在相关就不存在其他解释"
+      ],
+      "answer": "观察到关联，但仅凭该调查不能确定因果",
+      "rationale": "两个或多个变量之间的统计关联；这种关联本身不能单独确立因果关系，也不能确定因果方向。 本案例是虚构教学材料。",
+      "misconception_ref": "correlation-1",
+      "followup_ref": "correlation-retest",
+      "teacher_note": "错误仅用于追问，不据单次作答判定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "correlation-diagnostic-a",
+          "text": "观察到关联，但仅凭该调查不能确定因果",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "correlation-diagnostic-b",
+          "text": "相关一定意味着学习时间导致成绩变化",
+          "misconception_ref": "correlation-1",
+          "retest_goal_ref": "correlation-1"
+        },
+        {
+          "option_id": "correlation-diagnostic-c",
+          "text": "只要存在相关就不存在其他解释",
+          "misconception_ref": "correlation-2",
+          "retest_goal_ref": "correlation-2"
+        }
+      ]
+    },
+    {
+      "assessment_id": "correlation-retest",
+      "concept_ref": "correlation",
+      "kind": "retest",
+      "question": "新调查发现运动频率与睡眠质量相关。解释能得出的结论与至少一种其他解释。",
+      "scoring_guidance": "两个或多个变量之间的统计关联；这种关联本身不能单独确立因果关系，也不能确定因果方向。 应结合该新情境解释依据与范围，不补造观察。",
+      "review_status": "PENDING"
+    },
+    {
+      "assessment_id": "random-assignment-diagnostic",
+      "concept_ref": "random-assignment",
+      "kind": "diagnostic",
+      "question": "虚构实验将已经招募的参与者通过随机机制分配到两种教学条件。 哪项判断最合适？",
+      "options": [
+        "随机分配参与者到不同条件",
+        "随机分配保证样本代表所有人群",
+        "随机分配保证每一组所有特征完全相同"
+      ],
+      "answer": "随机分配参与者到不同条件",
+      "rationale": "使用预先确定的随机机制，将已纳入的参与者分配到研究条件；各组分配概率可按设计相同或不同。 本案例是虚构教学材料。",
+      "misconception_ref": "random-assignment-1",
+      "followup_ref": "random-assignment-retest",
+      "teacher_note": "错误仅用于追问，不据单次作答判定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "random-assignment-diagnostic-a",
+          "text": "随机分配参与者到不同条件",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "random-assignment-diagnostic-b",
+          "text": "随机分配保证样本代表所有人群",
+          "misconception_ref": "random-assignment-1",
+          "retest_goal_ref": "random-assignment-1"
+        },
+        {
+          "option_id": "random-assignment-diagnostic-c",
+          "text": "随机分配保证每一组所有特征完全相同",
+          "misconception_ref": "random-assignment-2",
+          "retest_goal_ref": "random-assignment-2"
+        }
+      ]
+    },
+    {
+      "assessment_id": "random-assignment-retest",
+      "concept_ref": "random-assignment",
+      "kind": "retest",
+      "question": "研究者已招募一批志愿者并以随机数分到两个干预组。说明它与随机抽样的不同。",
+      "scoring_guidance": "使用预先确定的随机机制，将已纳入的参与者分配到研究条件；各组分配概率可按设计相同或不同。 应结合该新情境解释依据与范围，不补造观察。",
+      "review_status": "PENDING"
+    },
+    {
+      "assessment_id": "confounding-variable-diagnostic",
+      "concept_ref": "confounding-variable",
+      "kind": "diagnostic",
+      "question": "虚构观察发现冰淇淋销量与户外事故同时上升；天气炎热可能同时影响两者。 哪项判断最合适？",
+      "options": [
+        "天气可能是混淆变量，需要进一步检验",
+        "冰淇淋销量必然导致事故",
+        "天气因素的存在证明销量绝不影响事故"
+      ],
+      "answer": "天气可能是混淆变量，需要进一步检验",
+      "rationale": "与所研究的暴露或自变量及结果均相关、可能为观察到的关系提供其他解释的变量。 本案例是虚构教学材料。",
+      "misconception_ref": "confounding-variable-1",
+      "followup_ref": "confounding-variable-retest",
+      "teacher_note": "错误仅用于追问，不据单次作答判定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "confounding-variable-diagnostic-a",
+          "text": "天气可能是混淆变量，需要进一步检验",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "confounding-variable-diagnostic-b",
+          "text": "冰淇淋销量必然导致事故",
+          "misconception_ref": "confounding-variable-1",
+          "retest_goal_ref": "confounding-variable-1"
+        },
+        {
+          "option_id": "confounding-variable-diagnostic-c",
+          "text": "天气因素的存在证明销量绝不影响事故",
+          "misconception_ref": "confounding-variable-2",
+          "retest_goal_ref": "confounding-variable-2"
+        }
+      ]
+    },
+    {
+      "assessment_id": "confounding-variable-retest",
+      "concept_ref": "confounding-variable",
+      "kind": "retest",
+      "question": "新研究比较两种班级教学法，班级原有基础不同。说明为什么原有基础可能影响解释及如何控制。",
+      "scoring_guidance": "与所研究的暴露或自变量及结果均相关、可能为观察到的关系提供其他解释的变量。 应结合该新情境解释依据与范围，不补造观察。",
+      "review_status": "PENDING"
+    },
+    {
+      "assessment_id": "correlation-application-1",
+      "concept_ref": "correlation",
+      "kind": "diagnostic",
+      "question": "一项虚构观察研究报告睡眠时长与测验得分相关，但未操纵睡眠或排除其他因素。哪项表述有证据支持？",
+      "options": [
+        "睡眠时长已被证明导致得分变化",
+        "既然相关，其他可能解释都已被排除",
+        "报告存在相关，但仅凭这些信息不能确认因果"
+      ],
+      "answer": "报告存在相关，但仅凭这些信息不能确认因果",
+      "rationale": "相关不单独确立因果，也不能排除其他解释。",
+      "misconception_ref": "correlation-1",
+      "followup_ref": "correlation-retest",
+      "teacher_note": "错答仅触发追问，不能据一次回答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "correlation-application-1-b",
+          "text": "睡眠时长已被证明导致得分变化",
+          "misconception_ref": "correlation-1",
+          "retest_goal_ref": "correlation-1"
+        },
+        {
+          "option_id": "correlation-application-1-c",
+          "text": "既然相关，其他可能解释都已被排除",
+          "misconception_ref": "correlation-2",
+          "retest_goal_ref": "correlation-2"
+        },
+        {
+          "option_id": "correlation-application-1-a",
+          "text": "报告存在相关，但仅凭这些信息不能确认因果",
+          "misconception_ref": null
+        }
+      ]
+    },
+    {
+      "assessment_id": "random-assignment-application-2",
+      "concept_ref": "random-assignment",
+      "kind": "diagnostic",
+      "question": "一项虚构研究通过自愿报名招募参与者，再用随机数把报名者分到两个条件。哪项判断最合适？",
+      "options": [
+        "随机分配保证两组基线的所有特征完全相同",
+        "参与者被随机分配；自愿报名不等于从目标人群随机抽样",
+        "随机分配说明报名者必然是目标人群的随机样本"
+      ],
+      "answer": "参与者被随机分配；自愿报名不等于从目标人群随机抽样",
+      "rationale": "招募方式决定进入样本，随机分配决定已招募者进入条件；有限样本的基线不保证完全平衡。",
+      "misconception_ref": "random-assignment-1",
+      "followup_ref": "random-assignment-retest",
+      "teacher_note": "错答仅触发追问，不能据一次回答认定稳定误解。",
+      "option_details": [
+        {
+          "option_id": "random-assignment-application-2-c",
+          "text": "随机分配保证两组基线的所有特征完全相同",
+          "misconception_ref": "random-assignment-2",
+          "retest_goal_ref": "random-assignment-2"
+        },
+        {
+          "option_id": "random-assignment-application-2-a",
+          "text": "参与者被随机分配；自愿报名不等于从目标人群随机抽样",
+          "misconception_ref": null
+        },
+        {
+          "option_id": "random-assignment-application-2-b",
+          "text": "随机分配说明报名者必然是目标人群的随机样本",
+          "misconception_ref": "random-assignment-1",
+          "retest_goal_ref": "random-assignment-1"
+        }
+      ]
+    }
+  ],
+  "terminology": [
+    {
+      "term_id": "operational-definition",
+      "definition": "对研究变量如何被测量或操作作出具体、可检验的描述。",
+      "learning_status": "neutral",
+      "terms": {
+        "zh-CN": {
+          "full": "操作性定义",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Operational definition",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "操作的定義",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "조작적 정의",
+          "review_status": "PENDING"
+        }
+      },
+      "source_refs": [
+        "openstax-psychology2e-2-3"
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-2-3",
+        "start_char": 12152,
+        "end_char": 13023,
+        "text": "We also need to precisely define, or operationalize, how we measure learning of algebra. An operational definition is a precise description of our variables, and it is important in allowing others to understand exactly how and what a researcher measures in a particular experiment. In operationalizing learning, we might choose to look at performance on a test covering the material on which the individuals were taught by the teacher or the computer program. We might also ask our participants to summarize the information that was just presented in some way. Whatever we determine, it is important that we operationalize learning in such a way that anyone who hears about our study for the first time knows exactly what we mean by learning. This aids peoples’ ability to interpret our data as well as their capacity to repeat our experiment should they choose to do so.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "auxiliary_abbreviations": []
+    },
+    {
+      "term_id": "correlation",
+      "definition": "两个或多个变量之间的统计关联；这种关联本身不能单独确立因果关系，也不能确定因果方向。",
+      "learning_status": "neutral",
+      "terms": {
+        "zh-CN": {
+          "full": "相关",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Correlation",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "相関",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "상관관계",
+          "review_status": "PENDING"
+        }
+      },
+      "source_refs": [
+        "openstax-psychology2e-2-3"
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-2-3",
+        "start_char": 1118,
+        "end_char": 1695,
+        "text": "Correlation means that there is a relationship between two or more variables (such as ice cream consumption and crime), but this relationship does not necessarily imply cause and effect. When two variables are correlated, it simply means that as one variable changes, so does the other. We can measure correlation by calculating a statistic known as a correlation coefficient. A correlation coefficient is a number from -1 to +1 that indicates the strength and direction of the relationship between variables. The correlation coefficient is usually represented by the letter r.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "auxiliary_abbreviations": []
+    },
+    {
+      "term_id": "random-assignment",
+      "definition": "使用预先确定的随机机制，将已纳入的参与者分配到研究条件；各组分配概率可按设计相同或不同。",
+      "learning_status": "neutral",
+      "terms": {
+        "zh-CN": {
+          "full": "随机分配",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Random assignment",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "ランダム割り当て",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "무선 할당",
+          "review_status": "PENDING"
+        }
+      },
+      "source_refs": [
+        "openstax-psychology2e-2-3"
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-2-3",
+        "start_char": 20439,
+        "end_char": 20845,
+        "text": "Now that we have a sample, the next step of the experimental process is to split the participants into experimental and control groups through random assignment. With random assignment, all participants have an equal chance of being assigned to either group. There is statistical software that will randomly assign each of the algebra students in the sample to either the experimental or the control group.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "auxiliary_abbreviations": []
+    },
+    {
+      "term_id": "confounding-variable",
+      "definition": "在本课的暴露—结果框架中，可能先于暴露并同时影响暴露与结果的共同原因；仅凭与两者相关不能确认其角色。",
+      "learning_status": "neutral",
+      "terms": {
+        "zh-CN": {
+          "full": "混淆变量",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Confounding variable",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "交絡変数",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "교란변인",
+          "review_status": "PENDING"
+        }
+      },
+      "source_refs": [
+        "openstax-psychology2e-2-3"
+      ],
+      "evidence_anchor": {
+        "source_ref": "openstax-psychology2e-2-3",
+        "start_char": 4741,
+        "end_char": 5383,
+        "text": "Correlational research is useful because it allows us to discover the strength and direction of relationships that exist between two variables. However, correlation is limited because establishing the existence of a relationship tells us little about cause and effect. While variables are sometimes correlated because one does cause the other, it could also be that some other factor, a confounding variable, is actually causing the systematic movement in our variables of interest. In the ice cream/crime rate example mentioned earlier, temperature is a confounding variable that could account for the relationship between the two variables.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "auxiliary_abbreviations": []
+    },
+    {
+      "term_id": "mediator",
+      "definition": "在假设的暴露或自变量影响结果的因果路径上，可能受暴露影响并进一步影响结果的中间变量；其角色和方向需要证据支持。",
+      "learning_status": "neutral",
+      "terms": {
+        "zh-CN": {
+          "full": "中介变量",
+          "review_status": "PENDING"
+        },
+        "en": {
+          "full": "Mediator variable",
+          "review_status": "PENDING"
+        },
+        "ja": {
+          "full": "媒介変数",
+          "review_status": "PENDING"
+        },
+        "ko": {
+          "full": "매개변인",
+          "review_status": "PENDING"
+        }
+      },
+      "source_refs": [
+        "kim-thoemmes-2026-mediation"
+      ],
+      "evidence_anchor": {
+        "source_ref": "kim-thoemmes-2026-mediation",
+        "start_char": 170,
+        "end_char": 452,
+        "text": "In mediation analysis, manipulating only the independent variable is not sufficient to identify the causal effect of interest, because the effect of the independent variable on the outcome consists not only of a direct effect, but also of an effect transmitted through the mediator.",
+        "verification_status": "LOCATED_ONLY"
+      },
+      "auxiliary_abbreviations": []
+    }
+  ]
+}

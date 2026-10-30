@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import shutil
 from pathlib import Path
 from typing import Any
@@ -123,7 +124,7 @@ def _output_dir(ctx: Any, mode: str) -> Path:
     base = Path(ctx.store.base_dir) / "outputs"
     if mode == "formal":
         return base / "staging" / str(ctx.changeset_id)
-    return base / "draft"
+    return base / "draft" / str(ctx.changeset_id)
 
 
 def _lesson_markdown(course: str, lesson: dict[str, Any], label: str | None) -> str:
@@ -171,22 +172,156 @@ def _lesson_markdown(course: str, lesson: dict[str, Any], label: str | None) -> 
     return "\n".join(lines)
 
 
+def _assessment_labels(worksheet: dict[str, Any]) -> dict[str, str]:
+    question_labels: dict[str, str] = {}
+    for task in worksheet.get('tasks', []):
+        for question in task.get('canonical_questions', []):
+            identifier = question['assessment_id']
+            if identifier not in question_labels:
+                question_labels[identifier] = f'主评价 {len(question_labels) + 1}'
+    return question_labels
+
+
+def _render_question_references(value: str, question_labels: dict[str, str]) -> str:
+    # Short identifiers such as "1" or "A" may be dates or answer options.
+    identifiers = [identifier for identifier in question_labels if len(identifier) >= 5 and '_' in identifier]
+    if not identifiers:
+        return value
+    pattern = '|'.join(re.escape(identifier) for identifier in sorted(identifiers, key=len, reverse=True))
+    return re.sub(r'(?<![A-Za-z0-9_/-])(?:' + pattern + r')(?![A-Za-z0-9_/-])',
+                  lambda match: question_labels[match.group()], value)
+
+
 def _worksheet_markdown(course: str, worksheet: dict[str, Any], *, include_answers: bool, label: str | None) -> str:
+    question_labels = _assessment_labels(worksheet)
+    def question_label(value: str) -> str:
+        return question_labels.get(value, value)
+
+    def task_prompt(value: str) -> str:
+        value = value.replace('系统插入的', '')
+        return _render_question_references(value, question_labels)
     suffix = "（教师版）" if include_answers else "（学生版）"
     lines = [f"# {course} — {worksheet.get('title', '')} 学习单{suffix}"]
     if label:
         lines.append(f"> **{label}**")
     lines.append("")
     lines.append(worksheet.get("instructions", ""))
+    case = worksheet.get('source_case') or {}
+    if case.get('text'):
+        heading = '## 本课案例（教学虚构）' if case.get('kind') == 'fictional' else '## 本课案例'
+        lines.extend(['', heading, '', case['text']])
+    if include_answers and worksheet.get('teacher_guidance'):
+        guidance = worksheet['teacher_guidance']
+        lines.extend(['', '## 评价使用说明', ''])
+        if isinstance(guidance, str):
+            lines.append(guidance)
+        else:
+            lines.append(guidance['administration'])
+            for rule in guidance.get('decision_rules', []):
+                lines.append(f"- {question_label(rule['assessment_ref'])}：{rule['trigger']} → {rule['action']}")
+            if guidance.get('interpretation_boundary'):
+                lines.append(guidance['interpretation_boundary'])
+    if worksheet.get('reference_terms'):
+        lines.extend(['', '## 术语参照', ''])
+        for entry in worksheet['reference_terms']:
+            lines.extend(['### ' + entry['term'], entry['definition']])
+            abbreviations = entry.get('auxiliary_abbreviations') or []
+            if abbreviations:
+                lines.append('辅助缩写：' + '、'.join(abbreviations))
+            lines.append('')
     for index, task in enumerate(worksheet.get("tasks", []), start=1):
         lines.append("")
-        lines.append(f"## 任务 {index}：{task.get('prompt', '')}")
-        if task.get("fields"):
-            lines.append("| " + " | ".join(task["fields"]) + " |")
-            lines.append("|" + "---|" * len(task["fields"]))
-            lines.append("|" + "  |" * len(task["fields"]))
+        lines.append(f"## 任务 {index}：{task_prompt(task.get('prompt', ''))}")
+        for question in task.get('canonical_questions', []):
+            lines.extend(['', f"### {question_label(question['assessment_id'])}", question['question'], ''])
+            lines.extend(question.get('options') or [])
+            lines.append('')
+            if include_answers:
+                lines.append('**答案：** ' + question['answer'])
+                lines.append('**解析：** ' + question.get('rationale', ''))
+                verification = question.get('answer_verification')
+                if isinstance(verification, str) and verification.strip():
+                    lines.append('**评分与核验：** ' + verification)
+                scoring = question.get('scoring')
+                if isinstance(scoring, dict):
+                    total = scoring.get('total_points', question.get('max_score'))
+                    heading = f'**评分细则（满分 {total} 分）：**' if isinstance(total, (int, float)) else '**评分细则：**'
+                    criteria = scoring.get('criteria')
+                    if isinstance(criteria, list):
+                        lines.append(heading)
+                        for criterion in criteria:
+                            if not isinstance(criterion, dict) or not isinstance(criterion.get('criterion'), str):
+                                continue
+                            points = criterion.get('points')
+                            label = f"（{points} 分）" if isinstance(points, (int, float)) else ''
+                            partial = criterion.get('partial_credit')
+                            suffix = f'；部分得分：{partial}' if isinstance(partial, str) and partial else ''
+                            lines.append(f"- {criterion['criterion']}{label}{suffix}")
+                if question.get('remediation'):
+                    remediation = question['remediation']
+                    if isinstance(remediation, dict):
+                        lines.append('**补救：**')
+                        lines.extend(f'- {key}：{value}' for key, value in remediation.items())
+                    else:
+                        lines.append('**补救：** ' + str(remediation))
+                retest = question.get('retest_question')
+                if isinstance(retest, dict):
+                    lines.append('**复测：** ' + str(retest.get('question', '')))
+                    lines.extend(retest.get('options') or [])
+                    lines.append('**复测答案：** ' + str(retest.get('answer', '')))
+                    if retest.get('rationale'):
+                        lines.append('**复测解析：** ' + retest['rationale'])
+            else:
+                if task.get('kind') == 'record_table' and not task.get('fields'):
+                    # Canonical assessment tasks may have their generated
+                    # answer-bearing table removed; preserve blank space when
+                    # the prompt still asks the learner to use a record table.
+                    lines.extend(['| 作答要点 | 记录 |', '|---|---|'])
+                    lines.extend('|  |  |' for _ in range(6))
+                else:
+                    lines.append('作答：________________')
+        fields = list(task.get('fields') or [])
+        answer = task.get('answer')
+        if task.get('row_labels') and fields and isinstance(answer, (dict, list)):
+            answer_rows = list(answer.values()) if isinstance(answer, dict) else answer
+            answer_columns = {key for row in answer_rows if isinstance(row, dict) for key in row if key != 'row_label'}
+            # Some generators supply only data columns and omit the row-label heading.
+            if fields[0] in answer_columns:
+                fields.insert(0, '条目')
+        if fields:
+            lines.append("| " + " | ".join(fields) + " |")
+            lines.append("|" + "---|" * len(fields))
+            if task.get('row_labels'):
+                for row_label in task['row_labels']:
+                    lines.append('| ' + question_label(row_label) + ' |' + '  |' * (len(fields) - 1))
+            else:
+                # Answer rows can establish how much writing space is needed,
+                # without exposing their labels or values to the student.
+                answer_rows = list(answer.values()) if isinstance(answer, dict) else answer
+                blank_rows = len(answer_rows) if isinstance(answer_rows, list) and all(isinstance(row, dict) for row in answer_rows) else 1
+                lines.extend("|" + "  |" * len(fields) for _ in range(max(1, blank_rows)))
         if include_answers and task.get("answer"):
-            lines.append(f"**答案：** {task['answer']}")
+            answer = task['answer']
+            if isinstance(answer, dict) and all(isinstance(value, str) for value in answer.values()):
+                lines.append('**答案：**')
+                lines.extend(f'- {question_label(key)}：{value}' for key, value in answer.items())
+            elif isinstance(answer, (dict, list)):
+                rows = list(answer.items()) if isinstance(answer, dict) else [
+                    (row['row_label'], {key: value for key, value in row.items() if key != 'row_label'})
+                    for row in answer
+                ]
+                answer_columns = [column for _, row in rows for column in row]
+                has_data_first = bool(fields and fields[0] in answer_columns)
+                columns = list(dict.fromkeys((fields if has_data_first else fields[1:]) + answer_columns))
+                def cell(value: str) -> str:
+                    return value.replace('|', '\\|').replace('\n', '<br>')
+                row_heading = '条目' if has_data_first else (fields[0] if fields else '条目')
+                lines.extend(['**答案：**', '', '| ' + cell(row_heading) + ' | ' + ' | '.join(map(cell, columns)) + ' |',
+                              '|' + '---|' * (len(columns) + 1)])
+                for stage, row in rows:
+                    lines.append('| ' + cell(question_label(stage)) + ' | ' + ' | '.join(cell(row.get(column, '')) for column in columns) + ' |')
+            else:
+                lines.append(f"**答案：** {answer}")
             if task.get("answer_notes"):
                 lines.append(f"**解析：** {task['answer_notes']}")
     if worksheet.get("reflection_questions"):
@@ -202,14 +337,40 @@ def _worksheet_markdown(course: str, worksheet: dict[str, Any], *, include_answe
 
 def _write_text_docx(path: Path, title: str, lines: list[str]) -> None:
     import docx
+    from docx.enum.table import WD_ROW_HEIGHT_RULE
+    from docx.shared import Cm
 
     document = docx.Document()
     _set_cjk_font(document)
     document.add_heading(title, level=1)
-    for line in lines:
-        text = line.strip()
+    index = 0
+    while index < len(lines):
+        text = lines[index].strip()
+        if text.startswith('|') and text.endswith('|'):
+            rows: list[list[str]] = []
+            while index < len(lines):
+                row = lines[index].strip()
+                if not (row.startswith('|') and row.endswith('|')):
+                    break
+                cells = [cell.strip() for cell in row[1:-1].split('|')]
+                if not all(re.fullmatch(r':?-{3,}:?', cell) for cell in cells):
+                    rows.append(cells)
+                index += 1
+            if rows:
+                width = max(len(row) for row in rows)
+                table = document.add_table(rows=len(rows), cols=width)
+                table.style = 'Table Grid'
+                for row_index, cells in enumerate(rows):
+                    for column_index, cell in enumerate(cells):
+                        table.cell(row_index, column_index).text = cell
+                    if row_index and not any(cells[1:]):
+                        table.rows[row_index].height = Cm(0.7)
+                        table.rows[row_index].height_rule = WD_ROW_HEIGHT_RULE.AT_LEAST
+            continue
+        index += 1
         if not text:
             continue
+        text = re.sub(r'\*\*(.*?)\*\*', r'\1', text.removeprefix('> ').strip())
         if text.startswith("#"):
             level = min(len(text) - len(text.lstrip("#")), 3)
             document.add_heading(text.lstrip("# ").strip(), level=level)
@@ -235,6 +396,14 @@ def write_exports(ctx: Any, *, mode: str, gate_ctx: gates.GateContext, note: str
     for section in sections:
         artifact_id = f"script:{section['section_id']}"
         script = ctx.content(artifact_id) or {}
+        worksheet = ctx.content(f"worksheet:{section['section_id']}") or {}
+        question_labels = _assessment_labels(worksheet)
+        # Keep the stored revision intact; neutralize long question references
+        # only in the learner-facing text used for the two script exports.
+        script = {**script, 'units': [
+            {**unit, 'text': _render_question_references(unit.get('text', ''), question_labels)}
+            for unit in script.get('units', [])
+        ]}
         rev_id = ctx.rev(artifact_id) or "r0"
         version = rev_id.split("@")[-1] if "@" in rev_id else rev_id
         stem = f"{_safe(course)}_{section['section_id']}.{version}"
@@ -271,19 +440,40 @@ def write_exports(ctx: Any, *, mode: str, gate_ctx: gates.GateContext, note: str
             }
         )
 
-        def _add_media(source_path: str, kind: str, role: str) -> None:
+        def _add_media(source_path: str, kind: str, role: str, expected_hash: str | None = None) -> None:
             source = Path(source_path)
+            raw = None
+            if kind == 'svg':
+                from . import media
+
+                diagram_root = (Path(ctx.store.base_dir) / 'media' / 'diagrams').resolve()
+                if not source.resolve().is_relative_to(diagram_root) or not expected_hash:
+                    raise ValueError('图示路径或修订哈希无效，无法导出')
+                try:
+                    with source.open('rb') as stream:
+                        raw = stream.read(media.MAX_SVG_BYTES + 1)
+                    svg = raw.decode('utf-8')
+                except (OSError, UnicodeError) as exc:
+                    raise ValueError('无法读取图示修订文件，无法导出') from exc
+                if len(raw) > media.MAX_SVG_BYTES:
+                    raise ValueError('图示文件过大，无法导出')
+                normalized = svg.replace('\r\n', '\n').replace('\r', '\n')
+                if (media.svg_sha256(svg) != expected_hash and media.svg_sha256(normalized) != expected_hash) or media.validate_svg(svg):
+                    raise ValueError('图示内容与修订哈希不一致或 SVG 无效，无法导出')
             if not source.exists():
                 return
             target = output_dir / f"{_safe(course)}_{section['section_id']}_{source.name}"
-            shutil.copyfile(source, target)
+            if raw is not None:
+                target.write_bytes(raw)
+            else:
+                shutil.copyfile(source, target)
             files.append(
                 {"path": str(target), "kind": kind, "sha256": file_hash(target), "label": label, "role": role}
             )
 
         diagrams_doc = ctx.content(f"diagrams:{section['section_id']}") or {}
         for diagram in diagrams_doc.get("diagrams", []):
-            _add_media(str(diagram.get("svg_path", "")), "svg", "diagram")
+            _add_media(str(diagram.get("svg_path", "")), "svg", "diagram", diagram.get('svg_sha256'))
         storyboard_doc = ctx.content(f"storyboard:{section['section_id']}") or {}
         if storyboard_doc.get("shots"):
             media_base = Path(ctx.store.base_dir) / "media"
@@ -308,7 +498,6 @@ def write_exports(ctx: Any, *, mode: str, gate_ctx: gates.GateContext, note: str
             files.append(
                 {"path": str(lesson_docx), "kind": "docx", "sha256": file_hash(lesson_docx), "label": label, "role": "lesson_plan"}
             )
-        worksheet = ctx.content(f"worksheet:{section['section_id']}") or {}
         if worksheet:
             student_path = output_dir / f"{stem}.worksheet.student.md"
             student_path.write_text(

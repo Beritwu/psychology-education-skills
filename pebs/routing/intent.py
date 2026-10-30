@@ -23,8 +23,8 @@ DELIVERY_HINTS: list[tuple[str, list[str]]] = [
     ("document_only", ["只要文档", "仅文档", "文档即可", "不需要上课", "只出文档"]),
 ]
 
-NO_ANIMATION_PATTERNS = [r"不(要|需要|含|用)?动画", r"无动画", r"不需要\s*动画", r"不要\s*动画"]
-NO_PPT_PATTERNS = [r"不(要|需要|用)?\s*ppt", r"不需要\s*ppt", r"不含\s*ppt", r"不要\s*幻灯片"]
+NO_ANIMATION_PATTERNS = [r"(?:不(?:要|需要|必)?|无需)\s*(?:(?:使用|用|生成|制作|添加|启用|加)\s*)?动画", r"不(?:要|需要|用|必)?\s*(?:生成|制作|添加|启用)\s*动画", r"不(要|需要|含|用)?动画", r"无动画", r"不需要\s*动画", r"不要\s*动画", r"\b(?:no|without)\s+animations?\b"]
+NO_PPT_PATTERNS = [r"(?:不(?:要|需要|必)?|无需)\s*(?:(?:使用|用|生成|制作|添加|启用|加)\s*)?(?:pptx?|幻灯片|演示文稿)", r"不(?:要|需要|用|必)?\s*(?:生成|制作|添加|启用)\s*(?:ppt|幻灯片|演示文稿)", r"不(要|需要|用)?\s*ppt", r"不需要\s*ppt", r"不含\s*ppt", r"不要\s*幻灯片", r"\b(?:no|without)\s+(?:ppt|powerpoint|slides?)\b"]
 NO_SCRIPT_PATTERNS = [r"不需要\s*(录课)?\s*脚本", r"不要\s*(录课)?\s*脚本", r"不含\s*脚本", r"不用\s*(录课)?\s*脚本"]
 NEEDS_PPT_PATTERNS = [r"(需要|生成|做|产出|输出)\s*ppt", r"幻灯片", r"演示文稿"]
 CASE_PATTERN = re.compile(r"至少\s*(\d+)\s*个案例|包含案例|每个?案例|有案例")
